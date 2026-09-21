@@ -1,0 +1,1564 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inspire 3D — pré-visualização da Home</title>
+<style>
+/* preflight mínimo (QA) */
+*,*::before,*::after{box-sizing:border-box;border:0 solid;}
+html,body,h1,h2,h3,h4,p,ul,ol,dl,dd,figure,blockquote{margin:0;padding:0}
+ul,ol{list-style:none}
+img,svg,video{display:block;max-width:100%}
+button,input,textarea,select{font:inherit;color:inherit;background:none;border:0}
+a{color:inherit;text-decoration:none}
+summary{display:block}
+
+/* ══════════════════════════════════════════════════════════════════════
+   INSPIRE 3D — DESIGN SYSTEM
+   Preto · Grafite · Prata · Dourado
+   Tokens expostos ao Tailwind v4 via @theme (viram utilitários:
+   bg-void, text-gold, border-line, font-display, text-hero, etc.)
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Cores: base escura ───────────────────────────────────────────── */
+  --color-void: #08090b; /* fundo principal          */
+  --color-graphite: #111317; /* fundo secundário         */
+  --color-carbon: #16191e; /* cards                    */
+  --color-steel: #1d2127; /* superfície elevada       */
+
+  /* ── Cores: metais ────────────────────────────────────────────────── */
+  --color-gold: #d4a437; /* dourado principal        */
+  --color-gold-lum: #f0c75e; /* dourado luminoso         */
+  --color-gold-deep: #8a6a1e; /* dourado sombra           */
+  --color-silver: #b7bbc2; /* prata                    */
+
+  /* ── Cores: texto ─────────────────────────────────────────────────── */
+  --color-chalk: #f5f5f5; /* branco                   */
+  --color-ash: #8a8f98; /* cinza de apoio           */
+
+  /* ── Linhas e véus ────────────────────────────────────────────────── */
+  --color-line: rgb(183 187 194 / 0.12);
+  --color-line-strong: rgb(183 187 194 / 0.2);
+  --color-gold-veil: rgb(212 164 55 / 0.14);
+  --color-gold-line: rgb(212 164 55 / 0.32);
+
+  /* ── Tipografia ───────────────────────────────────────────────────── */
+  --font-display: var(--font-space-grotesk), "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "DejaVu Sans Mono", monospace;
+
+  --text-hero: clamp(2.4rem, 5vw, 4.5rem);
+  --text-hero--line-height: 1;
+  --text-hero--letter-spacing: -0.035em;
+
+  --text-display: clamp(2rem, 3.9vw, 3.25rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.03em;
+
+  --text-title: clamp(1.6rem, 2.6vw, 2.35rem);
+  --text-title--line-height: 1.12;
+  --text-title--letter-spacing: -0.02em;
+
+  --text-lead: clamp(1.02rem, 1.25vw, 1.22rem);
+  --text-lead--line-height: 1.6;
+
+  /* ── Raios ────────────────────────────────────────────────────────── */
+  --radius-card: 14px;
+  --radius-panel: 20px;
+
+  /* ── Sombras / brilhos ────────────────────────────────────────────── */
+  --shadow-panel: 0 30px 80px -40px rgb(0 0 0 / 0.9);
+  --shadow-gold: 0 0 0 1px rgb(212 164 55 / 0.35), 0 18px 50px -22px rgb(212 164 55 / 0.45);
+
+  /* ── Ritmo / medidas ──────────────────────────────────────────────── */
+  --spacing-section: clamp(4.5rem, 7.5vw, 7.5rem);
+  --container-shell: 1240px;
+
+  /* ── Curvas de animação ───────────────────────────────────────────── */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   BASE
+   ══════════════════════════════════════════════════════════════════════ */
+
+@media all {
+  * {
+    border-color: var(--color-line);
+    min-width: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-chalk);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv01";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--color-gold);
+    color: #08090b;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Scrollbar técnica */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0b0c0f;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #24282f;
+    border-radius: 99px;
+    border: 2px solid #0b0c0f;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gold-deep);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   COMPONENTES DO SISTEMA
+   ══════════════════════════════════════════════════════════════════════ */
+
+@media all {
+  /* ── Shell / container ──────────────────────────────────────────── */
+  .shell {
+    width: 100%;
+    max-width: var(--container-shell);
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .shell {
+      padding-inline: 2rem;
+    }
+  }
+  @media (min-width: 1280px) {
+    .shell {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  /* ── Trilho horizontal alinhado ao shell ────────────────────────── */
+  .rail-pad {
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .rail-pad {
+      padding-inline: 2rem;
+    }
+  }
+  @media (min-width: 1320px) {
+    .rail-pad {
+      padding-inline: max(2.5rem, calc((100vw - var(--container-shell)) / 2 + 2.5rem));
+    }
+  }
+
+  /* ── Eyebrow / rótulo técnico ───────────────────────────────────── */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 1.6rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-gold));
+    flex: none;
+  }
+  .eyebrow--silver {
+    color: var(--color-silver);
+  }
+  .eyebrow--silver::before {
+    background: linear-gradient(90deg, transparent, var(--color-line-strong));
+  }
+
+  /* ── Texto em dourado metálico ──────────────────────────────────── */
+  .gold-text {
+    background: linear-gradient(
+      96deg,
+      #c79a31 0%,
+      var(--color-gold-lum) 26%,
+      #fff3d2 44%,
+      #efc65c 62%,
+      #cfa23a 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .silver-text {
+    background: linear-gradient(180deg, #ffffff 0%, #cfd3d9 50%, #a2a7af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ── Hairlines ──────────────────────────────────────────────────── */
+  .rule {
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-line-strong) 18%,
+      var(--color-line-strong) 82%,
+      transparent
+    );
+  }
+  .rule--gold {
+    background: linear-gradient(90deg, transparent, var(--color-gold-line) 50%, transparent);
+  }
+
+  /* ── Grid técnico de fundo ──────────────────────────────────────── */
+  .grid-backdrop {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, rgb(183 187 194 / 0.055) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(183 187 194 / 0.055) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 20%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 20%, transparent 78%);
+  }
+  .grid-backdrop--fine {
+    background-size: 28px 28px;
+    background-image:
+      linear-gradient(to right, rgb(183 187 194 / 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(183 187 194 / 0.04) 1px, transparent 1px);
+  }
+
+  /* ── Grão de filme ──────────────────────────────────────────────── */
+  .noise {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ── Halo dourado ───────────────────────────────────────────────── */
+  .halo {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 9999px;
+    filter: blur(70px);
+    background: radial-gradient(circle, rgb(212 164 55 / 0.22) 0%, transparent 68%);
+  }
+
+  /* ── Cards ──────────────────────────────────────────────────────── */
+  .card {
+    position: relative;
+    border-radius: var(--radius-card);
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 0.035) 0%, transparent 42%),
+      var(--color-carbon);
+    border: 1px solid var(--color-line);
+    overflow: hidden;
+    transition:
+      border-color 0.45s var(--ease-out-expo),
+      transform 0.45s var(--ease-out-expo),
+      background-color 0.45s var(--ease-out-expo);
+  }
+  .card::after {
+    /* filete superior metálico */
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.16), transparent);
+  }
+  .card--hover:hover {
+    border-color: var(--color-gold-line);
+    transform: translateY(-4px);
+  }
+  .card--hover:hover .card__glow {
+    opacity: 1;
+  }
+  .card__glow {
+    position: absolute;
+    inset: -1px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s var(--ease-out-expo);
+    background: radial-gradient(420px circle at 50% 0%, rgb(212 164 55 / 0.13), transparent 68%);
+  }
+
+  /* Painel maior (áreas de destaque) */
+  .panel {
+    position: relative;
+    border-radius: var(--radius-panel);
+    border: 1px solid var(--color-line);
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 0.04) 0%, transparent 30%),
+      linear-gradient(180deg, var(--color-graphite), var(--color-void));
+    box-shadow: var(--shadow-panel);
+    overflow: hidden;
+  }
+
+  /* ── Botões ─────────────────────────────────────────────────────── */
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    height: 3rem;
+    padding-inline: 1.5rem;
+    border-radius: 9999px;
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      transform 0.35s var(--ease-out-expo),
+      box-shadow 0.35s var(--ease-out-expo),
+      background-color 0.35s var(--ease-out-expo),
+      border-color 0.35s var(--ease-out-expo),
+      color 0.35s var(--ease-out-expo);
+  }
+  .btn:active {
+    transform: translateY(1px);
+  }
+
+  .btn--gold {
+    color: #0a0a0a;
+    background: linear-gradient(135deg, var(--color-gold-lum) 0%, var(--color-gold) 52%, #a97f22 100%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.4),
+      0 14px 34px -18px rgb(212 164 55 / 0.85);
+  }
+  .btn--gold:hover {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.55),
+      0 20px 44px -16px rgb(212 164 55 / 0.95);
+    transform: translateY(-2px);
+  }
+
+  .btn--outline {
+    color: var(--color-chalk);
+    background: rgb(255 255 255 / 0.02);
+    border: 1px solid var(--color-line-strong);
+    backdrop-filter: blur(6px);
+  }
+  .btn--outline:hover {
+    border-color: var(--color-gold-line);
+    color: var(--color-gold-lum);
+    background: rgb(212 164 55 / 0.06);
+    transform: translateY(-2px);
+  }
+
+  .btn--ghost {
+    color: var(--color-silver);
+    background: transparent;
+    padding-inline: 0.25rem;
+    height: auto;
+  }
+  .btn--ghost:hover {
+    color: var(--color-gold-lum);
+  }
+
+  .btn--sm {
+    height: 2.5rem;
+    padding-inline: 1.1rem;
+    font-size: 0.875rem;
+  }
+  .btn--lg {
+    height: 3.4rem;
+    padding-inline: 2rem;
+    font-size: 1rem;
+  }
+
+  /* ── Chip / badge ───────────────────────────────────────────────── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.34rem 0.7rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-line);
+    background: rgb(255 255 255 / 0.025);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    color: var(--color-silver);
+    white-space: nowrap;
+  }
+  .chip--gold {
+    border-color: var(--color-gold-line);
+    background: rgb(212 164 55 / 0.08);
+    color: var(--color-gold-lum);
+  }
+
+  /* ── Número de índice (bento / processo) ────────────────────────── */
+  .index-num {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    color: var(--color-ash);
+  }
+
+  /* ── Scanline de fabricação ─────────────────────────────────────── */
+  .scanline {
+    position: absolute;
+    inset-inline: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-gold-lum) 35%,
+      #fff6dd 50%,
+      var(--color-gold-lum) 65%,
+      transparent
+    );
+    box-shadow: 0 0 14px 1px rgb(240 199 94 / 0.55);
+  }
+
+  /* ── Cabeçote de impressão (hero) ───────────────────────────────── */
+  .printhead {
+    animation: printhead 5.5s var(--ease-in-out-soft) infinite;
+  }
+
+  /* ── Revelação em scroll ────────────────────────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition:
+      opacity 0.9s var(--ease-out-expo),
+      transform 0.9s var(--ease-out-expo);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── Marquee técnico ────────────────────────────────────────────── */
+  .marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 42s linear infinite;
+  }
+  .marquee-mask {
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  /* ── Link com sublinhado que cresce ─────────────────────────────── */
+  .link-underline {
+    position: relative;
+  }
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.45s var(--ease-out-expo);
+  }
+  .link-underline:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   KEYFRAMES
+   ══════════════════════════════════════════════════════════════════════ */
+
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes printhead {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(var(--travel, 260px));
+    opacity: 0;
+  }
+}
+
+@keyframes layer-in {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -240;
+  }
+}
+
+@keyframes caret {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 7s var(--ease-in-out-soft) infinite;
+}
+
+.animate-caret {
+  animation: caret 1.1s steps(1) infinite;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ACESSIBILIDADE — movimento reduzido
+   ══════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* utilitários gerados */
+.-bottom-12{bottom:-3rem}
+.-left-40{left:-10rem}
+.-mx-4{margin-inline:-1rem}
+.-right-20{right:-5rem}
+.-right-24{right:-6rem}
+.-rotate-45{transform:rotate(-45deg)}
+.-top-20{top:-5rem}
+.-translate-x-1\/2{transform:translateX(-50%)}
+.-translate-y-1{transform:translateY(-0.25rem)}
+.-translate-y-1\/2{transform:translateY(-50%)}
+.-z-10{z-index:-10}
+.\[scrollbar-width\:thin\]{scrollbar-width:thin}
+.absolute{position:absolute}
+.aspect-16\/9{aspect-ratio:16/9}
+.aspect-4\/3{aspect-ratio:4/3}
+.backdrop-blur-xl{backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.bg-\[radial-gradient\(100\%_80\%_at_50\%_20\%\,\#15181E_0\%\,\#08090B_60\%\)\]{background-image:radial-gradient(100% 80% at 50% 20%,#15181E 0%,#08090B 60%)}
+.bg-\[radial-gradient\(110\%_80\%_at_60\%_0\%\,\#15181E_0\%\,\#08090B_60\%\)\]{background-image:radial-gradient(110% 80% at 60% 0%,#15181E 0%,#08090B 60%)}
+.bg-\[radial-gradient\(120\%_85\%_at_78\%_18\%\,\#15181E_0\%\,\#08090B_58\%\)\]{background-image:radial-gradient(120% 85% at 78% 18%,#15181E 0%,#08090B 58%)}
+.bg-\[radial-gradient\(90\%_120\%_at_50\%_120\%\,\#1A1D23_0\%\,\#08090B_60\%\)\]{background-image:radial-gradient(90% 120% at 50% 120%,#1A1D23 0%,#08090B 60%)}
+.bg-carbon{background-color:var(--color-carbon)}
+.bg-current{background-color:currentColor}
+.bg-gold{background-color:var(--color-gold)}
+.bg-gold\/60{background-color:color-mix(in srgb, var(--color-gold) 60%, transparent)}
+.bg-gold\/70{background-color:color-mix(in srgb, var(--color-gold) 70%, transparent)}
+.bg-gold\/\[0\.05\]{background-color:color-mix(in srgb, var(--color-gold) 5%, transparent)}
+.bg-gold\/\[0\.06\]{background-color:color-mix(in srgb, var(--color-gold) 6%, transparent)}
+.bg-graphite\/40{background-color:color-mix(in srgb, var(--color-graphite) 40%, transparent)}
+.bg-graphite\/60{background-color:color-mix(in srgb, var(--color-graphite) 60%, transparent)}
+.bg-line{background-color:var(--color-line)}
+.bg-line-strong{background-color:var(--color-line-strong)}
+.bg-silver\/20{background-color:color-mix(in srgb, var(--color-silver) 20%, transparent)}
+.bg-silver\/40{background-color:color-mix(in srgb, var(--color-silver) 40%, transparent)}
+.bg-void{background-color:var(--color-void)}
+.bg-void\/60{background-color:color-mix(in srgb, var(--color-void) 60%, transparent)}
+.bg-void\/85{background-color:color-mix(in srgb, var(--color-void) 85%, transparent)}
+.bg-void\/95{background-color:color-mix(in srgb, var(--color-void) 95%, transparent)}
+.bg-white\/5{background-color:color-mix(in srgb, #ffffff 5%, transparent)}
+.bg-white\/\[0\.02\]{background-color:color-mix(in srgb, #ffffff 2%, transparent)}
+.bg-white\/\[0\.03\]{background-color:color-mix(in srgb, #ffffff 3%, transparent)}
+.block{display:block}
+.border{border-width:1px}
+.border-b{border-bottom-width:1px}
+.border-gold-line{border-color:var(--color-gold-line)}
+.border-gold-line\/50{border-color:color-mix(in srgb, var(--color-gold-line) 50%, transparent)}
+.border-l{border-left-width:1px}
+.border-line{border-color:var(--color-line)}
+.border-t{border-top-width:1px}
+.border-transparent{border-color:transparent}
+.border-y{border-block-width:1px}
+.bottom-0{bottom:0rem}
+.cursor-pointer{cursor:pointer}
+.divide-line > * + *{border-color:var(--color-line)}
+.divide-y > * + *{border-top-width:1px}
+.duration-300{transition-duration:300ms}
+.duration-500{transition-duration:500ms}
+.fixed{position:fixed}
+.flex{display:flex}
+.flex-1{flex:1 1 0%}
+.flex-col{flex-direction:column}
+.flex-none{flex:none}
+.flex-wrap{flex-wrap:wrap}
+.font-display{font-family:var(--font-display)}
+.font-medium{font-weight:500}
+.font-mono{font-family:var(--font-mono)}
+.font-semibold{font-weight:600}
+.gap-0\.5{gap:0.125rem}
+.gap-1{gap:0.25rem}
+.gap-10{gap:2.5rem}
+.gap-12{gap:3rem}
+.gap-14{gap:3.5rem}
+.gap-2{gap:0.5rem}
+.gap-2\.5{gap:0.625rem}
+.gap-3{gap:0.75rem}
+.gap-4{gap:1rem}
+.gap-5{gap:1.25rem}
+.gap-6{gap:1.5rem}
+.gap-8{gap:2rem}
+.gap-px{gap:1px}
+.gap-x-3{column-gap:0.75rem}
+.gap-x-5{column-gap:1.25rem}
+.gap-x-6{column-gap:1.5rem}
+.gap-y-1\.5{row-gap:0.375rem}
+.gap-y-2{row-gap:0.5rem}
+.gap-y-3{row-gap:0.75rem}
+.gap-y-5{row-gap:1.25rem}
+.gap-y-6{row-gap:1.5rem}
+.grid{display:grid}
+.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}
+.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid-rows-\[0fr\]{grid-template-rows:0fr}
+.grid-rows-\[1fr\]{grid-template-rows:1fr}
+.h-14{height:3.5rem}
+.h-2{height:0.5rem}
+.h-24{height:6rem}
+.h-3{height:0.75rem}
+.h-4{height:1rem}
+.h-40{height:10rem}
+.h-\[68px\]{height:68px}
+.h-full{height:100%}
+.h-px{height:1px}
+.hidden{display:none}
+.inline-block{display:inline-block}
+.inline-flex{display:inline-flex}
+.inset-0{inset:0}
+.inset-x-0{left:0;right:0}
+.isolate{isolation:isolate}
+.items-baseline{align-items:baseline}
+.items-center{align-items:center}
+.items-end{align-items:flex-end}
+.items-start{align-items:flex-start}
+.justify-between{justify-content:space-between}
+.justify-center{justify-content:center}
+.justify-end{justify-content:flex-end}
+.leading-relaxed{line-height:1.625}
+.leading-snug{line-height:1.375}
+.leading-tight{line-height:1.25}
+.left-0{left:0rem}
+.left-1\/2{left:50%}
+.left-4{left:1rem}
+.left-8{left:2rem}
+.list-none{list-style:none}
+.max-w-2xl{max-width:42rem}
+.max-w-3xl{max-width:48rem}
+.max-w-4xl{max-width:56rem}
+.max-w-\[440px\]{max-width:440px}
+.max-w-\[85\%\]{max-width:85%}
+.max-w-\[92\%\]{max-width:92%}
+.max-w-lg{max-width:32rem}
+.max-w-md{max-width:28rem}
+.max-w-sm{max-width:24rem}
+.max-w-xl{max-width:36rem}
+.min-h-0{min-height:0}
+.min-h-\[150px\]{min-height:150px}
+.min-h-svh{min-height:100svh}
+.ml-1{margin-left:0.25rem}
+.ml-auto{margin-left:auto}
+.mt-1{margin-top:0.25rem}
+.mt-1\.5{margin-top:0.375rem}
+.mt-10{margin-top:2.5rem}
+.mt-11{margin-top:2.75rem}
+.mt-12{margin-top:3rem}
+.mt-14{margin-top:3.5rem}
+.mt-16{margin-top:4rem}
+.mt-2{margin-top:0.5rem}
+.mt-2\.5{margin-top:0.625rem}
+.mt-3{margin-top:0.75rem}
+.mt-4{margin-top:1rem}
+.mt-5{margin-top:1.25rem}
+.mt-6{margin-top:1.5rem}
+.mt-7{margin-top:1.75rem}
+.mt-8{margin-top:2rem}
+.mt-9{margin-top:2.25rem}
+.mt-auto{margin-top:auto}
+.mx-auto{margin-inline:auto}
+.opacity-50{opacity:0.5}
+.opacity-60{opacity:0.6}
+.opacity-70{opacity:0.7}
+.overflow-hidden{overflow:hidden}
+.overflow-x-auto{overflow-x:auto}
+.overflow-x-clip{overflow-x:clip}
+.p-5{padding:1.25rem}
+.p-6{padding:1.5rem}
+.p-7{padding:1.75rem}
+.p-8{padding:2rem}
+.pb-\(--spacing-section\){padding-bottom:var(--spacing-section)}
+.pb-16{padding-bottom:4rem}
+.pb-4{padding-bottom:1rem}
+.pb-5{padding-bottom:1.25rem}
+.pb-7{padding-bottom:1.75rem}
+.pl-4{padding-left:1rem}
+.pl-5{padding-left:1.25rem}
+.place-items-center{place-items:center}
+.pointer-events-none{pointer-events:none}
+.pt-12{padding-top:3rem}
+.pt-4{padding-top:1rem}
+.pt-8{padding-top:2rem}
+.pt-\[136px\]{padding-top:136px}
+.pt-\[68px\]{padding-top:68px}
+.px-3{padding-inline:0.75rem}
+.px-5{padding-inline:1.25rem}
+.px-6{padding-inline:1.5rem}
+.py-\(--spacing-section\){padding-block:var(--spacing-section)}
+.py-1\.5{padding-block:0.375rem}
+.py-16{padding-block:4rem}
+.py-3{padding-block:0.75rem}
+.py-32{padding-block:8rem}
+.py-4{padding-block:1rem}
+.py-5{padding-block:1.25rem}
+.py-6{padding-block:1.5rem}
+.py-9{padding-block:2.25rem}
+.relative{position:relative}
+.right-0{right:0rem}
+.rotate-45{transform:rotate(45deg)}
+.rounded-2xl{border-radius:1rem}
+.rounded-bl-sm{border-bottom-left-radius:0.25rem}
+.rounded-br-sm{border-bottom-right-radius:0.25rem}
+.rounded-full{border-radius:9999px}
+.rounded-lg{border-radius:0.5rem}
+.rounded-panel{border-radius:var(--radius-panel)}
+.rounded-xl{border-radius:0.75rem}
+.scroll-mt-24{scroll-margin-top:6rem}
+.shadow-\[0_0_10px_2px_rgba\(212\,164\,55\,0\.6\)\]{box-shadow:0 0 10px 2px rgba(212,164,55,0.6)}
+.size-1{width:0.25rem;height:0.25rem}
+.size-1\.5{width:0.375rem;height:0.375rem}
+.size-10{width:2.5rem;height:2.5rem}
+.size-14{width:3.5rem;height:3.5rem}
+.size-16{width:4rem;height:4rem}
+.size-2{width:0.5rem;height:0.5rem}
+.size-4{width:1rem;height:1rem}
+.size-7{width:1.75rem;height:1.75rem}
+.size-9{width:2.25rem;height:2.25rem}
+.size-\[420px\]{width:420px;height:420px}
+.size-\[440px\]{width:440px;height:440px}
+.size-\[460px\]{width:460px;height:460px}
+.size-\[520px\]{width:520px;height:520px}
+.size-\[560px\]{width:560px;height:560px}
+.size-\[620px\]{width:620px;height:620px}
+.size-full{width:100%;height:100%}
+.space-y-2 > * + *{margin-top:0.5rem}
+.space-y-2\.5 > * + *{margin-top:0.625rem}
+.space-y-3 > * + *{margin-top:0.75rem}
+.space-y-4 > * + *{margin-top:1rem}
+.space-y-5 > * + *{margin-top:1.25rem}
+.space-y-7 > * + *{margin-top:1.75rem}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
+.text-2xl{font-size:1.5rem;line-height:2rem}
+.text-3xl{font-size:1.875rem;line-height:2.25rem}
+.text-\[0\.5625rem\]{font-size:0.5625rem}
+.text-\[0\.625rem\]{font-size:0.625rem}
+.text-\[0\.6875rem\]{font-size:0.6875rem}
+.text-\[0\.7rem\]{font-size:0.7rem}
+.text-\[0\.85rem\]{font-size:0.85rem}
+.text-\[0\.925rem\]{font-size:0.925rem}
+.text-\[0\.95rem\]{font-size:0.95rem}
+.text-\[0\.975rem\]{font-size:0.975rem}
+.text-\[0\.9rem\]{font-size:0.9rem}
+.text-\[1\.0625rem\]{font-size:1.0625rem}
+.text-ash{color:var(--color-ash)}
+.text-ash\/70{color:color-mix(in srgb, var(--color-ash) 70%, transparent)}
+.text-ash\/80{color:color-mix(in srgb, var(--color-ash) 80%, transparent)}
+.text-base{font-size:1rem;line-height:1.5rem}
+.text-center{text-align:center}
+.text-chalk{color:var(--color-chalk)}
+.text-display{font-size:var(--text-display);line-height:var(--text-display--line-height);letter-spacing:var(--text-display--letter-spacing)}
+.text-gold{color:var(--color-gold)}
+.text-gold-deep{color:var(--color-gold-deep)}
+.text-hero{font-size:var(--text-hero);line-height:var(--text-hero--line-height);letter-spacing:var(--text-hero--letter-spacing)}
+.text-lead{font-size:var(--text-lead);line-height:var(--text-lead--line-height)}
+.text-left{text-align:left}
+.text-lg{font-size:1.125rem;line-height:1.75rem}
+.text-right{text-align:right}
+.text-silver{color:var(--color-silver)}
+.text-silver\/60{color:color-mix(in srgb, var(--color-silver) 60%, transparent)}
+.text-silver\/70{color:color-mix(in srgb, var(--color-silver) 70%, transparent)}
+.text-silver\/80{color:color-mix(in srgb, var(--color-silver) 80%, transparent)}
+.text-sm{font-size:0.875rem;line-height:1.25rem}
+.text-title{font-size:var(--text-title);line-height:var(--text-title--line-height);letter-spacing:var(--text-title--letter-spacing)}
+.text-void{color:var(--color-void)}
+.text-xl{font-size:1.25rem;line-height:1.75rem}
+.top-0{top:0rem}
+.top-1\/3{top:33.333333%}
+.top-10{top:2.5rem}
+.top-4{top:1rem}
+.top-8{top:2rem}
+.top-\[4\.75rem\]{top:4.75rem}
+.top-full{top:100%}
+.tracking-\[0\.08em\]{letter-spacing:0.08em}
+.tracking-\[0\.12em\]{letter-spacing:0.12em}
+.tracking-\[0\.14em\]{letter-spacing:0.14em}
+.tracking-\[0\.16em\]{letter-spacing:0.16em}
+.tracking-\[0\.18em\]{letter-spacing:0.18em}
+.tracking-\[0\.1em\]{letter-spacing:0.1em}
+.tracking-\[0\.2em\]{letter-spacing:0.2em}
+.tracking-tight{letter-spacing:-0.025em}
+.tracking-widest{letter-spacing:0.1em}
+.transition-\[grid-template-rows\]{transition-property:grid-template-rows;transition-duration:.3s;transition-timing-function:cubic-bezier(.4,0,.2,1)}
+.transition-all{transition-property:all;transition-duration:.3s;transition-timing-function:cubic-bezier(.4,0,.2,1)}
+.transition-colors{transition-property:color,background-color,border-color,fill,stroke;transition-duration:.3s;transition-timing-function:cubic-bezier(.4,0,.2,1)}
+.transition-transform{transition-property:transform;transition-duration:.3s;transition-timing-function:cubic-bezier(.4,0,.2,1)}
+.translate-y-0\.5{transform:translateY(0.125rem)}
+.translate-y-1{transform:translateY(0.25rem)}
+.uppercase{text-transform:uppercase}
+.w-3{width:0.75rem}
+.w-4{width:1rem}
+.w-6{width:1.5rem}
+.w-\[13\%\]{width:13%}
+.w-\[22\%\]{width:22%}
+.w-\[27\%\]{width:27%}
+.w-\[300px\]{width:300px}
+.w-\[38\%\]{width:38%}
+.w-full{width:100%}
+.w-max{width:max-content}
+.w-px{width:1px}
+.whitespace-nowrap{white-space:nowrap}
+.z-10{z-index:10}
+.z-50{z-index:50}
+.bg-gradient-to-b{--g-from:transparent;--g-to:transparent;--g-stops:var(--g-from),var(--g-to);background-image:linear-gradient(to bottom,var(--g-stops))}
+.bg-gradient-to-r{--g-from:transparent;--g-to:transparent;--g-stops:var(--g-from),var(--g-to);background-image:linear-gradient(to right,var(--g-stops))}
+.from-gold-line{--g-from:var(--color-gold-line)}
+.from-transparent{--g-from:transparent}
+.to-transparent{--g-to:transparent}
+.to-void{--g-to:var(--color-void)}
+.via-gold-line{--g-via:var(--color-gold-line);--g-stops:var(--g-from),var(--color-gold-line),var(--g-to)}
+@media (min-width:640px){.sm\:flex-row{flex-direction:row}}
+@media (min-width:640px){.sm\:gap-3{gap:0.75rem}}
+@media (min-width:640px){.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:640px){.sm\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:640px){.sm\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:640px){.sm\:items-center{align-items:center}}
+@media (min-width:640px){.sm\:w-36{width:9rem}}
+@media (min-width:640px){.sm\:w-\[360px\]{width:360px}}
+@media (min-width:768px){.md\:flex-col{flex-direction:column}}
+@media (min-width:768px){.md\:flex-row{flex-direction:row}}
+@media (min-width:768px){.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:768px){.md\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:768px){.md\:h-\[76px\]{height:76px}}
+@media (min-width:768px){.md\:items-center{align-items:center}}
+@media (min-width:768px){.md\:items-end{align-items:flex-end}}
+@media (min-width:768px){.md\:justify-between{justify-content:space-between}}
+@media (min-width:768px){.md\:p-10{padding:2.5rem}}
+@media (min-width:768px){.md\:p-12{padding:3rem}}
+@media (min-width:768px){.md\:p-7{padding:1.75rem}}
+@media (min-width:768px){.md\:p-8{padding:2rem}}
+@media (min-width:768px){.md\:pb-24{padding-bottom:6rem}}
+@media (min-width:768px){.md\:pt-16{padding-top:4rem}}
+@media (min-width:768px){.md\:pt-\[168px\]{padding-top:168px}}
+@media (min-width:768px){.md\:pt-\[76px\]{padding-top:76px}}
+@media (min-width:768px){.md\:py-20{padding-block:5rem}}
+@media (min-width:768px){.md\:right-4{right:1rem}}
+@media (min-width:768px){.md\:size-16{width:4rem;height:4rem}}
+@media (min-width:768px){.md\:text-2xl{font-size:1.5rem;line-height:2rem}}
+@media (min-width:768px){.md\:text-\[1\.75rem\]{font-size:1.75rem}}
+@media (min-width:768px){.md\:text-center{text-align:center}}
+@media (min-width:768px){.md\:text-lg{font-size:1.125rem;line-height:1.75rem}}
+@media (min-width:768px){.md\:text-xl{font-size:1.25rem;line-height:1.75rem}}
+@media (min-width:768px){.md\:w-9{width:2.25rem}}
+@media (min-width:1024px){.lg\:block{display:block}}
+@media (min-width:1024px){.lg\:col-span-3{grid-column:span 3/span 3}}
+@media (min-width:1024px){.lg\:col-span-4{grid-column:span 4/span 4}}
+@media (min-width:1024px){.lg\:col-span-5{grid-column:span 5/span 5}}
+@media (min-width:1024px){.lg\:col-span-7{grid-column:span 7/span 7}}
+@media (min-width:1024px){.lg\:flex{display:flex}}
+@media (min-width:1024px){.lg\:gap-16{gap:4rem}}
+@media (min-width:1024px){.lg\:gap-8{gap:2rem}}
+@media (min-width:1024px){.lg\:grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}}
+@media (min-width:1024px){.lg\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1024px){.lg\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:1024px){.lg\:grid-cols-\[0\.8fr_1\.4fr\]{grid-template-columns:0.8fr 1.4fr}}
+@media (min-width:1024px){.lg\:grid-cols-\[1\.12fr_0\.88fr\]{grid-template-columns:1.12fr 0.88fr}}
+@media (min-width:1024px){.lg\:grid-cols-\[1\.3fr_2fr\]{grid-template-columns:1.3fr 2fr}}
+@media (min-width:1024px){.lg\:grid-cols-\[1fr_1\.05fr\]{grid-template-columns:1fr 1.05fr}}
+@media (min-width:1024px){.lg\:grid-cols-\[1fr_1\.1fr\]{grid-template-columns:1fr 1.1fr}}
+@media (min-width:1024px){.lg\:grid-cols-\[1fr_1fr\]{grid-template-columns:1fr 1fr}}
+@media (min-width:1024px){.lg\:hidden{display:none}}
+@media (min-width:1024px){.lg\:items-center{align-items:center}}
+@media (min-width:1024px){.lg\:justify-self-end{justify-self:end}}
+@media (min-width:1024px){.lg\:max-w-none{max-width:none}}
+@media (min-width:1024px){.lg\:min-h-\[190px\]{min-height:190px}}
+@media (min-width:1024px){.lg\:min-h-\[calc\(100svh-76px\)\]{min-height:calc(100svh-76px)}}
+@media (min-width:1024px){.lg\:mt-7{margin-top:1.75rem}}
+@media (min-width:1024px){.lg\:mx-0{margin-inline:0rem}}
+@media (min-width:1024px){.lg\:pb-16{padding-bottom:4rem}}
+@media (min-width:1024px){.lg\:pt-6{padding-top:1.5rem}}
+@media (min-width:1024px){.lg\:py-10{padding-block:2.5rem}}
+@media (min-width:1024px){.lg\:row-span-2{grid-row:span 2/span 2}}
+@media (min-width:1024px){.lg\:self-start{align-self:flex-start}}
+@media (min-width:1024px){.lg\:sticky{position:sticky}}
+@media (min-width:1024px){.lg\:top-28{top:7rem}}
+.\[\&\:\:-webkit-details-marker\]\:hidden::-webkit-details-marker{display:none}
+.focus\:bg-gold:focus{background-color:var(--color-gold)}
+.focus\:fixed:focus{position:fixed}
+.focus\:font-medium:focus{font-weight:500}
+.focus\:left-4:focus{left:1rem}
+.focus\:not-sr-only:focus{position:static;width:auto;height:auto;padding:0;margin:0;overflow:visible;clip:auto;white-space:normal}
+.focus\:px-5:focus{padding-inline:1.25rem}
+.focus\:py-3:focus{padding-block:0.75rem}
+.focus\:rounded-full:focus{border-radius:9999px}
+.focus\:text-void:focus{color:var(--color-void)}
+.focus\:top-4:focus{top:1rem}
+.focus\:z-\[999\]:focus{z-index:999}
+.group:hover .group-hover\:bg-gold{background-color:var(--color-gold)}
+.group:hover .group-hover\:border-gold-line{border-color:var(--color-gold-line)}
+.group:hover .group-hover\:text-gold-lum{color:var(--color-gold-lum)}
+.group:hover .group-hover\:w-12{width:3rem}
+.group[open] .group-open\:opacity-0{opacity:0}
+.group[open] .group-open\:rotate-90{transform:rotate(90deg)}
+.hover\:bg-carbon:hover{background-color:var(--color-carbon)}
+.hover\:bg-white\/\[0\.015\]:hover{background-color:color-mix(in srgb, #ffffff 1.5%, transparent)}
+.hover\:text-chalk:hover{color:var(--color-chalk)}
+.hover\:text-gold-lum:hover{color:var(--color-gold-lum)}
+</style>
+<style>
+  :root{ --font-space-grotesk:"Poppins"; --font-inter:"DejaVu Sans"; --font-jetbrains-mono:"DejaVu Sans Mono"; }
+</style>
+</head>
+<body class="antialiased">
+
+<header class="fixed inset-x-0 top-0 z-50 transition-all duration-500 border-b border-transparent">
+ <div class="shell flex h-[68px] items-center justify-between gap-6 md:h-[76px]">
+  <a href="#"><span class="inline-flex items-center gap-2.5">
+<svg viewBox="0 0 40 40" class="size-9" fill="none">
+  <defs>
+    <linearGradient id="i3d-gold-top" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FBE39C"/><stop offset="100%" stop-color="#D4A437"/></linearGradient>
+    <linearGradient id="i3d-gold-right" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C89A31"/><stop offset="100%" stop-color="#8A6A1E"/></linearGradient>
+    <linearGradient id="i3d-gold-left" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#A98226"/><stop offset="100%" stop-color="#6B5117"/></linearGradient>
+  </defs>
+  <path d="M5 11V6h6M35 11V6h-6M5 29v5h6M35 29v5h-6" stroke="#B7BBC2" stroke-opacity="0.55" stroke-width="1.6" stroke-linecap="square"/>
+  <path d="M4 12h32" stroke="#B7BBC2" stroke-opacity="0.35" stroke-width="1.2"/>
+  <path d="M17.4 12h5.2l-1.7 3.4h-1.8L17.4 12Z" fill="#B7BBC2" fill-opacity="0.8"/>
+  <path d="M20 15.6v2.2" stroke="#F0C75E" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M20 18.4 27.8 23 20 27.6 12.2 23 20 18.4Z" fill="url(#i3d-gold-top)"/>
+  <path d="M27.8 23v8L20 35.6v-8L27.8 23Z" fill="url(#i3d-gold-right)"/>
+  <path d="M12.2 23v8L20 35.6v-8L12.2 23Z" fill="url(#i3d-gold-left)"/>
+</svg><span class="font-display text-[1.0625rem] font-semibold tracking-tight text-chalk">INSPIRE <span class="gold-text">3D</span></span></span></a>
+  <nav class="hidden items-center gap-8 lg:flex">
+   <a href="#" class="link-underline text-[0.9rem] text-silver">O que fabricamos</a><a href="#" class="link-underline text-[0.9rem] text-silver">Processo</a><a href="#" class="link-underline text-[0.9rem] text-silver">Tecnologias</a><a href="#" class="link-underline text-[0.9rem] text-silver">Projetos</a><a href="#" class="link-underline text-[0.9rem] text-silver">Inspire AI</a>
+  </nav>
+  <div class="hidden items-center gap-3 lg:flex">
+   <a class="btn btn--outline btn--sm">Falar com o estúdio</a>
+   <a class="btn btn--gold btn--sm">Orçamento</a>
+  </div>
+  <button class="relative grid size-10 place-items-center rounded-full border border-line text-chalk lg:hidden">
+   <span class="absolute h-px w-4 bg-current transition-all duration-300 -translate-y-1"></span>
+   <span class="absolute h-px w-4 bg-current transition-all duration-300 translate-y-1"></span>
+  </button>
+ </div>
+</header>
+<main>
+<section class="relative isolate overflow-hidden pt-[68px] md:pt-[76px]">
+ <div class="absolute inset-0 -z-10">
+  <div class="absolute inset-0 bg-[radial-gradient(120%_85%_at_78%_18%,#15181E_0%,#08090B_58%)]"></div>
+  <div class="grid-backdrop"></div>
+  <div class="halo -right-24 top-4 size-[560px] md:right-4"></div>
+  <div class="halo -left-40 bottom-0 size-[420px] opacity-60"></div>
+  <div class="noise"></div>
+  <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-void"></div>
+ </div>
+ <div class="shell grid items-center gap-10 pb-16 pt-12 md:pb-24 md:pt-16 lg:min-h-[calc(100svh-76px)] lg:grid-cols-[1.12fr_0.88fr] lg:gap-8 lg:pb-16 lg:pt-6">
+  <div class="relative z-10 max-w-2xl">
+   <span class="eyebrow">Estúdio de fabricação criativa</span>
+   <h1 class="mt-6 text-hero font-semibold text-chalk">Transformando<br>ideias em <span class="gold-text">realidade</span>.</h1>
+   <p class="mt-7 max-w-xl text-lead text-ash">Modelagem 3D, impressão FDM e resina, pintura e acabamento manual sob o mesmo teto. Você chega com uma referência, um rascunho ou só a ideia — e sai com a peça na mão.</p>
+   <div class="mt-9 flex flex-wrap items-center gap-x-3 gap-y-3">
+    <div class="flex items-center gap-3"><span class="flex items-center gap-2 font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-silver"><span class="size-1.5 rounded-full bg-silver/40"></span>Ideia</span><span class="h-px w-6 bg-line-strong md:w-9"></span></div><div class="flex items-center gap-3"><span class="flex items-center gap-2 font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-silver"><span class="size-1.5 rounded-full bg-silver/40"></span>Digital</span><span class="h-px w-6 bg-line-strong md:w-9"></span></div><div class="flex items-center gap-3"><span class="flex items-center gap-2 font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-silver"><span class="size-1.5 rounded-full bg-silver/40"></span>Fabricação</span><span class="h-px w-6 bg-line-strong md:w-9"></span></div><div class="flex items-center gap-3"><span class="flex items-center gap-2 font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-silver"><span class="size-1.5 rounded-full bg-gold shadow-[0_0_10px_2px_rgba(212,164,55,0.6)]"></span>Realidade</span></div>
+   </div>
+   <div class="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+    <a class="btn btn--gold btn--lg">Pedir orçamento <svg viewBox="0 0 16 16" class="size-4" fill="none"><path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a class="btn btn--outline btn--lg">Como funciona</a>
+   </div>
+   <dl class="mt-12 grid grid-cols-2 gap-x-5 gap-y-6 border-t border-line pt-8 sm:grid-cols-4">
+    <div><dt class="font-display text-base font-semibold text-chalk md:text-lg">FDM + Resina</dt><dd class="mt-1 font-mono text-[0.625rem] uppercase tracking-[0.14em] text-ash">Duas tecnologias</dd></div><div><dt class="font-display text-base font-semibold text-chalk md:text-lg">0,01 mm</dt><dd class="mt-1 font-mono text-[0.625rem] uppercase tracking-[0.14em] text-ash">Camada mínima</dd></div><div><dt class="font-display text-base font-semibold text-chalk md:text-lg">1 a 1.000</dt><dd class="mt-1 font-mono text-[0.625rem] uppercase tracking-[0.14em] text-ash">Peça única ou série</dd></div><div><dt class="font-display text-base font-semibold text-chalk md:text-lg">Manual</dt><dd class="mt-1 font-mono text-[0.625rem] uppercase tracking-[0.14em] text-ash">Pintura e acabamento</dd></div>
+   </dl>
+  </div>
+  <div class="relative -mx-4 lg:mx-0">
+   
+<div class="relative mx-auto w-full max-w-[440px] lg:max-w-none">
+<svg viewBox="0 120 520 500" class="w-full" fill="none">
+ <defs>
+  <linearGradient id="bc-top" x1="0.1" y1="0" x2="0.9" y2="1"><stop offset="0%" stop-color="#FFF0C4"/><stop offset="45%" stop-color="#E7BC55"/><stop offset="100%" stop-color="#B98D2C"/></linearGradient>
+  <linearGradient id="bc-right" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C89A31"/><stop offset="100%" stop-color="#7A5C1A"/></linearGradient>
+  <linearGradient id="bc-left" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8E6E22"/><stop offset="100%" stop-color="#513D12"/></linearGradient>
+  <linearGradient id="bc-plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2A2F37"/><stop offset="100%" stop-color="#12151A"/></linearGradient>
+  <radialGradient id="bc-glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0%" stop-color="#D4A437" stop-opacity="0.45"/><stop offset="100%" stop-color="#D4A437" stop-opacity="0"/></radialGradient>
+  <clipPath id="bc-solid"><polygon points="260,254 384,316 384,430 260,492 136,430 136,316"/></clipPath>
+ </defs>
+ <ellipse cx="260" cy="365" rx="235" ry="215" fill="url(#bc-glow)"/>
+ <g stroke="#B7BBC2" stroke-opacity="0.1" stroke-width="1">
+  <polygon points="260,391 430,476 260,561 90,476"/><polygon points="260,365 482,476 260,587 38,476"/><polygon points="260,339 534,476 260,613 -14,476"/><polygon points="260,313 586,476 260,639 -66,476"/>
+ </g>
+ <polygon points="260,397 418,476 260,555 102,476" fill="url(#bc-plate)"/>
+ <polygon points="260,397 418,476 260,555 102,476" stroke="#D4A437" stroke-opacity="0.35" stroke-width="1.25"/>
+ <g stroke="#B7BBC2" stroke-opacity="0.3" stroke-width="1.1">
+  <polygon points="260,152 384,214 260,276 136,214" stroke-opacity="0.45"/>
+  <line x1="136" y1="214" x2="136" y2="316"/>
+  <line x1="384" y1="214" x2="384" y2="316"/>
+  <line x1="260" y1="276" x2="260" y2="378"/>
+  <polygon points="260,237 384,299 260,361 136,299" stroke-opacity="0.06" stroke-dasharray="5 7"/><polygon points="260,220 384,282 260,344 136,282" stroke-opacity="0.095" stroke-dasharray="5 7"/><polygon points="260,203 384,265 260,327 136,265" stroke-opacity="0.13" stroke-dasharray="5 7"/><polygon points="260,186 384,248 260,310 136,248" stroke-opacity="0.165" stroke-dasharray="5 7"/><polygon points="260,169 384,231 260,293 136,231" stroke-opacity="0.2" stroke-dasharray="5 7"/><polygon points="260,152 384,214 260,276 136,214" stroke-opacity="0.23500000000000001" stroke-dasharray="5 7"/>
+ </g>
+ <polygon points="260,492 384,430 384,316 260,378" fill="url(#bc-right)"/>
+ <polygon points="260,492 136,430 136,316 260,378" fill="url(#bc-left)"/>
+ <polygon points="260,254 384,316 260,378 136,316" fill="url(#bc-top)"/>
+ <g clip-path="url(#bc-solid)" stroke="#000" stroke-opacity="0.28" stroke-width="1">
+  <line x1="260" y1="378" x2="384" y2="316"/><line x1="260" y1="378" x2="136" y2="316"/><line x1="260" y1="388.3636363636364" x2="384" y2="326.3636363636364"/><line x1="260" y1="388.3636363636364" x2="136" y2="326.3636363636364"/><line x1="260" y1="398.72727272727275" x2="384" y2="336.72727272727275"/><line x1="260" y1="398.72727272727275" x2="136" y2="336.72727272727275"/><line x1="260" y1="409.09090909090907" x2="384" y2="347.09090909090907"/><line x1="260" y1="409.09090909090907" x2="136" y2="347.09090909090907"/><line x1="260" y1="419.45454545454544" x2="384" y2="357.45454545454544"/><line x1="260" y1="419.45454545454544" x2="136" y2="357.45454545454544"/><line x1="260" y1="429.8181818181818" x2="384" y2="367.8181818181818"/><line x1="260" y1="429.8181818181818" x2="136" y2="367.8181818181818"/><line x1="260" y1="440.1818181818182" x2="384" y2="378.1818181818182"/><line x1="260" y1="440.1818181818182" x2="136" y2="378.1818181818182"/><line x1="260" y1="450.54545454545456" x2="384" y2="388.54545454545456"/><line x1="260" y1="450.54545454545456" x2="136" y2="388.54545454545456"/><line x1="260" y1="460.9090909090909" x2="384" y2="398.9090909090909"/><line x1="260" y1="460.9090909090909" x2="136" y2="398.9090909090909"/><line x1="260" y1="471.27272727272725" x2="384" y2="409.27272727272725"/><line x1="260" y1="471.27272727272725" x2="136" y2="409.27272727272725"/><line x1="260" y1="481.6363636363636" x2="384" y2="419.6363636363636"/><line x1="260" y1="481.6363636363636" x2="136" y2="419.6363636363636"/>
+ </g>
+ <polyline points="136,316 260,378 384,316" stroke="#FFF3D0" stroke-opacity="0.5" stroke-width="1.25"/>
+ <g class="printhead" style="--travel:-26px">
+  <g>
+   <polygon points="260,254 384,316 260,378 136,316" stroke="#F0C75E" stroke-width="1.6" fill="#F0C75E" fill-opacity="0.06"/>
+   <line x1="44" y1="220" x2="476" y2="220" stroke="#B7BBC2" stroke-opacity="0.35" stroke-width="1.5"/>
+   <path d="M245,220 h30 l-8,17 h-14 Z" fill="#20242B" stroke="#B7BBC2" stroke-opacity="0.6" stroke-width="1.2"/>
+   <line x1="260" y1="237" x2="260" y2="258" stroke="#F0C75E" stroke-width="2" stroke-linecap="round"/>
+  </g>
+ </g>
+ <g stroke="#B7BBC2" stroke-opacity="0.28" stroke-width="1">
+  <line x1="70" y1="214" x2="70" y2="492"/><line x1="64" y1="214" x2="76" y2="214"/><line x1="64" y1="492" x2="76" y2="492"/>
+ </g>
+ <text x="58" y="322" fill="#8A8F98" font-size="11" font-family="var(--font-mono, monospace)" letter-spacing="0.14em" text-anchor="middle" transform="rotate(-90 58 322)">LAYER 0.08 MM</text>
+ <text x="418" y="320" fill="#D4A437" font-size="11" font-family="var(--font-mono, monospace)" letter-spacing="0.16em">BUILDING</text>
+ <text x="418" y="218" fill="#8A8F98" font-size="11" font-family="var(--font-mono, monospace)" letter-spacing="0.16em">MODELO 3D</text>
+</svg></div>
+   <div class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-void"></div>
+  </div>
+ </div>
+</section>
+<div class="relative border-y border-line bg-graphite/40 py-4">
+ <div class="marquee-mask overflow-hidden"><div class="marquee">
+  <span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Impressão 3D FDM<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Impressão em resina<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Modelagem digital<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Escultura 3D<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Pintura à mão<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Aerografia<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Prototipagem rápida<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Peças funcionais<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Colecionáveis<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Board games<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Dados personalizados<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Miniaturas<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Totens<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Desenvolvimento de produto<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Impressão 3D FDM<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Impressão em resina<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Modelagem digital<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Escultura 3D<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Pintura à mão<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Aerografia<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Prototipagem rápida<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Peças funcionais<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Colecionáveis<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Board games<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Dados personalizados<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Miniaturas<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Totens<span class="size-1 rotate-45 bg-gold/70"></span></span><span class="flex items-center gap-6 whitespace-nowrap px-6 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-silver/70">Desenvolvimento de produto<span class="size-1 rotate-45 bg-gold/70"></span></span>
+ </div></div>
+</div>
+<section class="relative overflow-x-clip py-(--spacing-section)">
+ <div class="grid-backdrop grid-backdrop--fine opacity-70"></div>
+ <div class="shell relative">
+  
+<div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+ <div class="max-w-2xl">
+  <span class="eyebrow">O caminho da peça</span>
+  <h2 class="mt-5 text-display text-chalk">Da <span class="silver-text">ideia</span> à <span class="gold-text">realidade</span>, em quatro etapas.</h2>
+  <p class="mt-5 text-lead text-ash max-w-xl">Todo projeto da Inspire 3D percorre o mesmo caminho — o que muda é a profundidade de cada etapa. Você acompanha e aprova antes de cada avanço.</p>
+ </div>
+ 
+</div>
+  <div class="relative mt-16">
+   <div class="absolute left-0 right-0 top-8 hidden h-px bg-gradient-to-r from-transparent via-gold-line to-transparent lg:block"></div>
+   <ol class="grid gap-12 lg:grid-cols-4 lg:gap-8">
+    <li class="reveal is-visible">
+     <div class="relative flex gap-6 lg:block">
+      <span class="absolute -bottom-12 left-8 top-[4.75rem] w-px bg-gradient-to-b from-gold-line to-transparent lg:hidden"></span>
+      <div class="relative flex-none"><div class="relative grid size-16 place-items-center rounded-full border border-line bg-void"><svg viewBox="0 0 72 72" class="size-14 md:size-16" fill="none"><path d="M14 52c6-22 14-33 22-33s10 7 4 14-14 6-16 14 6 12 16 8" stroke="#B7BBC2" stroke-opacity="0.45" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="3 5"/><path d="M42 16v-7M52 21l5-5M55 33h7" stroke="#D4A437" stroke-width="1.6" stroke-linecap="round"/><circle cx="42" cy="30" r="9" stroke="#D4A437" stroke-width="1.6"/><path d="M38 39h8v5h-8z" fill="#D4A437" fill-opacity="0.25" stroke="#D4A437" stroke-width="1.2"/></svg></div></div>
+      <div class="lg:mt-7">
+       <div class="flex items-baseline gap-3"><span class="index-num">01</span><span class="h-px w-6 bg-line-strong"></span></div>
+       <h3 class="mt-3 font-display text-2xl font-semibold text-chalk">Ideia</h3>
+       <p class="mt-3 text-[0.95rem] leading-relaxed text-ash">Começa com uma referência, um rascunho ou uma frase. A gente entende a função, a escala e o encanto que a peça precisa ter.</p>
+       <ul class="mt-5 space-y-2"><li class="flex items-center gap-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-silver/80"><span class="size-1 rotate-45 bg-gold"></span>Briefing técnico</li><li class="flex items-center gap-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-silver/80"><span class="size-1 rotate-45 bg-gold"></span>Referências</li><li class="flex items-center gap-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-silver/80"><span class="size-1 rotate-45 bg-gold"></span>Definição de escala</li></ul>
+      </div>
+     </div></li><li class="reveal is-visible">
+     <div class="relative flex gap-6 lg:block">
+      <span class="absolute -bottom-12 left-8 top-[4.75rem] w-px bg-gradient-to-b from-gold-line to-transparent lg:hidden"></span>
+      <div class="relative flex-none"><div class="relative grid size-16 place-items-center rounded-full border border-line bg-void"><svg viewBox="0 0 72 72" class="size-14 md:size-16" fill="none"><g stroke="#B7BBC2" stroke-opacity="0.4" stroke-width="1.1"><path d="M10 44 36 30l26 14-26 14-26-14Z"/><path d="M10 44v-8l26-14 26 14v8"/><path d="M36 22v36M23 29l26 14M49 29 23 43" stroke-opacity="0.22"/></g><circle cx="36" cy="30" r="3.2" fill="#D4A437"/><circle cx="10" cy="40" r="2.4" fill="#F0C75E"/><circle cx="62" cy="40" r="2.4" fill="#F0C75E"/><circle cx="36" cy="58" r="2.4" fill="#F0C75E"/></svg></div></div>
+      <div class="lg:mt-7">
+       <div class="flex items-baseline gap-3"><span class="index-num">02</span><span class="h-px w-6 bg-line-strong"></span></div>
+       <h3 class="mt-3 font-display text-2xl font-semibold text-chalk">Digital</h3>
+       <p class="mt-3 text-[0.95rem] leading-relaxed text-ash">Modelagem 3D e preparação de arquivo. Aqui a peça ganha geometria, tolerâncias, encaixes e suportes.</p>
+       <ul class="mt-5 space-y-2"><li class="flex items-center gap-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-silver/80"><span class="size-1 rotate-45 bg-gold"></span>Modelagem 3D</li><li class="flex items-center gap-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-silver/80"><span class="size-1 rotate-45 bg-gold"></span>Ajuste de tolerâncias</li><li class="flex items-center gap-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-silver/80"><span class="size-1 rotate-45 bg-gold"></span>Aprovação do render</li></ul>
+      </div>
+     </div></li><li class="reveal is-visible">
+     <div class="relative flex gap-6 lg:block">
+      <span class="absolute -bottom-12 left-8 top-[4.75rem] w-px bg-gradient-to-b from-gold-line to-transparent lg:hidden"></span>
+      <div class="relative flex-none"><div class="relative grid size-16 place-items-center rounded-full border border-line bg-void"><svg viewBox="0 0 72 72" class="size-14 md:size-16" fill="none"><path d="M18 16h36" stroke="#B7BBC2" stroke-opacity="0.4" stroke-width="1.4"/><path d="M29 16h14l-4 9h-6l-4-9Z" fill="#1D2127" stroke="#B7BBC2" stroke-opacity="0.6" stroke-width="1.2"/><path d="M36 25v7" stroke="#F0C75E" stroke-width="2" stroke-linecap="round"/><g stroke="#D4A437" stroke-width="2.2" stroke-linecap="round"><path d="M22 38h28" stroke-opacity="0.95"/><path d="M20 44h32" stroke-opacity="0.8"/><path d="M18 50h36" stroke-opacity="0.62"/><path d="M16 56h40" stroke-opacity="0.45"/></g></svg></div></div>
+      <div class="lg:mt-7">
+       <div class="flex items-baseline gap-3"><span class="index-num">03</span><span class="h-px w-6 bg-line-strong"></span></div>
+       <h3 class="mt-3 font-display text-2xl font-semibold text-chalk">Fabricação</h3>
+       <p class="mt-3 text-[0.95rem] leading-relaxed text-ash">Camada por camada, em FDM ou resina, com o parâmetro certo para cada geometria. É onde o digital vira matéria.</p>
+       <ul class="mt-5 space-y-2"><li class="flex items-center gap-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-silver/80"><span class="size-1 rotate-45 bg-gold"></span>FDM ou resina</li><li class="flex items-center gap-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-silver/80"><span class="size-1 rotate-45 bg-gold"></span>Controle de camada</li><li class="flex items-center gap-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-silver/80"><span class="size-1 rotate-45 bg-gold"></span>Pós-cura & limpeza</li></ul>
+      </div>
+     </div></li><li class="reveal is-visible">
+     <div class="relative flex gap-6 lg:block">
+      
+      <div class="relative flex-none"><div class="relative grid size-16 place-items-center rounded-full border border-line bg-void"><svg viewBox="0 0 72 72" class="size-14 md:size-16" fill="none"><defs><linearGradient id="glyph-solid" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F6DFA4"/><stop offset="100%" stop-color="#B98D2C"/></linearGradient></defs><path d="M36 16 58 28 36 40 14 28 36 16Z" fill="url(#glyph-solid)"/><path d="M58 28v18L36 58V40l22-12Z" fill="#8E6E22"/><path d="M14 28v18l22 12V40L14 28Z" fill="#5B4515"/><path d="M20 24 36 15" stroke="#FFF6DE" stroke-opacity="0.7" stroke-width="1.6" stroke-linecap="round"/><path d="M62 52h5M64 46h5M60 58h5" stroke="#B7BBC2" stroke-opacity="0.4" stroke-width="1.3" stroke-linecap="round"/></svg></div></div>
+      <div class="lg:mt-7">
+       <div class="flex items-baseline gap-3"><span class="index-num">04</span><span class="h-px w-6 bg-line-strong"></span></div>
+       <h3 class="mt-3 font-display text-2xl font-semibold text-chalk">Realidade</h3>
+       <p class="mt-3 text-[0.95rem] leading-relaxed text-ash">Lixamento, primer, pintura e montagem. A peça sai da bancada pronta para a prateleira, a mesa ou o cliente final.</p>
+       <ul class="mt-5 space-y-2"><li class="flex items-center gap-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-silver/80"><span class="size-1 rotate-45 bg-gold"></span>Acabamento manual</li><li class="flex items-center gap-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-silver/80"><span class="size-1 rotate-45 bg-gold"></span>Pintura</li><li class="flex items-center gap-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-silver/80"><span class="size-1 rotate-45 bg-gold"></span>Inspeção & entrega</li></ul>
+      </div>
+     </div></li>
+   </ol>
+  </div>
+ </div>
+</section>
+<section class="relative overflow-x-clip py-(--spacing-section) bg-graphite/60 border-y border-line">
+ <div class="shell relative">
+  
+<div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+ <div class="max-w-2xl">
+  <span class="eyebrow">O que fabricamos</span>
+  <h2 class="mt-5 text-display text-chalk">Seis frentes. <span class="silver-text">Um mesmo padrão de acabamento.</span></h2>
+  <p class="mt-5 text-lead text-ash max-w-xl">A Inspire 3D não é uma prateleira fechada de produtos — é uma capacidade de fabricação aplicada a categorias diferentes.</p>
+ </div>
+ <div class="flex-none"><a class="btn btn--outline">Tenho um projeto</a></div>
+</div>
+  <div class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-12">
+   <div class="reveal is-visible lg:col-span-7 lg:row-span-2 flex">
+    <div class="card card--hover flex w-full flex-col p-7 md:p-8"><span class="card__glow"></span>
+     <div class="flex items-center justify-between gap-4"><span class="index-num">01</span><span class="font-mono text-[0.5625rem] uppercase tracking-[0.2em] text-gold">Destaque</span></div>
+     <h3 class="mt-6 font-display text-xl font-semibold leading-tight text-chalk md:text-2xl">Colecionáveis & Action Figures</h3>
+     <p class="mt-3 max-w-md text-[0.95rem] leading-relaxed text-ash">Personagens, bustos e miniaturas com nível de detalhe de resina e acabamento pintado à mão.</p>
+     <ul class="mt-7 flex flex-wrap gap-2"><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Action figures</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Bustos</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Miniaturas</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Dioramas</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Estatuetas</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Personagens autorais</li></ul>
+     <div class="relative mt-8 flex flex-1 flex-col justify-end"><div class="relative min-h-[150px] flex-1 lg:min-h-[190px]"><svg viewBox="0 0 520 210" preserveAspectRatio="xMidYMax meet" class="absolute inset-0 h-full w-full" fill="none">
+ <defs><linearGradient id="shelf-gold" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0%" stop-color="#F0C75E"/><stop offset="100%" stop-color="#9C7522"/></linearGradient>
+ <radialGradient id="shelf-glow" cx="0.5" cy="0.75" r="0.55"><stop offset="0%" stop-color="#D4A437" stop-opacity="0.22"/><stop offset="100%" stop-color="#D4A437" stop-opacity="0"/></radialGradient></defs>
+ <ellipse cx="260" cy="168" rx="230" ry="72" fill="url(#shelf-glow)"/>
+ <g stroke="#B7BBC2" stroke-opacity="0.16" stroke-width="1"><polygon points="260,120 470,178 260,236 50,178"/><polygon points="260,144 400,182 260,220 120,182" stroke-opacity="0.1"/></g>
+ <g><path d="M150 92 190 110 190 158 150 176 110 158 110 110 150 92Z" fill="url(#shelf-gold)" fill-opacity="0.9"/><path d="M190 110v48l-40 18v-48l40-18Z" fill="#6E5318"/><path d="M110 110v48l40 18v-48l-40-18Z" fill="#4A370F"/><path d="M150 74c9 0 15 7 15 14s-6 12-15 12-15-5-15-12 6-14 15-14Z" fill="url(#shelf-gold)"/></g>
+ <g><path d="M266 118 306 136 266 154 226 136 266 118Z" fill="url(#shelf-gold)"/><path d="M306 136v34l-40 18v-34l40-18Z" fill="#6E5318"/><path d="M226 136v34l40 18v-34l-40-18Z" fill="#4A370F"/></g>
+ <g stroke="#B7BBC2" stroke-opacity="0.4" stroke-width="1.2"><path d="M376 132 404 145 376 158 348 145 376 132Z"/><path d="M404 145v24l-28 13v-24M348 145v24l28 13"/><path d="M376 108v16" stroke-dasharray="3 4" stroke="#D4A437" stroke-opacity="0.7"/></g>
+</svg></div><div class="rule--gold rule mt-6"></div><div class="mt-6 grid grid-cols-3 gap-3 opacity-70"><div class="rounded-lg border border-line bg-void/60 px-3 py-3 text-center font-mono text-[0.5625rem] uppercase leading-tight tracking-[0.1em] text-ash">Resina 0,01 mm</div><div class="rounded-lg border border-line bg-void/60 px-3 py-3 text-center font-mono text-[0.5625rem] uppercase leading-tight tracking-[0.1em] text-ash">Pintura à mão</div><div class="rounded-lg border border-line bg-void/60 px-3 py-3 text-center font-mono text-[0.5625rem] uppercase leading-tight tracking-[0.1em] text-ash">Base inclusa</div></div></div>
+    </div></div><div class="reveal is-visible lg:col-span-5 flex">
+    <div class="card card--hover flex w-full flex-col p-7 md:p-8"><span class="card__glow"></span>
+     <div class="flex items-center justify-between gap-4"><span class="index-num">02</span><span class="font-mono text-[0.5625rem] uppercase tracking-[0.2em] text-gold">Destaque</span></div>
+     <h3 class="mt-6 font-display text-xl font-semibold leading-tight text-chalk md:text-2xl">Board Games</h3>
+     <p class="mt-3 max-w-md text-[0.95rem] leading-relaxed text-ash">Componentes que mudam a mesa de lugar: do protótipo do seu jogo à edição de colecionador.</p>
+     <ul class="mt-7 flex flex-wrap gap-2"><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Dados personalizados</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Peões & meeples</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Tokens</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Organizadores de caixa</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Insertos</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Terrenos</li></ul>
+     
+    </div></div><div class="reveal is-visible lg:col-span-5 flex">
+    <div class="card card--hover flex w-full flex-col p-7 md:p-8"><span class="card__glow"></span>
+     <div class="flex items-center justify-between gap-4"><span class="index-num">03</span></div>
+     <h3 class="mt-6 font-display text-xl font-semibold leading-tight text-chalk md:text-2xl">Decoração & Design</h3>
+     <p class="mt-3 max-w-md text-[0.95rem] leading-relaxed text-ash">Objetos com presença: geometria, luz e textura pensadas para o ambiente.</p>
+     <ul class="mt-7 flex flex-wrap gap-2"><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Luminárias</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Vasos</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Esculturas</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Painéis</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Objetos de mesa</li></ul>
+     
+    </div></div><div class="reveal is-visible lg:col-span-4 flex">
+    <div class="card card--hover flex w-full flex-col p-7 md:p-8"><span class="card__glow"></span>
+     <div class="flex items-center justify-between gap-4"><span class="index-num">04</span></div>
+     <h3 class="mt-6 font-display text-xl font-semibold leading-tight text-chalk md:text-2xl">Protótipos & Peças Funcionais</h3>
+     <p class="mt-3 max-w-md text-[0.95rem] leading-relaxed text-ash">Da ideia ao teste físico em dias — e da peça quebrada à substituta sob medida.</p>
+     <ul class="mt-7 flex flex-wrap gap-2"><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Protótipos de produto</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Peças de reposição</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Gabaritos</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Suportes técnicos</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Encaixes</li></ul>
+     
+    </div></div><div class="reveal is-visible lg:col-span-4 flex">
+    <div class="card card--hover flex w-full flex-col p-7 md:p-8"><span class="card__glow"></span>
+     <div class="flex items-center justify-between gap-4"><span class="index-num">05</span></div>
+     <h3 class="mt-6 font-display text-xl font-semibold leading-tight text-chalk md:text-2xl">Personalizados & Presentes</h3>
+     <p class="mt-3 max-w-md text-[0.95rem] leading-relaxed text-ash">Peças únicas, com nome, data, logo ou rosto de quem vai receber.</p>
+     <ul class="mt-7 flex flex-wrap gap-2"><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Presentes autorais</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Lembranças</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Troféus</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Brindes corporativos</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Chaveiros</li></ul>
+     
+    </div></div><div class="reveal is-visible lg:col-span-4 flex">
+    <div class="card card--hover flex w-full flex-col p-7 md:p-8"><span class="card__glow"></span>
+     <div class="flex items-center justify-between gap-4"><span class="index-num">06</span></div>
+     <h3 class="mt-6 font-display text-xl font-semibold leading-tight text-chalk md:text-2xl">Totens & Projetos Especiais</h3>
+     <p class="mt-3 max-w-md text-[0.95rem] leading-relaxed text-ash">Grande formato, cenografia e desenvolvimento de produto do zero.</p>
+     <ul class="mt-7 flex flex-wrap gap-2"><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Totens</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Cenografia</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Ativações de marca</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Desenvolvimento de produto</li><li class="rounded-full border border-line bg-white/[0.02] px-3 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-silver/80">Séries autorais</li></ul>
+     
+    </div></div>
+  </div>
+ </div>
+</section>
+<section class="relative overflow-x-clip py-(--spacing-section)">
+ <div class="halo -left-40 top-1/3 size-[460px] opacity-50"></div>
+ <div class="shell relative">
+  
+<div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+ <div class="max-w-2xl">
+  <span class="eyebrow">O laboratório</span>
+  <h2 class="mt-5 text-display text-chalk">A tecnologia certa <span class="gold-text">para cada peça</span>.</h2>
+  <p class="mt-5 text-lead text-ash max-w-xl">Nada de forçar uma geometria na máquina errada. A escolha entre filamento, resina e trabalho manual é parte do projeto — e a gente explica o porquê antes de imprimir.</p>
+ </div>
+ 
+</div>
+  <div class="mt-14 border-t border-line">
+   <div class="reveal is-visible"><article class="group grid gap-6 border-b border-line py-9 lg:grid-cols-12 lg:gap-8 lg:py-10">
+     <div class="lg:col-span-4">
+      <div class="flex items-baseline gap-3"><span class="index-num">01</span><span class="h-px w-6 bg-line-strong transition-all duration-500"></span></div>
+      <h3 class="mt-3 font-display text-2xl font-semibold text-chalk md:text-[1.75rem]">Impressão 3D FDM</h3>
+      <p class="mt-2 font-mono text-[0.6875rem] uppercase tracking-[0.16em] text-gold">Volume, estrutura e resistência</p>
+     </div>
+     <p class="text-[0.95rem] leading-relaxed text-ash lg:col-span-3">Filamento fundido para peças maiores, funcionais e resistentes — protótipos, componentes, organizadores e estruturas.</p>
+     <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:col-span-5"><div class="border-l border-line pl-4"><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-ash">Altura de camada</dt><dd class="mt-1.5 text-sm leading-snug text-silver">0,08 – 0,28 mm</dd></div><div class="border-l border-line pl-4"><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-ash">Materiais</dt><dd class="mt-1.5 text-sm leading-snug text-silver">PLA · PETG · ABS · TPU</dd></div><div class="border-l border-line pl-4"><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-ash">Melhor para</dt><dd class="mt-1.5 text-sm leading-snug text-silver">Peças funcionais e grandes</dd></div></dl>
+    </article></div><div class="reveal is-visible"><article class="group grid gap-6 border-b border-line py-9 lg:grid-cols-12 lg:gap-8 lg:py-10">
+     <div class="lg:col-span-4">
+      <div class="flex items-baseline gap-3"><span class="index-num">02</span><span class="h-px w-6 bg-line-strong transition-all duration-500"></span></div>
+      <h3 class="mt-3 font-display text-2xl font-semibold text-chalk md:text-[1.75rem]">Impressão 3D em Resina</h3>
+      <p class="mt-2 font-mono text-[0.6875rem] uppercase tracking-[0.16em] text-gold">Detalhe fino e superfície limpa</p>
+     </div>
+     <p class="text-[0.95rem] leading-relaxed text-ash lg:col-span-3">Fotopolimerização para miniaturas, colecionáveis e peças com detalhe fino, onde cada milímetro precisa aparecer.</p>
+     <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:col-span-5"><div class="border-l border-line pl-4"><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-ash">Altura de camada</dt><dd class="mt-1.5 text-sm leading-snug text-silver">0,01 – 0,05 mm</dd></div><div class="border-l border-line pl-4"><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-ash">Materiais</dt><dd class="mt-1.5 text-sm leading-snug text-silver">Standard · ABS-like · Flex</dd></div><div class="border-l border-line pl-4"><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-ash">Melhor para</dt><dd class="mt-1.5 text-sm leading-snug text-silver">Miniaturas e colecionáveis</dd></div></dl>
+    </article></div><div class="reveal is-visible"><article class="group grid gap-6 border-b border-line py-9 lg:grid-cols-12 lg:gap-8 lg:py-10">
+     <div class="lg:col-span-4">
+      <div class="flex items-baseline gap-3"><span class="index-num">03</span><span class="h-px w-6 bg-line-strong transition-all duration-500"></span></div>
+      <h3 class="mt-3 font-display text-2xl font-semibold text-chalk md:text-[1.75rem]">Modelagem Digital</h3>
+      <p class="mt-2 font-mono text-[0.6875rem] uppercase tracking-[0.16em] text-gold">Da referência ao arquivo pronto</p>
+     </div>
+     <p class="text-[0.95rem] leading-relaxed text-ash lg:col-span-3">Modelagem paramétrica e escultura digital. Criamos do zero, adaptamos um modelo existente ou preparamos o seu arquivo para imprimir.</p>
+     <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:col-span-5"><div class="border-l border-line pl-4"><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-ash">Entrada</dt><dd class="mt-1.5 text-sm leading-snug text-silver">Foto · sketch · descrição · STL</dd></div><div class="border-l border-line pl-4"><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-ash">Entrega</dt><dd class="mt-1.5 text-sm leading-snug text-silver">STL · OBJ · 3MF · STEP</dd></div><div class="border-l border-line pl-4"><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-ash">Inclui</dt><dd class="mt-1.5 text-sm leading-snug text-silver">Render de aprovação</dd></div></dl>
+    </article></div><div class="reveal is-visible"><article class="group grid gap-6 border-b border-line py-9 lg:grid-cols-12 lg:gap-8 lg:py-10">
+     <div class="lg:col-span-4">
+      <div class="flex items-baseline gap-3"><span class="index-num">04</span><span class="h-px w-6 bg-line-strong transition-all duration-500"></span></div>
+      <h3 class="mt-3 font-display text-2xl font-semibold text-chalk md:text-[1.75rem]">Pintura & Acabamento</h3>
+      <p class="mt-2 font-mono text-[0.6875rem] uppercase tracking-[0.16em] text-gold">O que separa peça impressa de produto</p>
+     </div>
+     <p class="text-[0.95rem] leading-relaxed text-ash lg:col-span-3">Lixamento, primer, aerografia e pintura manual. É a etapa que apaga a camada e entrega uma peça com aparência de produto.</p>
+     <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:col-span-5"><div class="border-l border-line pl-4"><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-ash">Níveis</dt><dd class="mt-1.5 text-sm leading-snug text-silver">Bruto · lixado · pintado · premium</dd></div><div class="border-l border-line pl-4"><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-ash">Técnicas</dt><dd class="mt-1.5 text-sm leading-snug text-silver">Aerógrafo · pincel · verniz</dd></div><div class="border-l border-line pl-4"><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-ash">Extras</dt><dd class="mt-1.5 text-sm leading-snug text-silver">Base, montagem e embalagem</dd></div></dl>
+    </article></div>
+  </div>
+ </div>
+</section>
+<section class="relative overflow-x-clip py-(--spacing-section) bg-graphite/60 overflow-hidden border-y border-line">
+ <div class="shell">
+  
+<div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+ <div class="max-w-2xl">
+  <span class="eyebrow">Projetos</span>
+  <h2 class="mt-5 text-display text-chalk">Peças que já <span class="gold-text">saíram da bancada</span>.</h2>
+  <p class="mt-5 text-lead text-ash max-w-xl">Uma amostra do tipo de projeto que passa pelo estúdio — de colecionável autoral a protótipo funcional.</p>
+ </div>
+ <div class="flex-none"><a class="btn btn--outline">Ver todos os projetos</a></div>
+</div>
+ </div>
+ <div class="mt-14 overflow-x-auto pb-4">
+  <ul class="rail-pad flex w-max gap-5">
+   <li class="w-[300px] flex-none sm:w-[360px]">
+    <a class="card card--hover group block h-full"><span class="card__glow"></span>
+     <div class="relative aspect-4/3 overflow-hidden border-b border-line"><svg viewBox="0 0 400 300" class="h-full w-full" fill="none">
+  <defs>
+   <linearGradient id="pa-bg-0" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#191D23"/><stop offset="100%" stop-color="#0C0E12"/></linearGradient>
+   <linearGradient id="pa-gold-0" x1="0" y1="0" x2="0.6" y2="1"><stop offset="0%" stop-color="#F0C75E"/><stop offset="100%" stop-color="#8A6A1E"/></linearGradient>
+   <radialGradient id="pa-glow-0" cx="0.5" cy="0.55" r="0.5"><stop offset="0%" stop-color="#D4A437" stop-opacity="0.3"/><stop offset="100%" stop-color="#D4A437" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#pa-bg-0)"/>
+  <g stroke="#B7BBC2" stroke-opacity="0.07" stroke-width="1"><line x1="0" y1="12" x2="400" y2="12"/><line x1="0" y1="46" x2="400" y2="46"/><line x1="0" y1="80" x2="400" y2="80"/><line x1="0" y1="114" x2="400" y2="114"/><line x1="0" y1="148" x2="400" y2="148"/><line x1="0" y1="182" x2="400" y2="182"/><line x1="0" y1="216" x2="400" y2="216"/><line x1="0" y1="250" x2="400" y2="250"/><line x1="0" y1="284" x2="400" y2="284"/><line x1="12" y1="0" x2="12" y2="300"/><line x1="46" y1="0" x2="46" y2="300"/><line x1="80" y1="0" x2="80" y2="300"/><line x1="114" y1="0" x2="114" y2="300"/><line x1="148" y1="0" x2="148" y2="300"/><line x1="182" y1="0" x2="182" y2="300"/><line x1="216" y1="0" x2="216" y2="300"/><line x1="250" y1="0" x2="250" y2="300"/><line x1="284" y1="0" x2="284" y2="300"/><line x1="318" y1="0" x2="318" y2="300"/><line x1="352" y1="0" x2="352" y2="300"/><line x1="386" y1="0" x2="386" y2="300"/></g>
+  <ellipse cx="200" cy="170" rx="150" ry="110" fill="url(#pa-glow-0)"/>
+  <path d="M200 96 262 132 200 168 138 132 200 96Z" fill="url(#pa-gold-0)"/><path d="M262 132v56l-62 36v-56l62-36Z" fill="#7A5C1A"/><path d="M138 132v56l62 36v-56l-62-36Z" fill="#4E3A11"/>
+  <rect x="0.5" y="0.5" width="399" height="299" stroke="#B7BBC2" stroke-opacity="0.1" fill="none"/>
+ </svg><span class="absolute left-4 top-4 chip chip--gold">Colecionáveis</span></div>
+     <div class="p-6">
+      <div class="flex items-baseline justify-between gap-4"><h3 class="font-display text-lg font-semibold text-chalk">Série Aurum</h3><span class="index-num">2025</span></div>
+      <p class="mt-2.5 text-sm leading-relaxed text-ash">Busto autoral em resina, pintura manual e base em FDM texturizado.</p>
+      <ul class="mt-5 flex flex-wrap gap-x-3 gap-y-1.5"><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">Resina</li><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">Pintura manual</li><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">Autoral</li></ul>
+     </div></a></li><li class="w-[300px] flex-none sm:w-[360px]">
+    <a class="card card--hover group block h-full"><span class="card__glow"></span>
+     <div class="relative aspect-4/3 overflow-hidden border-b border-line"><svg viewBox="0 0 400 300" class="h-full w-full" fill="none">
+  <defs>
+   <linearGradient id="pa-bg-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#191D23"/><stop offset="100%" stop-color="#0C0E12"/></linearGradient>
+   <linearGradient id="pa-gold-1" x1="0" y1="0" x2="0.6" y2="1"><stop offset="0%" stop-color="#F0C75E"/><stop offset="100%" stop-color="#8A6A1E"/></linearGradient>
+   <radialGradient id="pa-glow-1" cx="0.5" cy="0.55" r="0.5"><stop offset="0%" stop-color="#D4A437" stop-opacity="0.3"/><stop offset="100%" stop-color="#D4A437" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#pa-bg-1)"/>
+  <g stroke="#B7BBC2" stroke-opacity="0.07" stroke-width="1"><line x1="0" y1="12" x2="400" y2="12"/><line x1="0" y1="46" x2="400" y2="46"/><line x1="0" y1="80" x2="400" y2="80"/><line x1="0" y1="114" x2="400" y2="114"/><line x1="0" y1="148" x2="400" y2="148"/><line x1="0" y1="182" x2="400" y2="182"/><line x1="0" y1="216" x2="400" y2="216"/><line x1="0" y1="250" x2="400" y2="250"/><line x1="0" y1="284" x2="400" y2="284"/><line x1="12" y1="0" x2="12" y2="300"/><line x1="46" y1="0" x2="46" y2="300"/><line x1="80" y1="0" x2="80" y2="300"/><line x1="114" y1="0" x2="114" y2="300"/><line x1="148" y1="0" x2="148" y2="300"/><line x1="182" y1="0" x2="182" y2="300"/><line x1="216" y1="0" x2="216" y2="300"/><line x1="250" y1="0" x2="250" y2="300"/><line x1="284" y1="0" x2="284" y2="300"/><line x1="318" y1="0" x2="318" y2="300"/><line x1="352" y1="0" x2="352" y2="300"/><line x1="386" y1="0" x2="386" y2="300"/></g>
+  <ellipse cx="200" cy="170" rx="150" ry="110" fill="url(#pa-glow-1)"/>
+  <g transform="translate(-62, 0)"><path d="M200 128 232 146 200 164 168 146 200 128Z" fill="url(#pa-gold-1)"/><path d="M232 146v30l-32 18v-30l32-18Z" fill="#7A5C1A"/><path d="M168 146v30l32 18v-30l-32-18Z" fill="#4E3A11"/></g><g transform="translate(0, 14)"><path d="M200 128 232 146 200 164 168 146 200 128Z" fill="url(#pa-gold-1)"/><path d="M232 146v30l-32 18v-30l32-18Z" fill="#7A5C1A"/><path d="M168 146v30l32 18v-30l-32-18Z" fill="#4E3A11"/></g><g transform="translate(62, 0)"><path d="M200 128 232 146 200 164 168 146 200 128Z" fill="url(#pa-gold-1)"/><path d="M232 146v30l-32 18v-30l32-18Z" fill="#7A5C1A"/><path d="M168 146v30l32 18v-30l-32-18Z" fill="#4E3A11"/></g>
+  <rect x="0.5" y="0.5" width="399" height="299" stroke="#B7BBC2" stroke-opacity="0.1" fill="none"/>
+ </svg><span class="absolute left-4 top-4 chip chip--gold">Board Games</span></div>
+     <div class="p-6">
+      <div class="flex items-baseline justify-between gap-4"><h3 class="font-display text-lg font-semibold text-chalk">Kit de Mesa Completo</h3><span class="index-num">2025</span></div>
+      <p class="mt-2.5 text-sm leading-relaxed text-ash">Dados, peões e organizador sob medida para uma edição de colecionador.</p>
+      <ul class="mt-5 flex flex-wrap gap-x-3 gap-y-1.5"><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">FDM</li><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">Resina</li><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">Insert</li></ul>
+     </div></a></li><li class="w-[300px] flex-none sm:w-[360px]">
+    <a class="card card--hover group block h-full"><span class="card__glow"></span>
+     <div class="relative aspect-4/3 overflow-hidden border-b border-line"><svg viewBox="0 0 400 300" class="h-full w-full" fill="none">
+  <defs>
+   <linearGradient id="pa-bg-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#191D23"/><stop offset="100%" stop-color="#0C0E12"/></linearGradient>
+   <linearGradient id="pa-gold-2" x1="0" y1="0" x2="0.6" y2="1"><stop offset="0%" stop-color="#F0C75E"/><stop offset="100%" stop-color="#8A6A1E"/></linearGradient>
+   <radialGradient id="pa-glow-2" cx="0.5" cy="0.55" r="0.5"><stop offset="0%" stop-color="#D4A437" stop-opacity="0.3"/><stop offset="100%" stop-color="#D4A437" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#pa-bg-2)"/>
+  <g stroke="#B7BBC2" stroke-opacity="0.07" stroke-width="1"><line x1="0" y1="12" x2="400" y2="12"/><line x1="0" y1="46" x2="400" y2="46"/><line x1="0" y1="80" x2="400" y2="80"/><line x1="0" y1="114" x2="400" y2="114"/><line x1="0" y1="148" x2="400" y2="148"/><line x1="0" y1="182" x2="400" y2="182"/><line x1="0" y1="216" x2="400" y2="216"/><line x1="0" y1="250" x2="400" y2="250"/><line x1="0" y1="284" x2="400" y2="284"/><line x1="12" y1="0" x2="12" y2="300"/><line x1="46" y1="0" x2="46" y2="300"/><line x1="80" y1="0" x2="80" y2="300"/><line x1="114" y1="0" x2="114" y2="300"/><line x1="148" y1="0" x2="148" y2="300"/><line x1="182" y1="0" x2="182" y2="300"/><line x1="216" y1="0" x2="216" y2="300"/><line x1="250" y1="0" x2="250" y2="300"/><line x1="284" y1="0" x2="284" y2="300"/><line x1="318" y1="0" x2="318" y2="300"/><line x1="352" y1="0" x2="352" y2="300"/><line x1="386" y1="0" x2="386" y2="300"/></g>
+  <ellipse cx="200" cy="170" rx="150" ry="110" fill="url(#pa-glow-2)"/>
+  <ellipse cx="200" cy="90" rx="48" ry="14.117647058823529" stroke="url(#pa-gold-2)" stroke-opacity="0.35" stroke-width="1.6" fill="none"/><ellipse cx="200" cy="101" rx="55" ry="16.176470588235293" stroke="url(#pa-gold-2)" stroke-opacity="0.38999999999999996" stroke-width="1.6" fill="none"/><ellipse cx="200" cy="112" rx="62" ry="18.235294117647058" stroke="url(#pa-gold-2)" stroke-opacity="0.43" stroke-width="1.6" fill="none"/><ellipse cx="200" cy="123" rx="69" ry="20.294117647058822" stroke="url(#pa-gold-2)" stroke-opacity="0.47" stroke-width="1.6" fill="none"/><ellipse cx="200" cy="134" rx="76" ry="22.35294117647059" stroke="url(#pa-gold-2)" stroke-opacity="0.51" stroke-width="1.6" fill="none"/><ellipse cx="200" cy="145" rx="83" ry="24.411764705882355" stroke="url(#pa-gold-2)" stroke-opacity="0.55" stroke-width="1.6" fill="none"/><ellipse cx="200" cy="156" rx="90" ry="26.47058823529412" stroke="url(#pa-gold-2)" stroke-opacity="0.59" stroke-width="1.6" fill="none"/><ellipse cx="200" cy="167" rx="83" ry="24.411764705882355" stroke="url(#pa-gold-2)" stroke-opacity="0.63" stroke-width="1.6" fill="none"/><ellipse cx="200" cy="178" rx="76" ry="22.35294117647059" stroke="url(#pa-gold-2)" stroke-opacity="0.6699999999999999" stroke-width="1.6" fill="none"/><ellipse cx="200" cy="189" rx="69" ry="20.294117647058822" stroke="url(#pa-gold-2)" stroke-opacity="0.71" stroke-width="1.6" fill="none"/><ellipse cx="200" cy="200" rx="62" ry="18.235294117647058" stroke="url(#pa-gold-2)" stroke-opacity="0.75" stroke-width="1.6" fill="none"/><ellipse cx="200" cy="211" rx="55" ry="16.176470588235293" stroke="url(#pa-gold-2)" stroke-opacity="0.79" stroke-width="1.6" fill="none"/><ellipse cx="200" cy="222" rx="48" ry="14.117647058823529" stroke="url(#pa-gold-2)" stroke-opacity="0.83" stroke-width="1.6" fill="none"/><ellipse cx="200" cy="233" rx="41" ry="12.058823529411764" stroke="url(#pa-gold-2)" stroke-opacity="0.87" stroke-width="1.6" fill="none"/>
+  <rect x="0.5" y="0.5" width="399" height="299" stroke="#B7BBC2" stroke-opacity="0.1" fill="none"/>
+ </svg><span class="absolute left-4 top-4 chip chip--gold">Decoração</span></div>
+     <div class="p-6">
+      <div class="flex items-baseline justify-between gap-4"><h3 class="font-display text-lg font-semibold text-chalk">Luminária Paramétrica</h3><span class="index-num">2025</span></div>
+      <p class="mt-2.5 text-sm leading-relaxed text-ash">Geometria gerada por parâmetros, difusão de luz calculada no modelo.</p>
+      <ul class="mt-5 flex flex-wrap gap-x-3 gap-y-1.5"><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">FDM</li><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">Modelagem</li><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">Design</li></ul>
+     </div></a></li><li class="w-[300px] flex-none sm:w-[360px]">
+    <a class="card card--hover group block h-full"><span class="card__glow"></span>
+     <div class="relative aspect-4/3 overflow-hidden border-b border-line"><svg viewBox="0 0 400 300" class="h-full w-full" fill="none">
+  <defs>
+   <linearGradient id="pa-bg-3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#191D23"/><stop offset="100%" stop-color="#0C0E12"/></linearGradient>
+   <linearGradient id="pa-gold-3" x1="0" y1="0" x2="0.6" y2="1"><stop offset="0%" stop-color="#F0C75E"/><stop offset="100%" stop-color="#8A6A1E"/></linearGradient>
+   <radialGradient id="pa-glow-3" cx="0.5" cy="0.55" r="0.5"><stop offset="0%" stop-color="#D4A437" stop-opacity="0.3"/><stop offset="100%" stop-color="#D4A437" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#pa-bg-3)"/>
+  <g stroke="#B7BBC2" stroke-opacity="0.07" stroke-width="1"><line x1="0" y1="12" x2="400" y2="12"/><line x1="0" y1="46" x2="400" y2="46"/><line x1="0" y1="80" x2="400" y2="80"/><line x1="0" y1="114" x2="400" y2="114"/><line x1="0" y1="148" x2="400" y2="148"/><line x1="0" y1="182" x2="400" y2="182"/><line x1="0" y1="216" x2="400" y2="216"/><line x1="0" y1="250" x2="400" y2="250"/><line x1="0" y1="284" x2="400" y2="284"/><line x1="12" y1="0" x2="12" y2="300"/><line x1="46" y1="0" x2="46" y2="300"/><line x1="80" y1="0" x2="80" y2="300"/><line x1="114" y1="0" x2="114" y2="300"/><line x1="148" y1="0" x2="148" y2="300"/><line x1="182" y1="0" x2="182" y2="300"/><line x1="216" y1="0" x2="216" y2="300"/><line x1="250" y1="0" x2="250" y2="300"/><line x1="284" y1="0" x2="284" y2="300"/><line x1="318" y1="0" x2="318" y2="300"/><line x1="352" y1="0" x2="352" y2="300"/><line x1="386" y1="0" x2="386" y2="300"/></g>
+  <ellipse cx="200" cy="170" rx="150" ry="110" fill="url(#pa-glow-3)"/>
+  <rect x="150" y="110" width="100" height="80" rx="8" fill="#20242B" stroke="#B7BBC2" stroke-opacity="0.3"/><rect x="172" y="132" width="56" height="36" rx="4" fill="url(#pa-gold-3)"/><g stroke="#B7BBC2" stroke-opacity="0.35" stroke-width="1.2" stroke-dasharray="4 5"><path d="M150 100h100M120 110v80"/></g>
+  <rect x="0.5" y="0.5" width="399" height="299" stroke="#B7BBC2" stroke-opacity="0.1" fill="none"/>
+ </svg><span class="absolute left-4 top-4 chip chip--gold">Protótipos</span></div>
+     <div class="p-6">
+      <div class="flex items-baseline justify-between gap-4"><h3 class="font-display text-lg font-semibold text-chalk">Protótipo de Encaixe</h3><span class="index-num">2024</span></div>
+      <p class="mt-2.5 text-sm leading-relaxed text-ash">Três iterações de tolerância em 72 horas até o encaixe final aprovado.</p>
+      <ul class="mt-5 flex flex-wrap gap-x-3 gap-y-1.5"><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">FDM</li><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">Engenharia</li><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">Iteração</li></ul>
+     </div></a></li><li class="w-[300px] flex-none sm:w-[360px]">
+    <a class="card card--hover group block h-full"><span class="card__glow"></span>
+     <div class="relative aspect-4/3 overflow-hidden border-b border-line"><svg viewBox="0 0 400 300" class="h-full w-full" fill="none">
+  <defs>
+   <linearGradient id="pa-bg-4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#191D23"/><stop offset="100%" stop-color="#0C0E12"/></linearGradient>
+   <linearGradient id="pa-gold-4" x1="0" y1="0" x2="0.6" y2="1"><stop offset="0%" stop-color="#F0C75E"/><stop offset="100%" stop-color="#8A6A1E"/></linearGradient>
+   <radialGradient id="pa-glow-4" cx="0.5" cy="0.55" r="0.5"><stop offset="0%" stop-color="#D4A437" stop-opacity="0.3"/><stop offset="100%" stop-color="#D4A437" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#pa-bg-4)"/>
+  <g stroke="#B7BBC2" stroke-opacity="0.07" stroke-width="1"><line x1="0" y1="12" x2="400" y2="12"/><line x1="0" y1="46" x2="400" y2="46"/><line x1="0" y1="80" x2="400" y2="80"/><line x1="0" y1="114" x2="400" y2="114"/><line x1="0" y1="148" x2="400" y2="148"/><line x1="0" y1="182" x2="400" y2="182"/><line x1="0" y1="216" x2="400" y2="216"/><line x1="0" y1="250" x2="400" y2="250"/><line x1="0" y1="284" x2="400" y2="284"/><line x1="12" y1="0" x2="12" y2="300"/><line x1="46" y1="0" x2="46" y2="300"/><line x1="80" y1="0" x2="80" y2="300"/><line x1="114" y1="0" x2="114" y2="300"/><line x1="148" y1="0" x2="148" y2="300"/><line x1="182" y1="0" x2="182" y2="300"/><line x1="216" y1="0" x2="216" y2="300"/><line x1="250" y1="0" x2="250" y2="300"/><line x1="284" y1="0" x2="284" y2="300"/><line x1="318" y1="0" x2="318" y2="300"/><line x1="352" y1="0" x2="352" y2="300"/><line x1="386" y1="0" x2="386" y2="300"/></g>
+  <ellipse cx="200" cy="170" rx="150" ry="110" fill="url(#pa-glow-4)"/>
+  <path d="M200 74v152" stroke="#B7BBC2" stroke-opacity="0.2" stroke-width="1.2"/><path d="M200 96 246 118 200 140 154 118Z" fill="url(#pa-gold-4)" fill-opacity="0.9"/><path d="M200 130 246 152 200 174 154 152Z" fill="url(#pa-gold-4)" fill-opacity="0.7"/><path d="M200 164 246 186 200 208 154 186Z" fill="url(#pa-gold-4)" fill-opacity="0.5"/><path d="M200 198 246 220 200 242 154 220Z" fill="url(#pa-gold-4)" fill-opacity="0.29999999999999993"/>
+  <rect x="0.5" y="0.5" width="399" height="299" stroke="#B7BBC2" stroke-opacity="0.1" fill="none"/>
+ </svg><span class="absolute left-4 top-4 chip chip--gold">Projetos Especiais</span></div>
+     <div class="p-6">
+      <div class="flex items-baseline justify-between gap-4"><h3 class="font-display text-lg font-semibold text-chalk">Totem de Ativação</h3><span class="index-num">2024</span></div>
+      <p class="mt-2.5 text-sm leading-relaxed text-ash">Peça de grande formato modular para evento de marca.</p>
+      <ul class="mt-5 flex flex-wrap gap-x-3 gap-y-1.5"><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">Grande formato</li><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">Modular</li><li class="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-silver/60">Acabamento</li></ul>
+     </div></a></li>
+   <li class="w-[300px] flex-none sm:w-[360px]">
+    <div class="panel flex h-full flex-col items-start justify-end p-7"><div class="grid-backdrop grid-backdrop--fine"></div>
+     <p class="relative font-display text-xl font-semibold leading-snug text-chalk">O próximo projeto<br>pode ser o seu.</p>
+     <p class="relative mt-3 text-sm text-ash">Conte a ideia e receba uma estimativa com material, acabamento e prazo.</p>
+     <a class="btn btn--gold btn--sm relative mt-6">Começar</a>
+    </div></li>
+  </ul>
+ </div>
+</section>
+<section class="relative overflow-x-clip py-(--spacing-section)">
+ <div class="grid-backdrop grid-backdrop--fine"></div>
+ <div class="halo right-0 top-10 size-[440px] opacity-60"></div>
+ <div class="shell relative grid gap-14 lg:grid-cols-[1fr_1.05fr] lg:items-center lg:gap-16">
+  <div>
+   <span class="eyebrow">Orçamento inteligente</span>
+   <h2 class="mt-6 text-display text-chalk">Uma estimativa <span class="gold-text">antes</span> da conversa.</h2>
+   <p class="mt-6 max-w-lg text-lead text-ash">Pedir orçamento de peça 3D costuma ser um formulário no escuro. Aqui o fluxo é o contrário: você entende o que muda o preço enquanto responde, e sai com uma faixa e um prazo na tela.</p>
+   <ol class="mt-10 space-y-7">
+    <li class="reveal is-visible"><div class="flex gap-5"><span class="index-num mt-1 flex-none">01</span><div class="border-l border-line pl-5"><h3 class="font-display text-lg font-semibold text-chalk">Descreva ou envie</h3><p class="mt-1.5 max-w-md text-[0.925rem] leading-relaxed text-ash">Uma foto, um rascunho, um arquivo STL ou apenas o texto da ideia. O que você tiver em mãos já serve.</p></div></div></li><li class="reveal is-visible"><div class="flex gap-5"><span class="index-num mt-1 flex-none">02</span><div class="border-l border-line pl-5"><h3 class="font-display text-lg font-semibold text-chalk">Escolha o caminho</h3><p class="mt-1.5 max-w-md text-[0.925rem] leading-relaxed text-ash">Tecnologia, material, tamanho, quantidade e nível de acabamento — com a recomendação do estúdio para cada opção.</p></div></div></li><li class="reveal is-visible"><div class="flex gap-5"><span class="index-num mt-1 flex-none">03</span><div class="border-l border-line pl-5"><h3 class="font-display text-lg font-semibold text-chalk">Receba a estimativa</h3><p class="mt-1.5 max-w-md text-[0.925rem] leading-relaxed text-ash">Faixa de investimento e prazo estimado na hora, com as premissas explicadas. A proposta final vem depois da análise técnica.</p></div></div></li>
+   </ol>
+   <a class="btn btn--gold btn--lg mt-11">Montar meu orçamento</a>
+  </div>
+  <div class="reveal is-visible">
+   <div class="panel p-6 md:p-8"><div class="grid-backdrop grid-backdrop--fine"></div>
+    <div class="relative flex items-center justify-between gap-4 border-b border-line pb-5"><span class="font-mono text-[0.625rem] uppercase tracking-[0.2em] text-silver">Estimativa do projeto</span><span class="chip">Exemplo ilustrativo</span></div>
+    <dl class="relative mt-6 grid grid-cols-2 gap-x-6 gap-y-5"><div><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.16em] text-ash">Categoria</dt><dd class="mt-1.5 text-[0.95rem] text-chalk">Colecionável</dd></div><div><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.16em] text-ash">Tecnologia</dt><dd class="mt-1.5 text-[0.95rem] text-chalk">Resina</dd></div><div><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.16em] text-ash">Altura</dt><dd class="mt-1.5 text-[0.95rem] text-chalk">18 cm</dd></div><div><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.16em] text-ash">Quantidade</dt><dd class="mt-1.5 text-[0.95rem] text-chalk">1 unidade</dd></div><div><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.16em] text-ash">Acabamento</dt><dd class="mt-1.5 text-[0.95rem] text-chalk">Pintado à mão</dd></div><div><dt class="font-mono text-[0.5625rem] uppercase tracking-[0.16em] text-ash">Modelagem</dt><dd class="mt-1.5 text-[0.95rem] text-chalk">Inclusa</dd></div></dl>
+    <div class="relative mt-8">
+     <div class="flex h-2 overflow-hidden rounded-full bg-white/5"><span class="w-[38%] bg-gold"></span><span class="w-[27%] bg-gold/60"></span><span class="w-[22%] bg-silver/40"></span><span class="w-[13%] bg-silver/20"></span></div>
+     <ul class="mt-4 flex flex-wrap gap-x-5 gap-y-2"><li class="flex items-center gap-2 font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-ash"><span class="size-2 rounded-full bg-gold"></span>Impressão</li><li class="flex items-center gap-2 font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-ash"><span class="size-2 rounded-full bg-gold/60"></span>Acabamento</li><li class="flex items-center gap-2 font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-ash"><span class="size-2 rounded-full bg-silver/40"></span>Modelagem</li><li class="flex items-center gap-2 font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-ash"><span class="size-2 rounded-full bg-silver/20"></span>Materiais</li></ul>
+    </div>
+    <div class="relative mt-8 flex flex-wrap items-end justify-between gap-4 rounded-xl border border-gold-line bg-gold/[0.06] p-5">
+     <div><p class="font-mono text-[0.5625rem] uppercase tracking-[0.18em] text-gold">Faixa estimada</p><p class="mt-2 font-display text-3xl font-semibold text-chalk">R$ 000 <span class="text-ash">–</span> 000</p></div>
+     <div class="text-right"><p class="font-mono text-[0.5625rem] uppercase tracking-[0.18em] text-ash">Prazo estimado</p><p class="mt-2 font-display text-xl text-silver">7 – 12 dias</p></div>
+    </div>
+    <p class="relative mt-4 text-[0.7rem] leading-relaxed text-ash/80">Valores e prazos são calculados no momento do pedido, a partir da geometria, do material e do acabamento escolhidos.</p>
+   </div>
+  </div>
+ </div>
+</section>
+<section class="relative overflow-x-clip py-(--spacing-section) bg-graphite/60 border-y border-line">
+ <div class="halo left-1/2 top-0 size-[520px] -translate-x-1/2 opacity-70"></div>
+ <div class="shell relative grid gap-14 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-16">
+  <div>
+   <div class="flex flex-wrap items-center gap-4"><span class="eyebrow">Inspire AI</span><span class="chip chip--gold">Em desenvolvimento</span></div>
+   <h2 class="mt-6 text-display text-chalk">Descreva a ideia.<br>Ela volta como <span class="gold-text">briefing técnico</span>.</h2>
+   <p class="mt-6 max-w-lg text-lead text-ash">A maior barreira entre uma ideia e uma peça é a tradução: escala, tecnologia, material, suportes, acabamento. A Inspire AI é o assistente que faz essa ponte — transformando linguagem comum em especificação de fabricação, e a especificação em orçamento.</p>
+   <ul class="mt-9 grid gap-3 sm:grid-cols-2"><li class="flex items-start gap-2.5 text-[0.925rem] text-silver"><span class="mt-2 size-1 flex-none rotate-45 bg-gold"></span>Sugere tecnologia e material</li><li class="flex items-start gap-2.5 text-[0.925rem] text-silver"><span class="mt-2 size-1 flex-none rotate-45 bg-gold"></span>Estima escala e tempo de impressão</li><li class="flex items-start gap-2.5 text-[0.925rem] text-silver"><span class="mt-2 size-1 flex-none rotate-45 bg-gold"></span>Aponta riscos de geometria</li><li class="flex items-start gap-2.5 text-[0.925rem] text-silver"><span class="mt-2 size-1 flex-none rotate-45 bg-gold"></span>Gera o pedido de orçamento pronto</li></ul>
+   <div class="mt-10 flex flex-wrap items-center gap-4"><a class="btn btn--outline">Enquanto isso, peça um orçamento</a></div>
+  </div>
+  <div class="reveal is-visible">
+   <div class="panel p-5 md:p-7"><div class="grid-backdrop grid-backdrop--fine"></div>
+    <div class="relative flex items-center gap-3 border-b border-line pb-4"><span class="relative flex size-2"><span class="absolute inline-flex size-full rounded-full bg-gold opacity-60"></span><span class="relative inline-flex size-2 rounded-full bg-gold"></span></span><span class="font-mono text-[0.625rem] uppercase tracking-[0.2em] text-silver">Inspire AI · pré-visualização</span></div>
+    <div class="relative mt-6 space-y-5">
+     <div class="ml-auto max-w-[85%] rounded-2xl rounded-br-sm border border-line bg-white/[0.03] px-5 py-4"><p class="text-[0.925rem] leading-relaxed text-chalk">Quero um busto do personagem do meu RPG, uns 15 cm, bem detalhado e pintado.</p></div>
+     <div class="max-w-[92%] rounded-2xl rounded-bl-sm border border-gold-line bg-gold/[0.05] px-5 py-5">
+      <p class="font-mono text-[0.5625rem] uppercase tracking-[0.18em] text-gold">Briefing gerado</p>
+      <dl class="mt-4 space-y-2.5"><div class="flex flex-col gap-0.5 text-[0.85rem] sm:flex-row sm:gap-3"><dt class="flex-none font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-ash sm:w-36">Categoria</dt><dd class="text-silver">Colecionável · busto</dd></div><div class="flex flex-col gap-0.5 text-[0.85rem] sm:flex-row sm:gap-3"><dt class="flex-none font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-ash sm:w-36">Escala sugerida</dt><dd class="text-silver">1:6 (≈ 16 cm)</dd></div><div class="flex flex-col gap-0.5 text-[0.85rem] sm:flex-row sm:gap-3"><dt class="flex-none font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-ash sm:w-36">Tecnologia</dt><dd class="text-silver">Resina · camada 0,03 mm</dd></div><div class="flex flex-col gap-0.5 text-[0.85rem] sm:flex-row sm:gap-3"><dt class="flex-none font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-ash sm:w-36">Acabamento</dt><dd class="text-silver">Primer + pintura à mão</dd></div><div class="flex flex-col gap-0.5 text-[0.85rem] sm:flex-row sm:gap-3"><dt class="flex-none font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-ash sm:w-36">Pontos de atenção</dt><dd class="text-silver">Cabelo e capa exigem suporte</dd></div></dl>
+      <p class="mt-5 border-t border-gold-line/50 pt-4 text-[0.85rem] text-chalk">Posso enviar isso como pedido de orçamento?<span class="ml-1 inline-block h-4 w-px translate-y-0.5 bg-gold animate-caret"></span></p>
+     </div>
+    </div>
+    <p class="relative mt-6 border-t border-line pt-4 font-mono text-[0.5625rem] uppercase leading-relaxed tracking-[0.14em] text-ash/70">Interface conceitual — a arquitetura do site já está preparada para o agente.</p>
+   </div>
+  </div>
+ </div>
+</section>
+<section class="relative overflow-x-clip py-(--spacing-section)">
+ <div class="shell relative">
+  
+<div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+ <div class="max-w-2xl">
+  <span class="eyebrow">Como trabalhamos</span>
+  <h2 class="mt-5 text-display text-chalk">Fabricação é confiança <span class="silver-text">antes de ser tecnologia</span>.</h2>
+  
+ </div>
+ 
+</div>
+  <div class="mt-14 grid gap-px overflow-hidden rounded-panel border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+   <div class="reveal is-visible bg-void"><div class="h-full bg-void p-7 md:p-8"><span class="index-num">01</span><h3 class="mt-6 font-display text-lg font-semibold leading-snug text-chalk">Aprovação antes da máquina</h3><p class="mt-3 text-[0.9rem] leading-relaxed text-ash">Nenhuma peça entra em produção sem que você tenha visto o render e concordado com escala, encaixe e acabamento.</p></div></div><div class="reveal is-visible bg-void"><div class="h-full bg-void p-7 md:p-8"><span class="index-num">02</span><h3 class="mt-6 font-display text-lg font-semibold leading-snug text-chalk">Um responsável, do início ao fim</h3><p class="mt-3 text-[0.9rem] leading-relaxed text-ash">O mesmo estúdio modela, imprime, lixa e pinta. Não há terceirização escondida no meio do caminho.</p></div></div><div class="reveal is-visible bg-void"><div class="h-full bg-void p-7 md:p-8"><span class="index-num">03</span><h3 class="mt-6 font-display text-lg font-semibold leading-snug text-chalk">Seus arquivos são seus</h3><p class="mt-3 text-[0.9rem] leading-relaxed text-ash">Projetos e modelos enviados são tratados como confidenciais e usados apenas para produzir a sua peça.</p></div></div><div class="reveal is-visible bg-void"><div class="h-full bg-void p-7 md:p-8"><span class="index-num">04</span><h3 class="mt-6 font-display text-lg font-semibold leading-snug text-chalk">Prazo combinado é prazo</h3><p class="mt-3 text-[0.9rem] leading-relaxed text-ash">O prazo sai junto com o orçamento, considerando modelagem, tempo real de impressão e bancada de acabamento.</p></div></div>
+  </div>
+ </div>
+</section>
+<section class="relative overflow-x-clip py-(--spacing-section) bg-graphite/60 border-t border-line">
+ <div class="shell relative grid gap-12 lg:grid-cols-[0.8fr_1.4fr] lg:gap-16">
+  <div class="lg:sticky lg:top-28 lg:self-start">
+   <span class="eyebrow">Dúvidas frequentes</span>
+   <h2 class="mt-6 text-title text-chalk">O que quase todo mundo <span class="gold-text">pergunta antes</span>.</h2>
+   <p class="mt-5 max-w-sm text-[0.95rem] leading-relaxed text-ash">Se a sua pergunta não estiver aqui, ela provavelmente é específica do seu projeto — e essa é a melhor conversa para se ter.</p>
+   <a class="btn btn--outline btn--sm mt-8">Perguntar direto</a>
+  </div>
+  <div class="divide-y divide-line border-y border-line">
+   <details class="group" open>
+    <summary class="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-left"><span class="font-display text-lg font-medium text-chalk md:text-xl">Preciso ter um arquivo 3D pronto?</span><span class="relative mt-1 grid size-7 flex-none place-items-center rounded-full border border-line text-gold"><span class="absolute h-px w-3 bg-current"></span><span class="absolute h-3 w-px bg-current transition-transform duration-300 group-open:rotate-90 group-open:opacity-0"></span></span></summary>
+    <p class="max-w-3xl pb-7 text-[0.975rem] leading-relaxed text-ash">Não. Você pode chegar com um arquivo STL, com uma foto, com um rascunho no papel ou apenas com a ideia escrita. Se não houver modelo, a modelagem digital entra como etapa do projeto e você aprova um render antes de qualquer impressão.</p></details><details class="group">
+    <summary class="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-left"><span class="font-display text-lg font-medium text-chalk md:text-xl">Qual a diferença entre FDM e resina no meu caso?</span><span class="relative mt-1 grid size-7 flex-none place-items-center rounded-full border border-line text-gold"><span class="absolute h-px w-3 bg-current"></span><span class="absolute h-3 w-px bg-current transition-transform duration-300 group-open:rotate-90 group-open:opacity-0"></span></span></summary>
+    <p class="max-w-3xl pb-7 text-[0.975rem] leading-relaxed text-ash">FDM é a escolha para peças maiores, funcionais e resistentes. Resina é a escolha quando o detalhe fino importa — miniaturas, colecionáveis e superfícies que precisam sair limpas. Em muitos projetos as duas tecnologias trabalham juntas na mesma peça.</p></details><details class="group">
+    <summary class="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-left"><span class="font-display text-lg font-medium text-chalk md:text-xl">Vocês fazem peça única ou só em quantidade?</span><span class="relative mt-1 grid size-7 flex-none place-items-center rounded-full border border-line text-gold"><span class="absolute h-px w-3 bg-current"></span><span class="absolute h-3 w-px bg-current transition-transform duration-300 group-open:rotate-90 group-open:opacity-0"></span></span></summary>
+    <p class="max-w-3xl pb-7 text-[0.975rem] leading-relaxed text-ash">As duas coisas. Fabricação sob demanda significa que uma peça única é viável — e séries pequenas e médias também, com o custo por unidade caindo conforme a quantidade.</p></details><details class="group">
+    <summary class="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-left"><span class="font-display text-lg font-medium text-chalk md:text-xl">Como funciona o prazo?</span><span class="relative mt-1 grid size-7 flex-none place-items-center rounded-full border border-line text-gold"><span class="absolute h-px w-3 bg-current"></span><span class="absolute h-3 w-px bg-current transition-transform duration-300 group-open:rotate-90 group-open:opacity-0"></span></span></summary>
+    <p class="max-w-3xl pb-7 text-[0.975rem] leading-relaxed text-ash">O prazo é definido junto com o orçamento e depende de três fatores: se há modelagem, o tempo de impressão da geometria e o nível de acabamento. Projetos simples costumam sair em poucos dias; peças pintadas e séries pedem mais tempo de bancada.</p></details><details class="group">
+    <summary class="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-left"><span class="font-display text-lg font-medium text-chalk md:text-xl">Meu projeto é confidencial. Posso enviar mesmo assim?</span><span class="relative mt-1 grid size-7 flex-none place-items-center rounded-full border border-line text-gold"><span class="absolute h-px w-3 bg-current"></span><span class="absolute h-3 w-px bg-current transition-transform duration-300 group-open:rotate-90 group-open:opacity-0"></span></span></summary>
+    <p class="max-w-3xl pb-7 text-[0.975rem] leading-relaxed text-ash">Pode. Arquivos e informações de projeto são tratados como material confidencial e usados apenas para produzir a sua peça. Se o seu processo exigir, trabalhamos com acordo de confidencialidade assinado antes do envio.</p></details><details class="group">
+    <summary class="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-left"><span class="font-display text-lg font-medium text-chalk md:text-xl">Vocês desenvolvem produtos do zero?</span><span class="relative mt-1 grid size-7 flex-none place-items-center rounded-full border border-line text-gold"><span class="absolute h-px w-3 bg-current"></span><span class="absolute h-3 w-px bg-current transition-transform duration-300 group-open:rotate-90 group-open:opacity-0"></span></span></summary>
+    <p class="max-w-3xl pb-7 text-[0.975rem] leading-relaxed text-ash">Sim. Além de fabricar, a Inspire 3D atua no desenvolvimento de produto: conceito, modelagem, protótipo funcional, iteração e preparação para produção — inclusive em projetos autorais e séries próprias.</p></details>
+  </div>
+ </div>
+</section>
+<section class="relative overflow-hidden py-(--spacing-section)">
+ <div class="absolute inset-0 -z-10">
+  <div class="absolute inset-0 bg-[radial-gradient(90%_120%_at_50%_120%,#1A1D23_0%,#08090B_60%)]"></div>
+  <div class="grid-backdrop"></div><div class="halo left-1/2 top-full size-[620px] -translate-x-1/2 -translate-y-1/2"></div><div class="noise"></div>
+ </div>
+ <div class="shell relative text-center">
+  <div class="mx-auto flex flex-col items-center">
+   <span class="eyebrow">Próximo passo</span>
+   <h2 class="mt-7 max-w-4xl text-hero font-semibold text-chalk">Você imagina.<br>A gente <span class="gold-text">fabrica</span>.</h2>
+   <p class="mt-7 max-w-xl text-lead text-ash">Traga a ideia do jeito que ela existe hoje — mesmo que seja só uma frase. O resto do caminho é com o estúdio.</p>
+   <div class="mt-11 flex flex-col gap-3 sm:flex-row"><a class="btn btn--gold btn--lg">Pedir orçamento</a><a class="btn btn--outline btn--lg">Chamar no WhatsApp</a></div>
+   <a class="link-underline mt-10 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-ash">contato@inspire3d.com.br</a>
+  </div>
+ </div>
+</section></main>
+
+<footer class="relative overflow-hidden border-t border-line bg-void">
+ <div class="grid-backdrop grid-backdrop--fine opacity-60"></div>
+ <div class="halo left-1/2 top-full size-[520px] -translate-x-1/2 -translate-y-1/2"></div>
+ <div class="shell relative py-16 md:py-20">
+  <div class="grid gap-12 lg:grid-cols-[1.3fr_2fr]">
+   <div><span class="inline-flex items-center gap-2.5">
+<svg viewBox="0 0 40 40" class="size-9" fill="none">
+  <defs>
+    <linearGradient id="i3d-gold-top" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FBE39C"/><stop offset="100%" stop-color="#D4A437"/></linearGradient>
+    <linearGradient id="i3d-gold-right" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C89A31"/><stop offset="100%" stop-color="#8A6A1E"/></linearGradient>
+    <linearGradient id="i3d-gold-left" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#A98226"/><stop offset="100%" stop-color="#6B5117"/></linearGradient>
+  </defs>
+  <path d="M5 11V6h6M35 11V6h-6M5 29v5h6M35 29v5h-6" stroke="#B7BBC2" stroke-opacity="0.55" stroke-width="1.6" stroke-linecap="square"/>
+  <path d="M4 12h32" stroke="#B7BBC2" stroke-opacity="0.35" stroke-width="1.2"/>
+  <path d="M17.4 12h5.2l-1.7 3.4h-1.8L17.4 12Z" fill="#B7BBC2" fill-opacity="0.8"/>
+  <path d="M20 15.6v2.2" stroke="#F0C75E" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M20 18.4 27.8 23 20 27.6 12.2 23 20 18.4Z" fill="url(#i3d-gold-top)"/>
+  <path d="M27.8 23v8L20 35.6v-8L27.8 23Z" fill="url(#i3d-gold-right)"/>
+  <path d="M12.2 23v8L20 35.6v-8L12.2 23Z" fill="url(#i3d-gold-left)"/>
+</svg><span class="font-display text-[1.0625rem] font-semibold tracking-tight text-chalk">INSPIRE <span class="gold-text">3D</span></span></span><p class="mt-5 max-w-sm text-sm leading-relaxed text-ash">Estúdio de fabricação criativa: impressão 3D, modelagem e personalização para transformar ideias em produtos físicos.</p><p class="mt-6 font-display text-lg text-silver">Transformando ideias em realidade.</p></div>
+   <div class="grid gap-10 sm:grid-cols-3">
+    <div><h3 class="font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-gold">Fabricação</h3><ul class="mt-5 space-y-3"><li><a class="inline-flex items-center gap-2 text-sm text-ash">Colecionáveis & Action Figures</a></li><li><a class="inline-flex items-center gap-2 text-sm text-ash">Board Games</a></li><li><a class="inline-flex items-center gap-2 text-sm text-ash">Decoração & Design</a></li><li><a class="inline-flex items-center gap-2 text-sm text-ash">Protótipos & Peças Funcionais</a></li><li><a class="inline-flex items-center gap-2 text-sm text-ash">Personalizados</a></li></ul></div><div><h3 class="font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-gold">Estúdio</h3><ul class="mt-5 space-y-3"><li><a class="inline-flex items-center gap-2 text-sm text-ash">Processo</a></li><li><a class="inline-flex items-center gap-2 text-sm text-ash">Tecnologias</a></li><li><a class="inline-flex items-center gap-2 text-sm text-ash">Projetos</a></li><li><a class="inline-flex items-center gap-2 text-sm text-ash">Produtos</a></li></ul></div><div><h3 class="font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-gold">Comercial</h3><ul class="mt-5 space-y-3"><li><a class="inline-flex items-center gap-2 text-sm text-ash">Orçamento inteligente</a></li><li><a class="inline-flex items-center gap-2 text-sm text-ash">Contato</a></li><li><a class="inline-flex items-center gap-2 text-sm text-ash">Inspire AI</a></li></ul></div>
+   </div>
+  </div>
+  <div class="mt-14 rule"></div>
+  <div class="mt-8 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+   <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ash"><a class="link-underline">contato@inspire3d.com.br</a><a class="link-underline">WhatsApp</a><a class="link-underline">Instagram</a></div>
+   <p class="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-ash/70">© 2026 Inspire 3D — Fabricação criativa</p>
+  </div>
+ </div>
+</footer>
+</body></html>

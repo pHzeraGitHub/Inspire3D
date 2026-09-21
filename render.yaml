@@ -1,0 +1,38 @@
+# Blueprint do Render — descreve o serviço para não depender de clique no painel.
+#
+# Se preferir criar pelo painel, os únicos valores que importam são o
+# buildCommand e o startCommand abaixo; o resto é conveniência.
+services:
+  - type: web
+    name: inspire3d-site
+    runtime: node
+    region: oregon
+    plan: free
+    # npm ci usa o package-lock.json: build reproduzível, igual ao seu local.
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      # ── Públicas ──────────────────────────────────────────────────
+      # ATENÇÃO: variáveis NEXT_PUBLIC_* entram no código durante o BUILD,
+      # não na hora da requisição. Mudar o valor exige um novo deploy.
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
+      - key: NEXT_PUBLIC_WHATSAPP
+        value: "5531999700539"
+
+      # ── Inspire AI ────────────────────────────────────────────────
+      # sync: false = o valor NÃO fica no repositório. Você digita no painel.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: INSPIRE_AI_MODEL
+        value: claude-sonnet-5
+
+      # ── E-mail dos orçamentos ─────────────────────────────────────
+      - key: RESEND_API_KEY
+        sync: false
+      - key: QUOTE_NOTIFICATION_EMAIL
+        sync: false
+      - key: QUOTE_FROM_EMAIL
+        sync: false

@@ -1,0 +1,15 @@
+{
+  "name": "Inspire 3D",
+  "short_name": "Inspire 3D",
+  "description": "Estúdio de fabricação criativa: impressão 3D, modelagem e personalização.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08090B",
+  "theme_color": "#08090B",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "/favicon.png", "type": "image/png", "sizes": "48x48" },
+    { "src": "/apple-touch-icon.png", "type": "image/png", "sizes": "180x180" }
+  ]
+}
