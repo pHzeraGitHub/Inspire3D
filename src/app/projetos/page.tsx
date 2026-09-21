@@ -8,7 +8,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "Projetos",
   description:
-    "Seleção de projetos fabricados pela Inspire 3D — colecionáveis, board games, decoração, protótipos e projetos especiais.",
+    "Estudos de aplicação da Inspire 3D para colecionáveis, board games, decoração, protótipos e projetos especiais.",
   path: "/projetos",
 });
 
@@ -17,8 +17,8 @@ export default function ProjetosPage() {
     <>
       <PageIntro
         eyebrow="Portfólio"
-        title="Projetos que passaram pela bancada."
-        description="Cada peça aqui percorreu o mesmo caminho: ideia, modelagem, fabricação e acabamento. As imagens definitivas entram na próxima fase do site."
+        title="Aplicações que estamos preparados para fabricar."
+        description="Esta vitrine é conceitual: mostra possibilidades de fabricação enquanto o portfólio fotográfico real é construído. Nenhum destes cards é apresentado como case de cliente."
       />
 
       <section className="pb-(--spacing-section)">

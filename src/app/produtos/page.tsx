@@ -2,12 +2,15 @@ import { PageIntro } from "@/components/layout/PageIntro";
 import { ComingSoon } from "@/components/layout/ComingSoon";
 import { pageMetadata } from "@/lib/seo";
 
-export const metadata = pageMetadata({
-  title: "Produtos",
-  description:
-    "Catálogo de produtos autorais da Inspire 3D — colecionáveis, componentes para board games e objetos de design.",
-  path: "/produtos",
-});
+export const metadata = {
+  ...pageMetadata({
+    title: "Produtos",
+    description:
+      "Catálogo de produtos autorais da Inspire 3D — colecionáveis, componentes para board games e objetos de design.",
+    path: "/produtos",
+  }),
+  robots: { index: false, follow: false },
+};
 
 export default function ProdutosPage() {
   return (

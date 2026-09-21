@@ -6,8 +6,8 @@ const chain = ["Ideia", "Digital", "Fabricação", "Realidade"];
 
 const capabilities = [
   { value: "FDM + Resina", label: "Duas tecnologias" },
-  { value: "0,01 mm", label: "Camada mínima" },
-  { value: "1 a 1.000", label: "Peça única ou série" },
+  { value: "Alta definição", label: "Detalhe e acabamento" },
+  { value: "Sob demanda", label: "Peça única ou pequenas séries" },
   { value: "Manual", label: "Pintura e acabamento" },
 ];
 

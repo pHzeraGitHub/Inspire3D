@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { askInspireAi, MAX_MESSAGE_CHARS, MAX_TURNS, type ChatMessage } from "@/lib/inspire-ai";
 import { estimateQuote } from "@/lib/quote";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { notifyQuoteLead } from "@/lib/quote-lead";
 import {
   CATEGORIES,
   DEADLINES,
@@ -156,9 +157,10 @@ export async function POST(request: Request) {
   }
 
   const estimate = estimateQuote(data);
+  const delivery = await notifyQuoteLead({ data, estimate, source: "inspire-ai" });
 
   return NextResponse.json(
-    { ok: true, done: true, reply: turn.text, data, estimate },
+    { ok: true, done: true, reply: turn.text, data, estimate, delivery: delivery.status },
     { status: 200 },
   );
 }

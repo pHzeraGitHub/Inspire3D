@@ -14,10 +14,10 @@ export function ProjectsSection() {
           eyebrow="Projetos"
           title={
             <>
-              Peças que já <span className="gold-text">saíram da bancada</span>.
+              Ideias que podem <span className="gold-text">ganhar forma</span>.
             </>
           }
-          description="Uma amostra do tipo de projeto que passa pelo estúdio — de colecionável autoral a protótipo funcional."
+          description="Estudos de aplicação que mostram as frentes que o estúdio está preparado para desenvolver. O portfólio real entra conforme as primeiras peças forem finalizadas."
           action={
             <Button href="/projetos" variant="outline">
               Ver todos os projetos
@@ -45,7 +45,7 @@ export function ProjectsSection() {
                     <h3 className="font-display text-lg font-semibold text-chalk transition-colors duration-300 group-hover:text-gold-lum">
                       {project.title}
                     </h3>
-                    <span className="index-num">{project.year}</span>
+                    <span className="index-num">conceito</span>
                   </div>
                   <p className="mt-2.5 text-sm leading-relaxed text-ash">{project.summary}</p>
                   <ul className="mt-5 flex flex-wrap gap-x-3 gap-y-1.5">

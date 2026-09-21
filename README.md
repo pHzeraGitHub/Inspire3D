@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Inspire 3D — Site oficial
 
 > **Transformando ideias em realidade.**
@@ -170,6 +169,3 @@ decisão sua.
 - [ ] Trocar as artes geradas do portfólio por fotos reais (campo `cover` em `Project`)
 - [ ] **Revisar `/politica-de-privacidade` e `/termos` com advogado** e preencher razão social, CNPJ e foro
 - [x] `public/og-image.png` (1200×630), favicon, apple-touch-icon e webmanifest
-=======
-# Inspire3D
->>>>>>> 24e8a7ee6fcf78edcadca74113521d42f47158fb

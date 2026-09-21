@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import type { QuoteEstimate, QuoteRequest } from "@/types";
+import type { LeadDeliveryStatus, QuoteEstimate, QuoteRequest } from "@/types";
 import { FinishSample } from "@/components/visuals/FinishSample";
 import { estimateQuote } from "@/lib/quote";
 import { FileUpload } from "./FileUpload";
@@ -36,7 +36,7 @@ export function QuoteWizard() {
   const [files, setFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<Errors>({});
   const [sending, setSending] = useState(false);
-  const [result, setResult] = useState<{ data: QuoteRequest; estimate: QuoteEstimate } | null>(null);
+  const [result, setResult] = useState<{ data: QuoteRequest; estimate: QuoteEstimate; delivery: LeadDeliveryStatus } | null>(null);
   /** Honeypot: bot preenche, humano não vê. */
   const honeypot = useRef<HTMLInputElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
@@ -145,6 +145,7 @@ export function QuoteWizard() {
         data?: QuoteRequest;
         error?: string;
         fields?: Record<string, string>;
+        delivery?: LeadDeliveryStatus;
       };
 
       if (!response.ok || !json.ok || !json.estimate || !json.data) {
@@ -155,7 +156,7 @@ export function QuoteWizard() {
         return;
       }
 
-      setResult({ data: json.data, estimate: json.estimate });
+      setResult({ data: json.data, estimate: json.estimate, delivery: json.delivery ?? "failed" });
       scrollTop();
     } catch {
       setErrors({
@@ -172,6 +173,7 @@ export function QuoteWizard() {
         <QuoteResult
           data={result.data}
           estimate={result.estimate}
+          delivery={result.delivery}
           onRestart={() => {
             setResult(null);
             setDraft({ technology: "indefinido", quantity: 1, consent: false });

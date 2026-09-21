@@ -10,7 +10,7 @@ import { site } from "@/config/site";
 
 export type Attachment = { filename: string; content: string };
 
-type SendResult = { status: "sent" | "skipped" | "failed"; detail?: string };
+export type SendResult = { status: "sent" | "skipped" | "failed"; detail?: string };
 
 export async function sendLeadEmail({
   subject,

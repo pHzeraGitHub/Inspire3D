@@ -48,8 +48,7 @@ export default async function ProjetoPage({ params }: { params: Promise<{ slug: 
 
           <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_1fr]">
             <p className="text-lead text-ash">
-              A ficha técnica completa deste projeto — etapas, materiais, tempo de impressão e
-              fotos da peça finalizada — entra na próxima fase do site.
+              Este é um estudo de aplicação para demonstrar a capacidade do estúdio. A ficha de um case real — com etapas, materiais, tempo de impressão e fotos da peça finalizada — entra aqui assim que o portfólio fotográfico estiver pronto.
             </p>
             <div className="lg:justify-self-end">
               <Button href="/orcamento">Quero algo parecido</Button>

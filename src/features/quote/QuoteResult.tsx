@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/Button";
 import { site, whatsappLink } from "@/config/site";
-import type { QuoteEstimate, QuoteRequest } from "@/types";
+import type { LeadDeliveryStatus, QuoteEstimate, QuoteRequest } from "@/types";
 import { briefingLines, complexityLabel, whatsappMessage } from "./summary";
 
 const complexityNote = {
@@ -15,10 +15,12 @@ export function QuoteResult({
   data,
   estimate,
   onRestart,
+  delivery,
 }: {
   data: QuoteRequest;
   estimate: QuoteEstimate;
   onRestart: () => void;
+  delivery: LeadDeliveryStatus;
 }) {
   const lines = briefingLines(data, estimate);
 
@@ -41,10 +43,12 @@ export function QuoteResult({
           </span>
           <div>
             <h2 className="font-display text-xl font-semibold text-chalk">
-              Pedido registrado, {data.name.trim().split(" ")[0]}.
+              {delivery === "sent" ? "Pedido enviado" : "Estimativa pronta"}, {data.name.trim().split(" ")[0]}.
             </h2>
             <p className="mt-0.5 text-sm text-ash">
-              O estúdio recebeu seu briefing. Resposta com a proposta em até 1 dia útil.
+              {delivery === "sent"
+                ? "Seu briefing foi encaminhado ao estúdio. Resposta com a proposta em até 1 dia útil."
+                : "Não conseguimos confirmar o envio automático do briefing. A estimativa continua válida; envie pelo WhatsApp ou e-mail abaixo para não perder o contato."}
             </p>
           </div>
         </div>

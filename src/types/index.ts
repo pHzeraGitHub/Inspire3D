@@ -136,6 +136,8 @@ export type QuoteRequest = {
 
 export type QuoteComplexity = "simples" | "media" | "alta";
 
+export type LeadDeliveryStatus = "sent" | "skipped" | "failed";
+
 export type QuoteEstimate = {
   currency: "BRL";
   /** Só vem preenchido quando a tabela de preço está calibrada. */

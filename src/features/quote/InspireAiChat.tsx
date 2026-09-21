@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import type { QuoteEstimate, QuoteRequest } from "@/types";
+import type { LeadDeliveryStatus, QuoteEstimate, QuoteRequest } from "@/types";
 import { QuoteResult } from "./QuoteResult";
 
 /**
@@ -26,7 +26,7 @@ export function InspireAiChat({ onPreferForm }: { onPreferForm: () => void }) {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<{ data: QuoteRequest; estimate: QuoteEstimate } | null>(
+  const [result, setResult] = useState<{ data: QuoteRequest; estimate: QuoteEstimate; delivery: LeadDeliveryStatus } | null>(
     null,
   );
 
@@ -62,6 +62,7 @@ export function InspireAiChat({ onPreferForm }: { onPreferForm: () => void }) {
         data?: QuoteRequest;
         estimate?: QuoteEstimate;
         error?: string;
+        delivery?: LeadDeliveryStatus;
       };
 
       if (!response.ok || !json.ok) {
@@ -74,7 +75,7 @@ export function InspireAiChat({ onPreferForm }: { onPreferForm: () => void }) {
       }
 
       if (json.done && json.data && json.estimate) {
-        setResult({ data: json.data, estimate: json.estimate });
+        setResult({ data: json.data, estimate: json.estimate, delivery: json.delivery ?? "failed" });
       }
     } catch {
       setError("Falha de conexão. Tenta de novo ou use o formulário.");
@@ -89,6 +90,7 @@ export function InspireAiChat({ onPreferForm }: { onPreferForm: () => void }) {
       <QuoteResult
         data={result.data}
         estimate={result.estimate}
+        delivery={result.delivery}
         onRestart={() => {
           setResult(null);
           setMessages([{ role: "assistant", content: OPENING }]);

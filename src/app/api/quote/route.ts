@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { estimateQuote } from "@/lib/quote";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
-import { leadEmailTemplate, sendLeadEmail, type Attachment } from "@/lib/mailer";
-import { briefingLines, complexityLabel } from "@/features/quote/summary";
+import { type Attachment } from "@/lib/mailer";
+import { notifyQuoteLead } from "@/lib/quote-lead";
 import {
   ACCEPTED_EXTENSIONS,
   MAX_FILES,
@@ -159,51 +159,13 @@ export async function POST(request: Request) {
     attachments.push({ filename: file.name, content: buffer.toString("base64") });
   }
 
-  const { html, text: plain } = leadEmailTemplate({
-    contact: [
-      { label: "Nome", value: name },
-      { label: "E-mail", value: email },
-      ...(phone ? [{ label: "WhatsApp", value: phone }] : []),
-      ...(company ? [{ label: "Empresa", value: company }] : []),
-    ],
-    lines: briefingLines(data, estimate),
-    description,
-    estimate: [
-      {
-        label: "Tecnologia indicada",
-        value: estimate.recommendedTechnology === "resina" ? "Resina" : "FDM",
-      },
-      { label: "Complexidade", value: complexityLabel[estimate.complexity] },
-      {
-        label: "Prazo estimado",
-        value: `${estimate.leadTimeDays[0]} a ${estimate.leadTimeDays[1]} dias úteis`,
-      },
-      ...(estimate.price
-        ? [
-            {
-              label: "Faixa estimada",
-              value: `R$ ${estimate.price.min.toLocaleString("pt-BR")} – ${estimate.price.max.toLocaleString("pt-BR")}`,
-            },
-          ]
-        : [{ label: "Faixa estimada", value: "tabela de preço ainda não calibrada" }]),
-    ],
-    files: data.files?.map((f) => `${f.name} (${formatBytes(f.size)})`) ?? [],
-  });
-
-  const mail = await sendLeadEmail({
-    subject: `Orçamento — ${name}${company ? ` (${company})` : ""}`,
-    html,
-    text: plain,
-    replyTo: email,
+  const delivery = await notifyQuoteLead({
+    data,
+    estimate,
+    source: "formulario",
     attachments,
   });
 
-  if (mail.status === "failed") {
-    // O cliente não pode pagar por uma falha nossa: o lead ainda vai para o log
-    // e a tela oferece o WhatsApp como saída.
-    console.error("[quote] LEAD NÃO NOTIFICADO:", plain);
-  }
-
   // TODO (Fase 3): persistir o lead no banco assim que o Prisma entrar.
-  return NextResponse.json({ ok: true, estimate, data }, { status: 200 });
+  return NextResponse.json({ ok: true, estimate, data, delivery: delivery.status }, { status: 200 });
 }
