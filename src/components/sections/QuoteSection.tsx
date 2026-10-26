@@ -7,18 +7,18 @@ import { Reveal } from "@/components/ui/Reveal";
 const steps = [
   {
     step: "01",
-    title: "Descreva ou envie",
-    text: "Uma foto, um rascunho, um arquivo STL ou apenas o texto da ideia. O que você tiver em mãos já serve.",
+    title: "Conte o que imagina",
+    text: "Descreva o produto, a ocasião ou a ideia. Uma referência, uma foto ou só algumas palavras já ajudam a começar.",
   },
   {
     step: "02",
-    title: "Escolha o caminho",
-    text: "Tecnologia, material, tamanho, quantidade e nível de acabamento — com a recomendação do estúdio para cada opção.",
+    title: "Defina suas preferências",
+    text: "Organize categoria, personalização, quantidade, tamanho e acabamento sem precisar conhecer os processos de fabricação.",
   },
   {
     step: "03",
-    title: "Receba a estimativa",
-    text: "Faixa de investimento e prazo estimado na hora, com as premissas explicadas. A proposta final vem depois da análise técnica.",
+    title: "Organize o orçamento",
+    text: "Veja uma estimativa baseada nas informações enviadas. A proposta final pode depender da análise técnica do projeto.",
   },
 ];
 
@@ -32,12 +32,11 @@ export function QuoteSection() {
         <div>
           <Eyebrow>Orçamento inteligente</Eyebrow>
           <h2 className="mt-6 text-display text-chalk">
-            Uma estimativa <span className="gold-text">antes</span> da conversa.
+            Um briefing claro para <span className="gold-text">começar.</span>
           </h2>
           <p className="mt-6 max-w-lg text-lead text-ash">
-            Pedir orçamento de peça 3D costuma ser um formulário no escuro. Aqui o fluxo é o
-            contrário: você entende o que muda o preço enquanto responde, e sai com uma faixa e um
-            prazo na tela.
+            Conte o produto ou a personalização que procura. O fluxo organiza as preferências e
+            prepara as informações para a estimativa, sem exigir que você entenda de fabricação.
           </p>
 
           <ol className="mt-10 space-y-7">
@@ -75,12 +74,12 @@ export function QuoteSection() {
 
             <dl className="relative mt-6 grid grid-cols-2 gap-x-6 gap-y-5">
               {[
-                ["Categoria", "Colecionável"],
-                ["Tecnologia", "Resina"],
-                ["Altura", "18 cm"],
-                ["Quantidade", "1 unidade"],
-                ["Acabamento", "Pintado à mão"],
-                ["Modelagem", "Inclusa"],
+                ["Coleção", "A definir"],
+                ["Categoria", "Conforme o pedido"],
+                ["Personalização", "Preferências do cliente"],
+                ["Quantidade", "Informada no fluxo"],
+                ["Tamanho", "A confirmar"],
+                ["Acabamento", "A combinar"],
               ].map(([label, value]) => (
                 <div key={label}>
                   <dt className="font-mono text-[0.5625rem] uppercase tracking-[0.16em] text-ash">
@@ -120,23 +119,20 @@ export function QuoteSection() {
             <div className="relative mt-8 flex flex-wrap items-end justify-between gap-4 rounded-xl border border-gold-line bg-gold/[0.06] p-5">
               <div>
                 <p className="font-mono text-[0.5625rem] uppercase tracking-[0.18em] text-gold">
-                  Faixa estimada
+                  Faixa de investimento
                 </p>
-                <p className="mt-2 font-display text-3xl font-semibold text-chalk">
-                  R$ 000 <span className="text-ash">–</span> 000
-                </p>
+                <p className="mt-2 font-display text-xl font-semibold text-chalk">Calculada no orçamento</p>
               </div>
               <div className="text-right">
                 <p className="font-mono text-[0.5625rem] uppercase tracking-[0.18em] text-ash">
                   Prazo estimado
                 </p>
-                <p className="mt-2 font-display text-xl text-silver">7 – 12 dias</p>
+                <p className="mt-2 font-display text-lg text-silver">Conforme o projeto</p>
               </div>
             </div>
 
             <p className="relative mt-4 text-[0.7rem] leading-relaxed text-ash/80">
-              Valores e prazos são calculados no momento do pedido, a partir da geometria, do
-              material e do acabamento escolhidos.
+              Valores e prazos dependem dos detalhes do pedido e da análise do projeto.
             </p>
           </div>
         </Reveal>

@@ -1,12 +1,14 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/config/site";
 import { projects } from "@/content/projects";
+import { products } from "@/content/products";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   const routes = [
     "",
     "/servicos",
+    "/produtos",
     "/projetos",
     "/orcamento",
     "/contato",
@@ -27,6 +29,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.5,
+    })),
+    ...products.map((product) => ({
+      url: `${site.url}/produtos/${product.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: product.featured ? 0.8 : 0.6,
     })),
   ];
 }

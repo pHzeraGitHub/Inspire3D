@@ -5,11 +5,11 @@
 export const site = {
   name: "Inspire 3D",
   legalName: "Inspire 3D",
-  slogan: "Transformando ideias em realidade.",
+  slogan: "Transformamos ideias em produtos que inspiram.",
   shortDescription:
-    "Estúdio de fabricação criativa: impressão 3D, modelagem e personalização para transformar ideias em produtos físicos.",
+    "Marca de produtos criativos e personalizados que combina design, tecnologia e fabricação digital.",
   description:
-    "A Inspire 3D é um estúdio de fabricação criativa. Unimos modelagem digital, impressão 3D FDM e resina, pintura e acabamento manual para transformar ideias em objetos reais — colecionáveis, board games, protótipos, peças funcionais e projetos autorais.",
+    "A Inspire 3D é uma marca de produtos criativos próprios e personalizados. Unimos design, inteligência artificial e fabricação digital — incluindo modelagem e impressão 3D FDM e resina — para desenvolver produtos autorais, presentes, colecionáveis, jogos e soluções funcionais.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.inspire3d.com.br",
   locale: "pt-BR",
   contact: {

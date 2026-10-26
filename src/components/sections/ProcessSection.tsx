@@ -12,14 +12,13 @@ export function ProcessSection() {
 
       <Container className="relative">
         <SectionHeading
-          eyebrow="O caminho da peça"
+          eyebrow="Como criamos"
           title={
             <>
-              Da <span className="silver-text">ideia</span> à{" "}
-              <span className="gold-text">realidade</span>, em quatro etapas.
+              Da ideia à <span className="gold-text">experiência</span>, em quatro etapas.
             </>
           }
-          description="Todo projeto da Inspire 3D percorre o mesmo caminho — o que muda é a profundidade de cada etapa. Você acompanha e aprova antes de cada avanço."
+          description="A tecnologia ajuda a dar forma ao conceito. O que guia cada etapa é a intenção por trás do produto."
         />
 
         <div className="relative mt-16">

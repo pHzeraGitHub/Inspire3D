@@ -9,9 +9,7 @@ import { whatsappLink } from "@/config/site";
 /**
  * Soluções para empresas (briefing §16).
  *
- * Existe por razão comercial, não decorativa: um estúdio de fabricação que
- * depende só de B2C fica refém de sazonalidade e de pedido unitário. Peça
- * corporativa é volume recorrente e previsível.
+ * Linha comercial B2B para presentes, produtos de marca e projetos sob demanda.
  */
 export function BusinessSection() {
   return (
@@ -20,17 +18,17 @@ export function BusinessSection() {
         <div className="grid gap-12 lg:grid-cols-[minmax(0,26rem)_1fr] lg:gap-16">
           <div className="lg:sticky lg:top-28 lg:self-start">
             <SectionHeading
-              eyebrow="Para empresas"
+              eyebrow="Inspire para empresas"
               title={
                 <>
-                  Soluções para <span className="gold-text">empresas</span>.
+                  Sua marca merece algo <span className="gold-text">extraordinário.</span>
                 </>
               }
-              description="Fabricação sob demanda resolve o que molde e ferramental não resolvem: quantidade pequena, peça que muda toda hora, e prazo que não cabe em importação."
+              description="Presentes, kits e produtos personalizados que levam a identidade da sua empresa para além da tela."
             />
 
             <div className="mt-9 flex flex-wrap gap-3">
-              <Button href="/orcamento">Falar sobre um projeto empresarial</Button>
+              <Button href="/orcamento?categoria=corporativo">Solicitar proposta empresarial</Button>
               <Button
                 href={whatsappLink(
                   "Olá! Sou de uma empresa e gostaria de conversar sobre um projeto com a Inspire 3D.",
@@ -42,8 +40,8 @@ export function BusinessSection() {
             </div>
 
             <p className="mt-7 max-w-md text-[0.875rem] leading-relaxed text-ash">
-              Emitimos nota e trabalhamos com projeto recorrente. Se a demanda se repete, vale
-              desenhar o processo junto em vez de orçar peça a peça.
+              Conte o objetivo, a quantidade aproximada e a ocasião. O fluxo de orçamento ajuda a
+              organizar os próximos passos do projeto.
             </p>
           </div>
 

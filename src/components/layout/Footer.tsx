@@ -78,6 +78,22 @@ export function Footer() {
             >
               Instagram
             </a>
+            <a
+              href={site.social.youtube}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link-underline transition-colors hover:text-chalk"
+            >
+              YouTube
+            </a>
+            <a
+              href={site.social.tiktok}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link-underline transition-colors hover:text-chalk"
+            >
+              TikTok
+            </a>
           </div>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ash">
             {legalNav.map((item) => (
@@ -91,7 +107,7 @@ export function Footer() {
             ))}
           </div>
           <p className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-ash/70">
-            © {year} {site.name} — Fabricação criativa
+            © {year} {site.name} — Produtos criativos
           </p>
         </div>
       </div>

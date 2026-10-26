@@ -12,12 +12,20 @@ import { QuoteWizard } from "./QuoteWizard";
  * diferente de responder as mesmas perguntas, para quem tem preguiça de
  * formulário ou não sabe o que é FDM.
  */
-export function QuoteEntry({ aiEnabled }: { aiEnabled: boolean }) {
-  const [mode, setMode] = useState<"conversa" | "formulario">(
-    aiEnabled ? "conversa" : "formulario",
+export function QuoteEntry({
+  aiEnabled,
+  initialCategory,
+  aiRequested = false,
+}: {
+  aiEnabled: boolean;
+  initialCategory?: string;
+  aiRequested?: boolean;
+}) {
+  const [mode, setMode] = useState<"conversa" | "formulario">(() =>
+    aiEnabled && (aiRequested || !initialCategory) ? "conversa" : "formulario",
   );
 
-  if (!aiEnabled) return <QuoteWizard />;
+  if (!aiEnabled) return <QuoteWizard initialCategory={initialCategory} />;
 
   return (
     <div>
@@ -53,7 +61,7 @@ export function QuoteEntry({ aiEnabled }: { aiEnabled: boolean }) {
       {mode === "conversa" ? (
         <InspireAiChat onPreferForm={() => setMode("formulario")} />
       ) : (
-        <QuoteWizard />
+        <QuoteWizard initialCategory={initialCategory} />
       )}
     </div>
   );

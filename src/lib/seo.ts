@@ -47,14 +47,15 @@ export function organizationJsonLd() {
     email: site.contact.email,
     sameAs: Object.values(site.social),
     knowsAbout: [
-      "Impressão 3D",
-      "Impressão 3D FDM",
-      "Impressão 3D em resina",
-      "Modelagem 3D",
-      "Prototipagem rápida",
-      "Colecionáveis",
-      "Board games",
-      "Desenvolvimento de produto",
+      "Design de produtos",
+      "Produtos personalizados",
+      "Presentes criativos",
+      "Colecionáveis autorais",
+      "Jogos de tabuleiro",
+      "Produtos funcionais",
+      "Inteligência artificial aplicada à ideação",
+      "Fabricação digital",
+      "Impressão 3D FDM e resina",
     ],
   };
 }
@@ -74,7 +75,6 @@ export function localBusinessJsonLd() {
     description: site.shortDescription,
     email: site.contact.email,
     telephone: `+${site.contact.whatsapp}`,
-    priceRange: "$$",
     image: `${site.url}/og-image.png`,
     sameAs: Object.values(site.social),
     areaServed: [

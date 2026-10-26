@@ -1,7 +1,6 @@
 import { PageIntro } from "@/components/layout/PageIntro";
-import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
-import { processStages } from "@/content/process";
+import { StudioSection } from "@/components/sections/StudioSection";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/config/site";
 
@@ -15,30 +14,19 @@ export default function SobrePage() {
   return (
     <>
       <PageIntro
-        eyebrow="O estúdio"
-        title="Um laboratório de fabricação criativa."
-        description={site.description}
+        eyebrow="Nossa história"
+        title="Criatividade que vira produto."
+        description="Design, inteligência artificial e tecnologias de fabricação para criar produtos com identidade, inovação e personalidade."
       />
 
-      <section className="pb-(--spacing-section)">
-        <Container>
-          <div className="grid gap-px overflow-hidden rounded-panel border border-line bg-line md:grid-cols-2 lg:grid-cols-4">
-            {processStages.map((stage) => (
-              <div key={stage.key} className="bg-void p-7 md:p-8">
-                <span className="index-num">{stage.step}</span>
-                <h2 className="mt-5 font-display text-xl font-semibold text-chalk">{stage.title}</h2>
-                <p className="mt-3 text-[0.9rem] leading-relaxed text-ash">{stage.description}</p>
-              </div>
-            ))}
-          </div>
+      <StudioSection showCta={false} />
 
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Button href="/orcamento">Pedir orçamento</Button>
-            <Button href="/projetos" variant="outline">
-              Ver projetos
-            </Button>
-          </div>
-        </Container>
+      <section className="pb-(--spacing-section)">
+        <div className="shell flex flex-wrap gap-3">
+          <Button href="/produtos">Explorar produtos</Button>
+          <Button href="/projetos" variant="outline">Ver projetos</Button>
+          <Button href="/orcamento" variant="outline">Conversar sobre uma ideia</Button>
+        </div>
       </section>
     </>
   );

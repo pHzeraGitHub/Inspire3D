@@ -7,7 +7,7 @@ import { whatsappLink } from "@/config/site";
 export const metadata = pageMetadata({
   title: "Orçamento inteligente",
   description:
-    "Descreva sua peça em três passos e receba na hora a tecnologia recomendada, a complexidade e o prazo estimado. Com arquivo 3D ou só com a ideia.",
+    "Descreva seu produto ou projeto em três passos. Conte com ou sem arquivo 3D e envie suas preferências para a Inspire 3D.",
   path: "/orcamento",
 });
 
@@ -26,22 +26,41 @@ const guarantees = [
   },
 ];
 
-export default function OrcamentoPage() {
+type SearchParams = {
+  categoria?: string | string[];
+  assistente?: string | string[];
+};
+
+const first = (value?: string | string[]) => (Array.isArray(value) ? value[0] : value);
+
+export default async function OrcamentoPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const params = await searchParams;
+  const initialCategory = first(params.categoria);
+  const aiRequested = first(params.assistente) === "ia";
+
   return (
     <>
       <PageIntro
         eyebrow="Orçamento inteligente"
         title="Conte o que você quer criar."
-        description="Em vez de um formulário no escuro, você entende o que muda o preço enquanto responde — e sai com tecnologia recomendada, complexidade e prazo na tela."
+        description="Conte o produto ou a personalização que procura. O fluxo organiza suas preferências e ajuda a preparar a estimativa, sem exigir conhecimento técnico."
       />
 
-      <section className="pb-(--spacing-section)">
+      <section id="quote" className="scroll-mt-24 pb-(--spacing-section)">
         <Container>
           <div className="grid gap-12 lg:grid-cols-[1fr_320px] lg:gap-16">
             <div className="min-w-0">
               {/* A chave só existe no servidor: a página decide se a conversa
                   aparece, e o componente de chat nunca vê variável de ambiente. */}
-              <QuoteEntry aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)} />
+              <QuoteEntry
+                aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)}
+                initialCategory={initialCategory}
+                aiRequested={aiRequested}
+              />
             </div>
 
             <aside className="lg:pt-14">

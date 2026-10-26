@@ -6,11 +6,11 @@ import { Chip } from "@/components/ui/Chip";
 import { Reveal } from "@/components/ui/Reveal";
 
 const briefing = [
-  ["Categoria", "Colecionável · busto"],
-  ["Escala sugerida", "1:6 (≈ 16 cm)"],
-  ["Tecnologia", "Resina · camada 0,03 mm"],
-  ["Acabamento", "Primer + pintura à mão"],
-  ["Pontos de atenção", "Cabelo e capa exigem suporte"],
+  ["Categoria", "Colecionável · exemplo"],
+  ["Tamanho", "A confirmar no projeto"],
+  ["Tecnologia", "A definir após análise"],
+  ["Acabamento", "Preferência do cliente"],
+  ["Próximo passo", "Completar o orçamento"],
 ];
 
 export function InspireAiSection() {
@@ -30,23 +30,23 @@ export function InspireAiSection() {
           </div>
 
           <h2 className="mt-6 text-display text-chalk">
-            Descreva a ideia.
+            Sua ideia.
             <br />
-            Ela volta como <span className="gold-text">briefing técnico</span>.
+            Nossa criatividade. <span className="gold-text">Infinitas possibilidades.</span>
           </h2>
 
           <p className="mt-6 max-w-lg text-lead text-ash">
-            A maior barreira entre uma ideia e uma peça é a tradução: escala, tecnologia, material,
-            suportes, acabamento. A Inspire AI é o assistente que faz essa ponte — transformando
-            linguagem comum em especificação de fabricação, e a especificação em orçamento.
+              A Inspire AI ajuda a explorar possibilidades, faz perguntas para entender suas
+              preferências e organiza as respostas para o orçamento. Ela apoia a conversa; não gera
+              arquivos 3D prontos nem uma prévia visual final do produto.
           </p>
 
           <ul className="mt-9 grid gap-3 sm:grid-cols-2">
             {[
-              "Sugere tecnologia e material",
-              "Estima escala e tempo de impressão",
-              "Aponta riscos de geometria",
-              "Gera o pedido de orçamento pronto",
+              "Ajuda a explorar ideias e produtos",
+              "Faz perguntas para completar o briefing",
+              "Organiza preferências e detalhes do pedido",
+              "Encaminha a conversa ao fluxo de orçamento",
             ].map((item) => (
               <li key={item} className="flex items-start gap-2.5 text-[0.925rem] text-silver">
                 <span aria-hidden className="mt-2 size-1 flex-none rotate-45 bg-gold" />
@@ -56,8 +56,8 @@ export function InspireAiSection() {
           </ul>
 
           <div className="mt-10 flex flex-wrap items-center gap-4">
-            <Button href="/orcamento" variant={live ? "gold" : "outline"}>
-              {live ? "Conversar com a Inspire AI" : "Enquanto isso, peça um orçamento"}
+            <Button href={live ? "/orcamento?assistente=ia#quote" : "/orcamento#quote"} variant={live ? "gold" : "outline"}>
+              {live ? "Crie com a Inspire AI" : "Comece seu orçamento"}
             </Button>
           </div>
         </div>
@@ -73,7 +73,7 @@ export function InspireAiSection() {
                 <span className="relative inline-flex size-2 rounded-full bg-gold" />
               </span>
               <span className="font-mono text-[0.625rem] uppercase tracking-[0.2em] text-silver">
-                Inspire AI · pré-visualização
+              Exemplo de conversa · Inspire AI
               </span>
             </div>
 
@@ -110,8 +110,8 @@ export function InspireAiSection() {
 
             <p className="relative mt-6 border-t border-line pt-4 font-mono text-[0.5625rem] uppercase leading-relaxed tracking-[0.14em] text-ash/70">
               {live
-                ? "Exemplo de briefing. A conversa real acontece na página de orçamento."
-                : "Interface conceitual — a arquitetura do site já está preparada para o agente."}
+                ? "Exemplo ilustrativo. A conversa real organiza o briefing; não cria arquivos 3D nem visualizações finais."
+                : "Exemplo ilustrativo. A conversa com IA estará disponível quando a integração estiver configurada."}
             </p>
           </div>
         </Reveal>

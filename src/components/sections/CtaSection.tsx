@@ -18,19 +18,19 @@ export function CtaSection() {
           <Eyebrow>Próximo passo</Eyebrow>
 
           <h2 className="mt-7 max-w-4xl text-hero font-semibold text-chalk">
-            Você imagina.
+            Sua ideia pode virar
             <br />
-            A gente <span className="gold-text">fabrica</span>.
+            um produto que <span className="gold-text">inspira.</span>
           </h2>
 
           <p className="mt-7 max-w-xl text-lead text-ash">
-            Traga a ideia do jeito que ela existe hoje — mesmo que seja só uma frase. O resto do
-            caminho é com o estúdio.
+            Conte o que imagina. Descubra coleções, produtos e personalizações possíveis com a
+            Inspire 3D.
           </p>
 
           <div className="mt-11 flex flex-col gap-3 sm:flex-row">
             <Button href="/orcamento" size="lg">
-              Pedir orçamento
+              Explorar personalizações
             </Button>
             <Button href={whatsappLink()} variant="outline" size="lg" external>
               Chamar no WhatsApp

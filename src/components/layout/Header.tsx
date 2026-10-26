@@ -49,7 +49,7 @@ export function Header() {
           <Logo />
         </Link>
 
-        <nav aria-label="Principal" className="hidden items-center gap-8 lg:flex">
+        <nav aria-label="Principal" className="hidden items-center gap-5 xl:flex 2xl:gap-7">
           {primaryNav.map((item) => (
             <Link
               key={item.label}
@@ -61,12 +61,9 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
-          <Button href="/contato" variant="outline" size="sm">
-            Falar com o estúdio
-          </Button>
+        <div className="hidden items-center gap-3 xl:flex">
           <Button href="/orcamento" size="sm">
-            Orçamento
+            Solicitar orçamento
           </Button>
         </div>
 
@@ -75,7 +72,7 @@ export function Header() {
           aria-label={open ? "Fechar menu" : "Abrir menu"}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
-          className="relative grid size-10 place-items-center rounded-full border border-line text-chalk lg:hidden"
+          className="relative grid size-10 place-items-center rounded-full border border-line text-chalk xl:hidden"
         >
           <span
             className={cn(
@@ -96,12 +93,12 @@ export function Header() {
       <div
         inert={!open}
         className={cn(
-          "grid overflow-hidden border-t border-line bg-void/95 backdrop-blur-xl transition-[grid-template-rows] duration-500 lg:hidden",
+          "grid overflow-hidden border-t border-line bg-void/95 backdrop-blur-xl transition-[grid-template-rows] duration-500 xl:hidden",
           open ? "grid-rows-[1fr]" : "grid-rows-[0fr] border-transparent",
         )}
       >
         <div className="min-h-0">
-          <nav aria-label="Menu mobile" className="shell flex flex-col gap-1 py-6">
+            <nav aria-label="Menu mobile" className="shell flex flex-col gap-1 py-6">
             {primaryNav.map((item, i) => (
               <Link
                 key={item.label}
@@ -115,7 +112,7 @@ export function Header() {
             ))}
             <div className="mt-6 flex flex-col gap-3">
               <Button href="/orcamento" onClick={() => setOpen(false)}>
-                Pedir orçamento
+                Solicitar orçamento
               </Button>
               <Button href="/contato" variant="outline" onClick={() => setOpen(false)}>
                 Falar com o estúdio

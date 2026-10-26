@@ -1,19 +1,13 @@
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { BuildCube } from "@/components/visuals/BuildCube";
-
-const chain = ["Ideia", "Digital", "Fabricação", "Realidade"];
-
-const capabilities = [
-  { value: "FDM + Resina", label: "Duas tecnologias" },
-  { value: "Alta definição", label: "Detalhe e acabamento" },
-  { value: "Sob demanda", label: "Peça única ou pequenas séries" },
-  { value: "Manual", label: "Pintura e acabamento" },
-];
+import { CollectionArtwork } from "@/components/visuals/CollectionArtwork";
+import { collections } from "@/content/collections";
 
 export function Hero() {
+  const aiEnabled = Boolean(process.env.ANTHROPIC_API_KEY);
+
   return (
-    <section className="relative isolate overflow-hidden pt-[68px] md:pt-[76px]">
+    <section id="inicio" className="relative isolate scroll-mt-20 overflow-hidden pt-[68px] md:pt-[76px]">
       {/* fundo */}
       <div aria-hidden className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(120%_85%_at_78%_18%,#15181E_0%,#08090B_58%)]" />
@@ -24,47 +18,25 @@ export function Hero() {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-void" />
       </div>
 
-      <div className="shell grid items-center gap-10 pb-16 pt-12 md:pb-24 md:pt-16 lg:min-h-[calc(100svh-76px)] lg:grid-cols-[1.12fr_0.88fr] lg:gap-8 lg:pb-16 lg:pt-6">
+      <div className="shell grid items-center gap-10 pb-16 pt-12 md:pb-24 md:pt-16 lg:min-h-[calc(100svh-76px)] lg:grid-cols-[1.08fr_0.92fr] lg:gap-8 lg:pb-16 lg:pt-6">
         {/* ── Coluna de conteúdo ── */}
         <div className="relative z-10 max-w-2xl">
-          <Eyebrow>Estúdio de fabricação criativa</Eyebrow>
+          <Eyebrow>Design · criatividade · tecnologia</Eyebrow>
 
           <h1 className="mt-6 text-hero font-semibold text-chalk">
-            Transformando
+            Criatividade
             <br />
-            ideias em <span className="gold-text">realidade</span>.
+            que ganha <span className="gold-text">forma.</span>
           </h1>
 
           <p className="mt-7 max-w-xl text-lead text-ash">
-            Modelagem 3D, impressão FDM e resina, pintura e acabamento manual sob o mesmo teto.
-            Você chega com uma referência, um rascunho ou só a ideia — e sai com a peça na mão.
+            Produtos únicos, desenvolvidos com design, inteligência artificial e tecnologia para
+            transformar ideias em experiências.
           </p>
 
-          {/* cadeia conceitual da marca */}
-          <div className="mt-9 flex flex-wrap items-center gap-x-3 gap-y-3">
-            {chain.map((step, i) => (
-              <div key={step} className="flex items-center gap-3">
-                <span className="flex items-center gap-2 font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-silver">
-                  <span
-                    aria-hidden
-                    className={
-                      i === chain.length - 1
-                        ? "size-1.5 rounded-full bg-gold shadow-[0_0_10px_2px_rgba(212,164,55,0.6)]"
-                        : "size-1.5 rounded-full bg-silver/40"
-                    }
-                  />
-                  {step}
-                </span>
-                {i < chain.length - 1 ? (
-                  <span aria-hidden className="h-px w-6 bg-line-strong md:w-9" />
-                ) : null}
-              </div>
-            ))}
-          </div>
-
           <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Button href="/orcamento" size="lg">
-              Pedir orçamento
+            <Button href="/produtos" size="lg">
+              Explorar produtos
               <svg viewBox="0 0 16 16" className="size-4" fill="none" aria-hidden>
                 <path
                   d="M2 8h11M9 4l4 4-4 4"
@@ -75,33 +47,55 @@ export function Hero() {
                 />
               </svg>
             </Button>
-            <Button href="/#processo" variant="outline" size="lg">
-              Como funciona
+            <Button
+              href={aiEnabled ? "/orcamento?assistente=ia#quote" : "/#inspire-ai"}
+              variant="outline"
+              size="lg"
+            >
+              {aiEnabled ? "Crie com a Inspire AI" : "Conheça a Inspire AI"}
             </Button>
           </div>
 
-          {/* capacidades */}
+          {/* Quatro linhas de produtos — sem métricas ou promessas de estoque. */}
           <dl className="mt-12 grid grid-cols-2 gap-x-5 gap-y-6 border-t border-line pt-8 sm:grid-cols-4">
-            {capabilities.map((item) => (
-              <div key={item.label}>
-                <dt className="font-display text-base font-semibold text-chalk md:text-lg">
-                  {item.value}
+            {collections.map((collection) => (
+              <div key={collection.slug}>
+                <dt className="font-display text-sm font-semibold text-chalk md:text-base">
+                  {collection.name.replace("Inspire ", "")}
                 </dt>
                 <dd className="mt-1 font-mono text-[0.625rem] uppercase tracking-[0.14em] text-ash">
-                  {item.label}
+                  {collection.subtitle}
                 </dd>
               </div>
             ))}
           </dl>
         </div>
 
-        {/* ── Coluna visual ── */}
-        <div className="relative -mx-4 lg:mx-0">
-          <BuildCube className="mx-auto w-full max-w-[440px] lg:max-w-none" />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-void"
-          />
+        {/* ── Estudos visuais das coleções, sem sugerir estoque real ── */}
+        <div className="relative mx-auto w-full max-w-[560px] lg:mx-0 lg:max-w-none">
+          <div aria-hidden className="halo left-1/2 top-1/2 size-[480px] -translate-x-1/2 -translate-y-1/2 opacity-80" />
+          <div className="relative grid grid-cols-2 gap-3 sm:gap-4">
+            {collections.map((collection, index) => (
+              <article
+                key={collection.slug}
+                className="group relative aspect-[1.08] overflow-hidden rounded-2xl border border-line bg-[radial-gradient(ellipse_at_50%_55%,#29251C_0%,#17191D_62%,#111317_100%)] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.22)] sm:rounded-3xl sm:p-3"
+              >
+                <CollectionArtwork
+                  collection={collection.slug}
+                  className="size-full transition-transform duration-700 group-hover:scale-[1.04]"
+                />
+                <span className="absolute bottom-3 left-3 rounded-full border border-line bg-void/75 px-2.5 py-1 font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-silver backdrop-blur sm:bottom-4 sm:left-4 sm:px-3 sm:text-[0.625rem]">
+                  {collection.name.replace("Inspire ", "")}
+                </span>
+                <span className="absolute right-4 top-4 font-mono text-[0.5625rem] text-silver/45">
+                  0{index + 1}
+                </span>
+              </article>
+            ))}
+          </div>
+          <p className="relative mt-4 text-center font-mono text-[0.5625rem] uppercase tracking-[0.15em] text-ash/70">
+            Estudos visuais das coleções · não são fotos de produtos finais
+          </p>
         </div>
       </div>
     </section>

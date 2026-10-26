@@ -40,14 +40,49 @@ export type Project = {
   year: number;
 };
 
+export type CollectionSlug =
+  | "inspire-gifts"
+  | "inspire-collectibles"
+  | "inspire-games"
+  | "inspire-solutions";
+
+export type ProductCollection = {
+  slug: CollectionSlug;
+  name: string;
+  subtitle: string;
+  description: string;
+  possibilities: string[];
+};
+
+export type ProductLaunchStatus = "in-development" | "coming-soon" | "released";
+export type ProductAvailability = "not-announced" | "available" | "unavailable";
+
+export type ProductVariant = {
+  label: string;
+  options: string[];
+};
+
 export type Product = {
+  id: string;
   slug: string;
   name: string;
-  category: string;
+  shortDescription: string;
   description: string;
+  collection: CollectionSlug;
+  category: string;
+  /** Only verified product photography belongs here. */
+  images: string[];
+  technicalCharacteristics?: string[];
+  dimensions?: string;
+  variants?: ProductVariant[];
+  personalizationOptions?: string[];
   priceFrom?: number;
-  images?: string[];
-  /** Fase 5: integração com checkout. */
+  availability: ProductAvailability;
+  launchStatus: ProductLaunchStatus;
+  leadTime?: string;
+  featured: boolean;
+  seo: { title: string; description: string };
+  /** True only when a real purchase or quote path is available. */
   available: boolean;
 };
 

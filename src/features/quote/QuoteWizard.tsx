@@ -26,13 +26,17 @@ const STEPS = ["O projeto", "A peça", "Você"] as const;
 
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-export function QuoteWizard() {
-  const [step, setStep] = useState(0);
-  const [draft, setDraft] = useState<Draft>({
+export function QuoteWizard({ initialCategory }: { initialCategory?: string }) {
+  const selectedInitialCategory = categoryOptions.find((option) => option.value === initialCategory);
+  const [step, setStep] = useState(selectedInitialCategory ? 1 : 0);
+  const [draft, setDraft] = useState<Draft>(() => ({
+    ...(selectedInitialCategory
+      ? { path: "outro" as const, category: selectedInitialCategory.value }
+      : {}),
     technology: "indefinido",
     quantity: 1,
     consent: false,
-  });
+  }));
   const [files, setFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<Errors>({});
   const [sending, setSending] = useState(false);
@@ -176,9 +180,16 @@ export function QuoteWizard() {
           delivery={result.delivery}
           onRestart={() => {
             setResult(null);
-            setDraft({ technology: "indefinido", quantity: 1, consent: false });
+            setDraft({
+              ...(selectedInitialCategory
+                ? { path: "outro", category: selectedInitialCategory.value }
+                : {}),
+              technology: "indefinido",
+              quantity: 1,
+              consent: false,
+            });
             setFiles([]);
-            setStep(0);
+            setStep(selectedInitialCategory ? 1 : 0);
             setErrors({});
             scrollTop();
           }}

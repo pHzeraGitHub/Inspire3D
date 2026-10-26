@@ -2,53 +2,44 @@ import { Section } from "@/components/ui/Section";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
-import { pad } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
+import { brandPillars, brandStory } from "@/content/brand";
 
-const commitments = [
-  {
-    title: "Aprovação antes da máquina",
-    text: "Nenhuma peça entra em produção sem que você tenha visto o render e concordado com escala, encaixe e acabamento.",
-  },
-  {
-    title: "Um responsável, do início ao fim",
-    text: "O mesmo estúdio modela, imprime, lixa e pinta. Não há terceirização escondida no meio do caminho.",
-  },
-  {
-    title: "Seus arquivos são seus",
-    text: "Projetos e modelos enviados são tratados como confidenciais e usados apenas para produzir a sua peça.",
-  },
-  {
-    title: "Prazo combinado é prazo",
-    text: "O prazo sai junto com o orçamento, considerando modelagem, tempo real de impressão e bancada de acabamento.",
-  },
-];
-
-export function StudioSection() {
+export function StudioSection({ showCta = true }: { showCta?: boolean }) {
   return (
-    <Section>
+    <Section id="historia" className="scroll-mt-24">
       <Container className="relative">
         <SectionHeading
-          eyebrow="Como trabalhamos"
+          eyebrow="Nossa história"
           title={
             <>
-              Fabricação é confiança <span className="silver-text">antes de ser tecnologia</span>.
+              Mais do que fabricar objetos, queremos <span className="gold-text">criar experiências.</span>
             </>
           }
+          description={brandStory[0]}
         />
 
-        <div className="mt-14 grid gap-px overflow-hidden rounded-panel border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
-          {commitments.map((item, i) => (
-            <Reveal key={item.title} delay={i * 80} className="bg-void">
-              <div className="h-full bg-void p-7 transition-colors duration-500 hover:bg-carbon md:p-8">
-                <span className="index-num">{pad(i + 1)}</span>
-                <h3 className="mt-6 font-display text-lg font-semibold leading-snug text-chalk">
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-[0.9rem] leading-relaxed text-ash">{item.text}</p>
-              </div>
+        <p className="mt-7 max-w-3xl text-[0.975rem] leading-relaxed text-silver md:text-lg">
+          {brandStory[1]}
+        </p>
+
+        <div className="mt-12 grid gap-4 md:grid-cols-3">
+          {brandPillars.map((item, i) => (
+            <Reveal key={item.title} delay={i * 80}>
+              <article className="card h-full p-6 md:p-7">
+                <span className="index-num">0{i + 1}</span>
+                <h3 className="mt-5 font-display text-lg font-semibold text-chalk">{item.title}</h3>
+                <p className="mt-3 text-[0.9rem] leading-relaxed text-ash">{item.description}</p>
+              </article>
             </Reveal>
           ))}
         </div>
+
+        {showCta ? (
+          <div className="mt-9">
+            <Button href="/sobre" variant="outline">Conheça a Inspire 3D</Button>
+          </div>
+        ) : null}
       </Container>
     </Section>
   );

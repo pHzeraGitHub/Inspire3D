@@ -1,9 +1,9 @@
 import { Hero } from "@/components/sections/Hero";
-import { CapabilitiesMarquee } from "@/components/sections/CapabilitiesMarquee";
+import { CollectionsSection } from "@/components/sections/CollectionsSection";
+import { FeaturedProductsSection } from "@/components/sections/FeaturedProductsSection";
 import { ProcessSection } from "@/components/sections/ProcessSection";
-import { VerticalsSection } from "@/components/sections/VerticalsSection";
-import { TechnologiesSection } from "@/components/sections/TechnologiesSection";
 import { ProjectsSection } from "@/components/sections/ProjectsSection";
+import { BusinessSection } from "@/components/sections/BusinessSection";
 import { QuoteSection } from "@/components/sections/QuoteSection";
 import { InspireAiSection } from "@/components/sections/InspireAiSection";
 import { StudioSection } from "@/components/sections/StudioSection";
@@ -15,14 +15,14 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <CapabilitiesMarquee />
+      <CollectionsSection />
+      <FeaturedProductsSection />
+      <InspireAiSection />
       <ProcessSection />
-      <VerticalsSection />
-      <TechnologiesSection />
+      <BusinessSection />
+      <StudioSection />
       <ProjectsSection />
       <QuoteSection />
-      <InspireAiSection />
-      <StudioSection />
       <FaqSection />
       <CtaSection />
       {/* FAQPage: habilita o rich result de perguntas na busca. */}

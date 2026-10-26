@@ -6,46 +6,42 @@ export type NavItem = {
 };
 
 export const primaryNav: NavItem[] = [
-  /* "Serviços" substitui "O que fabricamos": a página cobre a mesma coisa com
-     mais profundidade, e manter os dois confundiria — além de somar um sexto
-     item que apertaria o header no primeiro breakpoint em que ele aparece. */
-  { label: "Serviços", href: "/servicos" },
-  { label: "Processo", href: "/#processo" },
-  { label: "Tecnologias", href: "/#tecnologias" },
-  { label: "Projetos", href: "/projetos" },
+  { label: "Início", href: "/#inicio" },
+  { label: "Coleções", href: "/#colecoes" },
+  { label: "Personalize", href: "/orcamento?categoria=personalizado" },
   { label: "Inspire AI", href: "/#inspire-ai" },
+  { label: "Para Empresas", href: "/#empresas" },
+  { label: "Nossa História", href: "/sobre" },
 ];
 
 export const footerNav: { title: string; items: NavItem[] }[] = [
   {
-    title: "Fabricação",
+    title: "Coleções",
     items: [
-      { label: "Todos os serviços", href: "/servicos" },
-      { label: "Colecionáveis & Action Figures", href: "/#fabricamos" },
-      { label: "Board Games", href: "/#fabricamos" },
-      { label: "Decoração & Design", href: "/#fabricamos" },
-      { label: "Protótipos & Peças Funcionais", href: "/#fabricamos" },
-      { label: "Personalizados", href: "/#fabricamos" },
+      { label: "Inspire Gifts", href: "/produtos?colecao=inspire-gifts#catalogo" },
+      { label: "Inspire Collectibles", href: "/produtos?colecao=inspire-collectibles#catalogo" },
+      { label: "Inspire Games", href: "/produtos?colecao=inspire-games#catalogo" },
+      { label: "Inspire Solutions", href: "/produtos?colecao=inspire-solutions#catalogo" },
+      { label: "Caminho dos Guardiões", href: "/produtos/caminho-dos-guardioes" },
     ],
   },
   {
-    title: "Estúdio",
+    title: "Descobrir",
     items: [
-      { label: "Processo", href: "/#processo" },
-      { label: "Como funciona", href: "/servicos#como-funciona" },
-      { label: "Tecnologias", href: "/#tecnologias" },
+      { label: "Todos os produtos", href: "/produtos" },
       { label: "Projetos", href: "/projetos" },
-      { label: "Sobre a Inspire 3D", href: "/sobre" },
-      { label: "Produtos", href: "/produtos", soon: true },
+      { label: "Serviços", href: "/servicos" },
+      { label: "Nossa história", href: "/sobre" },
+      { label: "Contato", href: "/contato" },
     ],
   },
   {
-    title: "Comercial",
+    title: "Comece um projeto",
     items: [
-      { label: "Orçamento inteligente", href: "/orcamento" },
-      { label: "Para empresas", href: "/servicos#empresas" },
-      { label: "Contato", href: "/contato" },
-      { label: "Inspire AI", href: "/#inspire-ai", soon: true },
+      { label: "Personalize uma ideia", href: "/orcamento?categoria=personalizado" },
+      { label: "Orçamento", href: "/orcamento" },
+      { label: "Inspire AI", href: "/#inspire-ai" },
+      { label: "Para empresas", href: "/#empresas" },
     ],
   },
 ];
