@@ -4,6 +4,8 @@
 
 Vender arquivos de corte para Silhouette e modelos para impressão 3D no mesmo catálogo e painel que os produtos físicos. O cliente paga no site e encontra os arquivos em **Minha biblioteca**, com acesso por conta ou link de entrada enviado ao seu e-mail. Cada compra conserva o formato, a versão do arquivo, o preço e a licença adquiridos. A loja ainda não possui checkout nem entrega digital em produção; este documento define a implementação.
 
+**Base preparada no código:** a migração aditiva `20261110_digital_catalog` e o espelho Prisma acrescentam o tipo de produto, ofertas por licença e metadados de versões privadas. A migração ainda **não foi aplicada** ao PGlite real nem ao PostgreSQL da Railway; não há tela de compra, upload ou download liberada. A próxima implementação deve associar essas estruturas a pedidos pagos e autorizar a entrega no servidor.
+
 ## Experiência do cliente
 
 1. A vitrine separa **Produtos físicos**, **Arquivos para corte** e **Modelos para impressão 3D**, com busca por finalidade, formato e processo. O arquivo digital exibe imagens de prévia, formatos incluídos, programa/equipamento compatível, dimensões ou escala, conteúdo do pacote, versão, licença e preço. A prévia nunca contém o arquivo final.
@@ -17,6 +19,7 @@ Vender arquivos de corte para Silhouette e modelos para impressão 3D no mesmo c
 
 - O produto mantém um ID canônico. `kind` distingue `physical`, `digital` e, quando necessário, `hybrid`; o arquivo não consome estoque de filamento nem gera ordem de produção. Uma compra mista cria itens separados no mesmo pedido.
 - Uma oferta digital declara família (`silhouette` ou `3d-print`), formatos, licença, preço, prévias, compatibilidade, instruções e notas de versão. Confirmar com o proprietário os formatos reais; exemplos possíveis são SVG/DXF/Studio3 para corte e STL/3MF/ZIP para impressão. Não prometer compatibilidade sem validar o arquivo no programa ou equipamento indicado.
+- Para SVG, informar a edição necessária do Silhouette Studio: a [Silhouette informa](https://www.silhouetteamerica.com/heat-transfer) que abrir SVG requer Designer Edition ou superior. Um produto anunciado para a edição básica precisa incluir um formato realmente testado nela.
 - Cada arquivo privado tem ID, versão, chave de armazenamento, tamanho, SHA-256, formato e estado. Substituir um arquivo cria nova versão; pedidos antigos mantêm uma referência auditável. Definir se atualizações serão incluídas na compra ou oferecidas separadamente.
 - O painel administrativo cadastra a oferta, faz upload privado, calcula o hash, mostra a prévia e permite publicar somente quando preço, licença e pelo menos um arquivo válido estiverem completos. O painel também mostra compras, liberações, reembolsos e tentativas de download.
 - Licenças pessoal e comercial, caso oferecidas, são ofertas com preços e termos distintos. O texto da licença deve dizer claramente o que pode ser produzido, vendido, modificado e redistribuído. Confirmar autoria ou direito de revenda antes de publicar arquivos de terceiros.
