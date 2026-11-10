@@ -4,13 +4,14 @@ import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { collections } from "@/content/collections";
-import { products } from "@/content/products";
+import { getCatalogProducts } from "@/lib/catalog";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
+import { whatsappLink } from "@/config/site";
 
 export const metadata = pageMetadata({
   title: "Produtos e coleções",
   description:
-    "Explore Inspire Gifts, Inspire Collectibles, Inspire Games e Inspire Solutions. Conheça os projetos autorais da Inspire 3D.",
+    "Explore Inspire Gifts, Inspire Collectibles, Inspire Games e Inspire Solutions, com projetos de cartonagem e caixas premium para produtos, presentes e kits.",
   path: "/produtos",
 });
 
@@ -35,12 +36,15 @@ const collectionQuoteCategory: Record<string, string> = {
   "inspire-solutions": "funcional",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function ProdutosPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
   const params = await searchParams;
+  const products = await getCatalogProducts();
   const collection = first(params.colecao);
   const category = first(params.categoria);
   const availability = first(params.disponibilidade);
@@ -63,6 +67,14 @@ export default async function ProdutosPage({
 
   const selectedCollection = collections.find((item) => item.slug === validCollection);
   const quoteCategory = collectionQuoteCategory[validCollection] ?? "outro";
+  const projectHref =
+    validCollection === "inspire-solutions"
+      ? whatsappLink(
+          "Olá! Quero conversar sobre cartonagem e caixas premium para apresentar um produto, presente ou kit.",
+        )
+      : `/orcamento?categoria=${quoteCategory}`;
+  const projectCtaLabel =
+    validCollection === "inspire-solutions" ? "Falar sobre caixas premium" : "Conte sua ideia";
 
   return (
     <>
@@ -131,10 +143,12 @@ export default async function ProdutosPage({
                 <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ash">{selectedCollection.description}</p>
               </div>
               <Link
-                href={`/orcamento?categoria=${collectionQuoteCategory[validCollection] ?? "outro"}`}
+                href={projectHref}
                 className="link-underline shrink-0 text-sm text-silver hover:text-chalk"
               >
-                Converse sobre sua ideia ↗
+                {validCollection === "inspire-solutions"
+                  ? "Converse sobre cartonagem e caixas premium ↗"
+                  : "Converse sobre sua ideia ↗"}
               </Link>
             </div>
           ) : null}
@@ -155,7 +169,7 @@ export default async function ProdutosPage({
                   Ainda não há produtos publicados com esses filtros. Conte o que você gostaria de ver nessa coleção ou comece um projeto personalizado.
                 </p>
                 <div className="mt-7 flex flex-wrap gap-3">
-                  <Button href={`/orcamento?categoria=${quoteCategory}`}>Conte sua ideia</Button>
+                  <Button href={projectHref}>{projectCtaLabel}</Button>
                   <Button href="/produtos" variant="outline">Ver todos os produtos</Button>
                 </div>
               </div>

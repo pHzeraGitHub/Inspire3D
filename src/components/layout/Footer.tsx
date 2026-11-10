@@ -56,12 +56,12 @@ export function Footer() {
 
         <div className="mt-8 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ash">
-            <a
+            {site.contact.email ? <a
               href={`mailto:${site.contact.email}`}
               className="link-underline transition-colors hover:text-chalk"
             >
               {site.contact.email}
-            </a>
+            </a> : null}
             <a
               href={whatsappLink()}
               target="_blank"

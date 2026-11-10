@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+import { SiteChrome } from "@/components/layout/SiteChrome";
 import { site } from "@/config/site";
 import { localBusinessJsonLd, organizationJsonLd } from "@/lib/seo";
 import "./globals.css";
@@ -39,6 +37,8 @@ export const metadata: Metadata = {
     "colecionáveis autorais",
     "jogos de tabuleiro autorais",
     "produtos funcionais personalizados",
+    "cartonagem e caixas premium",
+    "caixas premium personalizadas",
     "design de produtos",
     "inteligência artificial para personalização",
     "fabricação digital",
@@ -111,10 +111,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Pular para o conteúdo
         </a>
-        <Header />
-        <main id="conteudo">{children}</main>
-        <Footer />
-        <WhatsAppButton />
+        <SiteChrome>{children}</SiteChrome>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}

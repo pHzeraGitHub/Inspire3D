@@ -26,4 +26,9 @@ export const businessOffers: BusinessOffer[] = [
     title: "Soluções sob demanda",
     description: "Desenvolvimento de produtos e peças pensados para uma necessidade específica.",
   },
+  {
+    title: "Cartonagem e caixas premium",
+    description:
+      "Projetos de embalagem para valorizar produtos, presentes, kits e experiências de marca.",
+  },
 ];

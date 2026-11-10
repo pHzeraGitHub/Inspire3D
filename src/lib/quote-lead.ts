@@ -66,7 +66,7 @@ export async function notifyQuoteLead({
   });
 
   if (mail.status !== "sent") {
-    console.error(`[quote:${source}] LEAD NÃO NOTIFICADO:`, plain);
+    console.error(`[quote:${source}] Lead não notificado:`, mail.status, mail.detail);
   }
 
   return mail;

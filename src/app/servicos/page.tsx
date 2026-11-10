@@ -12,7 +12,7 @@ import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "Serviços",
   description:
-    "Impressão 3D FDM e resina, modelagem digital, pintura e acabamento manual, personalização, prototipagem e desenvolvimento de produto. Peça única ou pequena série, em Minas Gerais e para todo o Brasil.",
+    "Impressão 3D FDM e resina, modelagem digital, acabamento, prototipagem, desenvolvimento de produto, cartonagem e caixas premium em Minas Gerais e para todo o Brasil.",
   path: "/servicos",
 });
 
@@ -50,7 +50,7 @@ export default function ServicosPage() {
             Da imaginação <span className="gold-text">à fabricação</span>.
           </>
         }
-        description="Modelagem, impressão em FDM e resina, pintura e acabamento manual sob o mesmo teto. Peça única, pequena série ou desenvolvimento de produto do zero."
+        description="Modelagem, impressão 3D, acabamento, desenvolvimento de produto, cartonagem e caixas premium. Projetos sob medida para transformar ideias em produtos e experiências de marca."
       >
         <div className="flex flex-wrap gap-3">
           <Button href="/orcamento">Pedir orçamento</Button>

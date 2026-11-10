@@ -8,18 +8,18 @@ import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { CollectionArtwork } from "@/components/visuals/CollectionArtwork";
 import { collections } from "@/content/collections";
-import { productStatusLabel, products } from "@/content/products";
+import { productStatusLabel } from "@/content/products";
+import { getCatalogProducts } from "@/lib/catalog";
 import { pageMetadata, breadcrumbJsonLd } from "@/lib/seo";
 import { whatsappLink } from "@/config/site";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
-export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  const products = await getCatalogProducts();
   const product = products.find((item) => item.slug === slug);
   if (!product) return { title: "Produto não encontrado", robots: { index: false, follow: false } };
 
@@ -28,6 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProdutoPage({ params }: PageProps) {
   const { slug } = await params;
+  const products = await getCatalogProducts();
   const product = products.find((item) => item.slug === slug);
   if (!product) notFound();
 

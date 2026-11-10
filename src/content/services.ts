@@ -86,4 +86,17 @@ export const services: Service[] = [
     ],
     delivers: "Um produto que fabrica, com custo conhecido e arquivo pronto para repetir.",
   },
+  {
+    number: "07",
+    slug: "cartonagem-caixas-premium",
+    title: "Cartonagem & caixas premium",
+    lead: "Projetos de embalagem para apresentar produtos, presentes e kits com cuidado e identidade de marca.",
+    includes: [
+      "Entendimento do produto, da ocasião e do objetivo da embalagem",
+      "Estudo do formato da caixa conforme o conteúdo e o uso",
+      "Direção visual alinhada à identidade da marca",
+      "Definição do escopo conforme quantidade e detalhes do projeto",
+    ],
+    delivers: "Uma proposta de cartonagem ou caixa premium alinhada ao produto e à experiência desejada.",
+  },
 ];

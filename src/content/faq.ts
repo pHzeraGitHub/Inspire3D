@@ -31,4 +31,9 @@ export const faq: FaqItem[] = [
     answer:
       "Sim. Além de fabricar, a Inspire 3D atua no desenvolvimento de produto: conceito, modelagem, protótipo funcional, iteração e preparação para produção — inclusive em projetos autorais e séries próprias.",
   },
+  {
+    question: "Vocês trabalham com cartonagem e caixas premium?",
+    answer:
+      "Sim. A Inspire 3D também trabalha com projetos de cartonagem e caixas premium. Conte o que a embalagem vai apresentar, a quantidade aproximada e a ocasião para avaliarmos o escopo e os próximos passos.",
+  },
 ];

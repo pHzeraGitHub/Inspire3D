@@ -10,13 +10,18 @@ import { StudioSection } from "@/components/sections/StudioSection";
 import { FaqSection } from "@/components/sections/FaqSection";
 import { CtaSection } from "@/components/sections/CtaSection";
 import { faqJsonLd } from "@/lib/seo";
+import { getCatalogProducts } from "@/lib/catalog";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const featuredProduct = (await getCatalogProducts()).find((product) => product.featured);
+
   return (
     <>
       <Hero />
       <CollectionsSection />
-      <FeaturedProductsSection />
+      <FeaturedProductsSection product={featuredProduct} />
       <InspireAiSection />
       <ProcessSection />
       <BusinessSection />

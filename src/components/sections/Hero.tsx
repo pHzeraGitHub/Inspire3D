@@ -30,8 +30,8 @@ export function Hero() {
           </h1>
 
           <p className="mt-7 max-w-xl text-lead text-ash">
-            Produtos únicos, desenvolvidos com design, inteligência artificial e tecnologia para
-            transformar ideias em experiências.
+            Produtos criativos, presentes personalizados e caixas premium, desenvolvidos com design
+            e tecnologia para transformar ideias em experiências.
           </p>
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">

@@ -7,14 +7,14 @@ export const site = {
   legalName: "Inspire 3D",
   slogan: "Transformamos ideias em produtos que inspiram.",
   shortDescription:
-    "Marca de produtos criativos e personalizados que combina design, tecnologia e fabricação digital.",
+    "Marca de produtos criativos, personalizados e caixas premium, que combina design, tecnologia e fabricação digital.",
   description:
-    "A Inspire 3D é uma marca de produtos criativos próprios e personalizados. Unimos design, inteligência artificial e fabricação digital — incluindo modelagem e impressão 3D FDM e resina — para desenvolver produtos autorais, presentes, colecionáveis, jogos e soluções funcionais.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.inspire3d.com.br",
+    "A Inspire 3D é uma marca de produtos criativos próprios e personalizados. Unimos design, inteligência artificial, fabricação digital e cartonagem para desenvolver produtos autorais, presentes, colecionáveis, jogos, soluções funcionais e caixas premium.",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.3dinspire.com.br",
   locale: "pt-BR",
   contact: {
-    email: "contato@inspire3d.com.br",
-    whatsapp: process.env.NEXT_PUBLIC_WHATSAPP ?? "5531999700539",
+    email: process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || "",
+    whatsapp: process.env.NEXT_PUBLIC_WHATSAPP || "5531999700539",
     whatsappLabel: "(31) 99970-0539",
     city: "Minas Gerais · Brasil",
   },

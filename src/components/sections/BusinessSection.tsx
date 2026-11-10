@@ -24,14 +24,14 @@ export function BusinessSection() {
                   Sua marca merece algo <span className="gold-text">extraordinário.</span>
                 </>
               }
-              description="Presentes, kits e produtos personalizados que levam a identidade da sua empresa para além da tela."
+              description="Presentes, kits, cartonagem e caixas premium para levar a identidade da sua empresa para além da tela."
             />
 
             <div className="mt-9 flex flex-wrap gap-3">
               <Button href="/orcamento?categoria=corporativo">Solicitar proposta empresarial</Button>
               <Button
                 href={whatsappLink(
-                  "Olá! Sou de uma empresa e gostaria de conversar sobre um projeto com a Inspire 3D.",
+                  "Olá! Sou de uma empresa e gostaria de conversar sobre cartonagem, caixas premium ou outra solução da Inspire 3D.",
                 )}
                 variant="outline"
               >
@@ -40,8 +40,8 @@ export function BusinessSection() {
             </div>
 
             <p className="mt-7 max-w-md text-[0.875rem] leading-relaxed text-ash">
-              Conte o objetivo, a quantidade aproximada e a ocasião. O fluxo de orçamento ajuda a
-              organizar os próximos passos do projeto.
+              Conte o objetivo, o produto, a quantidade aproximada e a ocasião. Para cartonagem,
+              diga também o que a caixa vai apresentar.
             </p>
           </div>
 

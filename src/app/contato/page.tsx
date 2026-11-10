@@ -6,7 +6,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
   title: "Contato",
-  description: "Fale com o estúdio Inspire 3D por WhatsApp, e-mail ou redes sociais.",
+  description: "Fale com o estúdio Inspire 3D por WhatsApp ou redes sociais.",
   path: "/contato",
 });
 
@@ -17,12 +17,12 @@ const channels = [
     href: whatsappLink(),
     external: true,
   },
-  {
+  ...(site.contact.email ? [{
     label: "E-mail",
     value: site.contact.email,
     href: `mailto:${site.contact.email}`,
     external: true,
-  },
+  }] : []),
   {
     label: "Instagram",
     value: "Bastidores do estúdio e peças recém-saídas da bancada.",
