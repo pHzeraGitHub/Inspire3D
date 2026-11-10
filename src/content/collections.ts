@@ -29,9 +29,9 @@ export const collections: ProductCollection[] = [
   {
     slug: "inspire-solutions",
     name: "Inspire Solutions",
-    subtitle: "Produtos funcionais",
+    subtitle: "Produtos & embalagens",
     description:
-      "Objetos de uso cotidiano que combinam praticidade, desenho inteligente e identidade própria.",
-    possibilities: ["Organizadores", "Suportes", "Acessórios funcionais"],
+      "Soluções funcionais e projetos de cartonagem e caixas premium para apresentar produtos, presentes e kits.",
+    possibilities: ["Cartonagem", "Caixas premium", "Soluções sob medida"],
   },
 ];

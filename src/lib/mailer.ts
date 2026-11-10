@@ -29,6 +29,11 @@ export async function sendLeadEmail({
   const to = process.env.QUOTE_NOTIFICATION_EMAIL || site.contact.email;
   const from = process.env.QUOTE_FROM_EMAIL || "Inspire 3D <onboarding@resend.dev>";
 
+  if (!to) {
+    console.warn("[quote] Destinatário de orçamento não configurado.");
+    return { status: "skipped", detail: "Destinatário ausente" };
+  }
+
   if (!apiKey) {
     console.warn(
       "[quote] RESEND_API_KEY ausente — lead NÃO foi enviado por e-mail.",

@@ -36,3 +36,16 @@ services:
         sync: false
       - key: QUOTE_FROM_EMAIL
         sync: false
+
+      # ── Catálogo, estoque e acesso administrativo ─────────────────
+      # Adicione o PostgreSQL gerenciado no Render e use sua Internal URL.
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_SSL
+        value: "false"
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_SESSION_SECRET
+        sync: false

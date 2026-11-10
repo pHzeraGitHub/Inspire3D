@@ -48,7 +48,7 @@ export function QuoteResult({
             <p className="mt-0.5 text-sm text-ash">
               {delivery === "sent"
                 ? "Seu briefing foi encaminhado ao estúdio. Resposta com a proposta em até 1 dia útil."
-                : "Não conseguimos confirmar o envio automático do briefing. A estimativa continua válida; envie pelo WhatsApp ou e-mail abaixo para não perder o contato."}
+                : `Não conseguimos confirmar o envio automático do briefing. A estimativa continua válida; envie pelo WhatsApp${site.contact.email ? " ou e-mail" : ""} abaixo para não perder o contato.`}
             </p>
           </div>
         </div>
@@ -125,7 +125,7 @@ export function QuoteResult({
         {/* ── Briefing ─────────────────────────────────────────────── */}
         <div className="mt-9">
           <p className="font-mono text-[0.625rem] uppercase tracking-[0.18em] text-ash">
-            Briefing enviado
+            {delivery === "sent" ? "Briefing enviado" : "Briefing preparado"}
           </p>
           <dl className="mt-4 grid gap-x-8 gap-y-3 sm:grid-cols-2">
             {lines.map((line) => (
@@ -161,9 +161,9 @@ export function QuoteResult({
           <Button href={whatsappLink(whatsappMessage(data, estimate))}>
             Adiantar pelo WhatsApp
           </Button>
-          <Button href={`mailto:${site.contact.email}`} variant="outline">
+          {site.contact.email ? <Button href={`mailto:${site.contact.email}`} variant="outline">
             Escrever por e-mail
-          </Button>
+          </Button> : null}
           <button
             type="button"
             onClick={onRestart}

@@ -1,9 +1,12 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/config/site";
 import { projects } from "@/content/projects";
-import { products } from "@/content/products";
+import { getCatalogProducts } from "@/lib/catalog";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export const dynamic = "force-dynamic";
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const products = await getCatalogProducts();
   const now = new Date();
   const routes = [
     "",

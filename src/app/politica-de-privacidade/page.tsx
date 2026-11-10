@@ -25,7 +25,7 @@ export default function PoliticaDePrivacidadePage() {
           {
             heading: "Quem é o controlador",
             body: [
-              `A ${site.name} é a controladora dos dados tratados neste site. Para qualquer assunto relacionado a privacidade, o canal é ${site.contact.email}.`,
+              `A ${site.name} é a controladora dos dados tratados neste site. Para qualquer assunto relacionado a privacidade, use o WhatsApp ${site.contact.whatsappLabel}${site.contact.email ? ` ou o e-mail ${site.contact.email}` : ""}.`,
               "A razão social e o CNPJ do controlador devem ser preenchidos antes da publicação do site.",
             ],
           },
@@ -74,7 +74,7 @@ export default function PoliticaDePrivacidadePage() {
             heading: "Seus direitos",
             body: [
               "Você pode solicitar confirmação de tratamento, acesso, correção, anonimização, portabilidade e exclusão dos seus dados, além de revogar consentimento a qualquer momento.",
-              `Basta escrever para ${site.contact.email}. Respondemos no prazo legal e podemos pedir informações adicionais apenas para confirmar a sua identidade.`,
+              `Basta entrar em contato pelo WhatsApp ${site.contact.whatsappLabel}${site.contact.email ? ` ou pelo e-mail ${site.contact.email}` : ""}. Respondemos no prazo legal e podemos pedir informações adicionais apenas para confirmar a sua identidade.`,
             ],
           },
           {

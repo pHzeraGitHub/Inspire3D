@@ -37,12 +37,12 @@ export function CtaSection() {
             </Button>
           </div>
 
-          <a
+          {site.contact.email ? <a
             href={`mailto:${site.contact.email}`}
             className="link-underline mt-10 font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-ash transition-colors hover:text-gold-lum"
           >
             {site.contact.email}
-          </a>
+          </a> : null}
         </div>
       </Container>
     </section>

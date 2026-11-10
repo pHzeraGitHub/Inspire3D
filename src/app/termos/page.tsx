@@ -86,7 +86,7 @@ export default function TermosPage() {
           {
             heading: "Contato e foro",
             body: [
-              `Dúvidas sobre estes termos: ${site.contact.email} ou WhatsApp ${site.contact.whatsappLabel}.`,
+              `Dúvidas sobre estes termos: WhatsApp ${site.contact.whatsappLabel}${site.contact.email ? ` ou ${site.contact.email}` : ""}.`,
               "Aplica-se a legislação brasileira. O foro competente deve ser definido junto com a assessoria jurídica antes da publicação.",
             ],
           },

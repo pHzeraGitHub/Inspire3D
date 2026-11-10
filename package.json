@@ -14,7 +14,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.5.14",
+    "exceljs": "^4.4.0",
+    "jszip": "^3.10.2",
     "next": "^15.5.0",
+    "pg": "^8.23.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
@@ -22,6 +26,7 @@
     "@eslint/eslintrc": "^3.1.0",
     "@tailwindcss/postcss": "^4.1.0",
     "@types/node": "^22.0.0",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "eslint": "^9.0.0",
