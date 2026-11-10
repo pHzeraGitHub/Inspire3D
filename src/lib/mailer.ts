@@ -3,9 +3,9 @@ import { site } from "@/config/site";
 /**
  * Envio de e-mail via Resend, por HTTP puro — sem SDK, sem dependência nova.
  *
- * Se `RESEND_API_KEY` não estiver definida, a função não falha: registra no
- * log do servidor e devolve `skipped`. Assim o formulário funciona em
- * desenvolvimento e o lead nunca se perde por configuração faltando.
+ * Se `RESEND_API_KEY` não estiver definida, a função devolve `skipped`.
+ * A interface orienta o visitante a enviar o briefing pelo WhatsApp;
+ * o pedido não fica armazenado no servidor.
  */
 
 export type Attachment = { filename: string; content: string };

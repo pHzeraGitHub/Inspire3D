@@ -7,6 +7,7 @@
 - A zona `3dinspire.com.br` foi criada no plano gratuito da Cloudflare com 9 registros: CNAME do ápice e de `www` para Railway; os dois TXT de verificação Railway; TXT DKIM e DMARC, dois CNAME de envio e MX de recebimento da Resend.
 - Em 10/11/2026 às 16h12, o Registro.br aceitou `dell.ns.cloudflare.com` e `gerardo.ns.cloudflare.com` como servidores DNS e o novo DS da Cloudflare. A propagação ainda está pendente; a página pública pode continuar em `DEPLOYMENT_NOT_FOUND` até a troca ser vista pelos resolvedores.
 - O domínio foi criado na Resend com envio e recebimento habilitados; a verificação está pendente de propagação DNS. A caixa `contato@3dinspire.com.br` só poderá ser criada depois da verificação.
+- O plano Free da Resend inclui três caixas e 3.000 e-mails por mês (máximo de 100 por dia), mas mantém e-mails e logs por apenas 30 dias. Mensagens comerciais que precisem ser preservadas devem ser exportadas ou encaminhadas para uma caixa de arquivo antes desse prazo.
 - O serviço Railway ainda não tem `RESEND_API_KEY`, `QUOTE_NOTIFICATION_EMAIL`, `QUOTE_FROM_EMAIL` nem `NEXT_PUBLIC_CONTACT_EMAIL`.
 - Cloudflare R2 permanece desativado por escolha do proprietário. Usar o DNS e o encaminhamento de e-mail da Cloudflare não exige R2.
 
@@ -26,5 +27,11 @@
 3. Verificar domínio na Resend, criar a caixa `contato@3dinspire.com.br` e uma chave de API com permissão de envio limitada ao domínio.
 4. Configurar `RESEND_API_KEY`, `QUOTE_NOTIFICATION_EMAIL=contato@3dinspire.com.br` e `QUOTE_FROM_EMAIL=Inspire 3D <contato@3dinspire.com.br>` na Railway. Validar MX, DKIM, DMARC e testar recebimento e envio com contas distintas.
 5. Ajustar `NEXT_PUBLIC_SITE_URL=https://www.3dinspire.com.br`, `SITE_NOINDEX=false` e `NEXT_PUBLIC_CONTACT_EMAIL=contato@3dinspire.com.br` na Railway; implantar novamente e conferir canonical, sitemap, robots, formulários e logs.
+
+## Referências dos serviços
+
+- [Railway: configuração de domínios personalizados](https://docs.railway.com/networking/domains/working-with-domains)
+- [Resend: preços e limites](https://resend.com/pricing)
+- [Resend: retenção de e-mails e logs](https://resend.com/security/gdpr/)
 
 Enquanto o DNS e o e-mail não estiverem verificados, o formulário sinaliza ao visitante quando o envio automático não foi confirmado. Não anunciar o endereço de e-mail no site antes de verificar recebimento.
