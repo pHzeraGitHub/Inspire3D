@@ -1,11 +1,17 @@
 # Inspire 3D — Roadmap de integrações
 
-Três capacidades pedidas para o "super site": **foto → 3D com IA**, **sincronização
-com marketplaces** e **publicação automática nas redes**. As três são viáveis.
+Quatro capacidades pedidas para o "super site": **foto → 3D com IA**, **sincronização
+com marketplaces**, **publicação automática nas redes** e **venda de arquivos digitais**.
 Este documento registra como cada uma funciona de verdade, o que é armadilha e
 em que ordem construir.
 
 Fonte das checagens: setembro de 2026.
+
+**Nova frente em 10/11/2026:** a [loja de arquivos digitais](LOJA-ARQUIVOS-DIGITAIS.md)
+usa o mesmo catálogo e pedido, mas precisa de pagamento confirmado, licença e
+entrega privada. A venda de arquivos por marketplace depende das regras de cada
+canal; a liberação de download não pode depender apenas da página de retorno do
+checkout.
 
 ---
 
