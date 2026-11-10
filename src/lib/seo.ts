@@ -104,7 +104,7 @@ export function localBusinessJsonLd() {
   };
 }
 
-/** FAQPage — habilita o rich result de perguntas na busca. */
+/** FAQPage descreve perguntas; o Google limita rich results deste tipo. */
 export function faqJsonLd() {
   return {
     "@context": "https://schema.org",

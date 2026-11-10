@@ -90,6 +90,7 @@ export default async function ProdutosPage({
         <div className="flex flex-wrap gap-3">
           <Button href="/#colecoes">Conhecer as coleções</Button>
           <Button href="/orcamento" variant="outline">Conversar sobre uma ideia</Button>
+          <Button href="/processos" variant="outline">Ver processos de criação</Button>
         </div>
       </PageIntro>
 

@@ -76,7 +76,9 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   manifest: "/site.webmanifest",
-  robots: { index: true, follow: true },
+  robots: process.env.SITE_NOINDEX === "true"
+    ? { index: false, follow: false, nocache: true }
+    : { index: true, follow: true },
 };
 
 export const viewport: Viewport = {

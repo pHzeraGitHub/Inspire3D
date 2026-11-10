@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { site } from "@/config/site";
 import { projects } from "@/content/projects";
 import { getCatalogProducts } from "@/lib/catalog";
+import { manufacturingProcesses } from "@/content/manufacturing-processes";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const routes = [
     "",
     "/servicos",
+    "/processos",
     "/produtos",
     "/projetos",
     "/orcamento",
@@ -32,6 +34,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.5,
+    })),
+    ...manufacturingProcesses.map((process) => ({
+      url: `${site.url}/processos/${process.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
     })),
     ...products.map((product) => ({
       url: `${site.url}/produtos/${product.slug}`,

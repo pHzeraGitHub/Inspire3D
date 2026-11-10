@@ -14,6 +14,9 @@ Autorização recebida em 10/11/2026: criar ambiente Hobby com limite de US$ 25/
 - `node scripts/verify-railway-staging.mjs` passou: healthcheck, catálogo, orçamento, login e painel administrativo, contagens de 1 produto, 0 materiais e 1 venda, e visualização das 15 compras.
 - `npm run db:validate`, `npm run typecheck` e `npm run build` passaram localmente. As substituições fixadas de `postcss` e `brace-expansion` reduziram `npm audit --omit=dev` para **0 vulnerabilidades altas e 2 moderadas**. O build atualizado foi implantado e verificado novamente.
 - Credenciais exclusivas do administrador de staging foram geradas e salvas em `.data/railway-staging-admin.json` (ignorado pelo Git). A Railway recebeu as variáveis seguras; o endereço do banco é uma referência privada a `Postgres.DATABASE_URL`.
+- O job de [backup PostgreSQL para R2](BACKUP-R2.md) está implementado, mas permanece desativado por escolha do usuário em 10/11/2026. Nenhum bucket ou cron foi criado; faltam backup externo do PostgreSQL e ensaio de restauração antes de receber pedidos comerciais.
+- `SITE_NOINDEX=true` no serviço web impede indexação do staging por `robots.txt`, metadados e cabeçalho HTTP. A implantação `46f29d94-f5d9-44ad-8412-16c7e3c93b3e` terminou em `SUCCESS`; URL principal, `/robots.txt` e `/api/health` responderam HTTP 200, com `X-Robots-Tag: noindex, nofollow, noarchive` e `Disallow: /`.
+- A implantação `ae59227f-814d-4e93-ab35-34f68bb3b36e` publicou as [páginas de processos para busca](SEO-PROCESSOS.md). As cinco URLs de processo, `/processos`, `/sitemap.xml` e `/api/health` responderam HTTP 200; o sitemap listou as cinco páginas. O staging manteve o cabeçalho `noindex` em todas elas.
 
 ## Ordem de implantação
 

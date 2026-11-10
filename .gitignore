@@ -16,6 +16,8 @@ yarn-error.log*
 .env
 .vercel
 .railway
+__pycache__/
+*.pyc
 src/generated/prisma/
 next-env.d.ts
 tsconfig.tsbuildinfo

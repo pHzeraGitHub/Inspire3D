@@ -31,6 +31,7 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
       { label: "Todos os produtos", href: "/produtos" },
       { label: "Projetos", href: "/projetos" },
       { label: "Serviços", href: "/servicos" },
+      { label: "Processos", href: "/processos" },
       { label: "Nossa história", href: "/sobre" },
       { label: "Contato", href: "/contato" },
     ],

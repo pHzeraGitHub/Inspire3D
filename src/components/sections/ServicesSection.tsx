@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { Section } from "@/components/ui/Section";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { services } from "@/content/services";
+import { manufacturingProcesses } from "@/content/manufacturing-processes";
 
 /**
  * As seis frentes em profundidade. Lista, não grade: cada serviço ocupa uma
@@ -61,6 +63,15 @@ export function ServicesSection() {
                     <br />
                     {service.delivers}
                   </p>
+                  {manufacturingProcesses.some((process) => process.serviceSlug === service.slug) ? (
+                    <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+                      {manufacturingProcesses.filter((process) => process.serviceSlug === service.slug).map((process) => (
+                        <Link key={process.slug} href={`/processos/${process.slug}`} className="link-underline text-sm text-gold-lum">
+                          {process.title} ↗
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               </article>
             </Reveal>

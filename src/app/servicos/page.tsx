@@ -57,6 +57,9 @@ export default function ServicosPage() {
           <Button href="/projetos" variant="outline">
             Ver projetos
           </Button>
+          <Button href="/processos" variant="outline">
+            Conhecer os processos
+          </Button>
         </div>
       </PageIntro>
 
