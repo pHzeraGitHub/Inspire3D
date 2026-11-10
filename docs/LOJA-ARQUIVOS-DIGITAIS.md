@@ -6,6 +6,8 @@ Vender arquivos de corte para Silhouette e modelos para impressão 3D no mesmo c
 
 **Base preparada no código:** a migração aditiva `20261110_digital_catalog` e o espelho Prisma acrescentam o tipo de produto, ofertas por licença e metadados de versões privadas. A migração ainda **não foi aplicada** ao PGlite real nem ao PostgreSQL da Railway; não há tela de compra, upload ou download liberada. A próxima implementação deve associar essas estruturas a pedidos pagos e autorizar a entrega no servidor.
 
+**Decisões do proprietário em 10/11/2026:** os arquivos e formatos ainda serão definidos; todas as ofertas digitais começam com **licença comercial**. Não cadastrar produtos fictícios nem anunciar compatibilidade sem um arquivo real testado. A licença comercial deverá ser descrita de forma explícita antes da primeira venda. Proposta de escopo a validar: permitir fabricar e vender objetos físicos a partir do arquivo comprado, sem transferir a autoria e sem autorizar a redistribuição ou revenda do arquivo digital em si. O texto final dos termos precisa de revisão jurídica antes de ser publicado. A [Lei 9.610/1998](https://www.planalto.gov.br/ccivil_03/leis/l9610.htm) permite licenciamento de direitos autorais, mas a modalidade e os usos concedidos devem ser definidos no contrato.
+
 ## Experiência do cliente
 
 1. A vitrine separa **Produtos físicos**, **Arquivos para corte** e **Modelos para impressão 3D**, com busca por finalidade, formato e processo. O arquivo digital exibe imagens de prévia, formatos incluídos, programa/equipamento compatível, dimensões ou escala, conteúdo do pacote, versão, licença e preço. A prévia nunca contém o arquivo final.
@@ -15,6 +17,10 @@ Vender arquivos de corte para Silhouette e modelos para impressão 3D no mesmo c
 5. O cliente recebe uma mensagem com acesso a **Minha biblioteca**. A biblioteca mostra pedidos, licença, versões disponíveis e suporte. Para cada download, o servidor valida sessão, compra e situação do pagamento e gera um link temporário para um único objeto privado. O link direto expira rapidamente e não aparece em páginas públicas.
 6. Reembolso, estorno, contestação ou cancelamento revogam o acesso conforme os termos comerciais. Os eventos ficam auditáveis sem expor a URL privada do arquivo em logs ou e-mails.
 
+### Área do cliente e atendimento
+
+**Minha conta** reúne carrinho salvo, dados de contato, pedidos físicos e digitais, situação do pagamento, prazo de produção/expedição, rastreamento, biblioteca de arquivos e histórico de mensagens. O cliente pode pedir ajuda ou correção pelo próprio pedido; o painel mostra ao atendente o contexto e a origem da venda. Notificações por e-mail acompanham mudanças reais de estado. Personalizações e orçamentos aprovados devem virar itens do pedido sem reescrever a conversa nem perder os arquivos enviados pelo cliente. Esses fluxos serão entregues por etapas e testados em celular antes da abertura comercial.
+
 ## Catálogo e gestão
 
 - O produto mantém um ID canônico. `kind` distingue `physical`, `digital` e, quando necessário, `hybrid`; o arquivo não consome estoque de filamento nem gera ordem de produção. Uma compra mista cria itens separados no mesmo pedido.
@@ -22,7 +28,7 @@ Vender arquivos de corte para Silhouette e modelos para impressão 3D no mesmo c
 - Para SVG, informar a edição necessária do Silhouette Studio: a [Silhouette informa](https://www.silhouetteamerica.com/heat-transfer) que abrir SVG requer Designer Edition ou superior. Um produto anunciado para a edição básica precisa incluir um formato realmente testado nela.
 - Cada arquivo privado tem ID, versão, chave de armazenamento, tamanho, SHA-256, formato e estado. Substituir um arquivo cria nova versão; pedidos antigos mantêm uma referência auditável. Definir se atualizações serão incluídas na compra ou oferecidas separadamente.
 - O painel administrativo cadastra a oferta, faz upload privado, calcula o hash, mostra a prévia e permite publicar somente quando preço, licença e pelo menos um arquivo válido estiverem completos. O painel também mostra compras, liberações, reembolsos e tentativas de download.
-- Licenças pessoal e comercial, caso oferecidas, são ofertas com preços e termos distintos. O texto da licença deve dizer claramente o que pode ser produzido, vendido, modificado e redistribuído. Confirmar autoria ou direito de revenda antes de publicar arquivos de terceiros.
+- A oferta inicial usa licença comercial em todos os arquivos. O modelo mantém `license_code` e preço por oferta para permitir novas modalidades futuramente sem reescrever pedidos antigos. O texto da licença deve dizer claramente o que pode ser produzido, vendido, modificado e redistribuído. Confirmar autoria ou direito de revenda antes de publicar arquivos de terceiros.
 
 ## Dados e autorização
 
@@ -71,4 +77,4 @@ O painel registra uma origem para cada pedido (`site`, marketplace ou manual), m
 
 ## Decisões de produto pendentes
 
-Confirmar formatos existentes e direitos de comercialização, tipos de licença, política de atualização, prazo de acesso/retorno, marketplaces prioritários e volume estimado dos arquivos. Esses dados definem os textos de produto e licença, o preço, a estimativa do R2 e os primeiros testes de compatibilidade.
+Confirmar formatos existentes e direitos de comercialização para cada arquivo, política de atualização, prazo de acesso/retorno, marketplaces prioritários e volume estimado dos arquivos. Esses dados definem os textos de produto, o preço, a estimativa do R2 e os primeiros testes de compatibilidade. A modalidade inicial de licença comercial já foi escolhida; falta fechar seu texto e alcance.
