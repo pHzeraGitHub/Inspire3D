@@ -57,6 +57,9 @@ function pool() {
 }
 
 async function localDatabase() {
+  if (process.env.VERCEL) {
+    throw new Error("DATABASE_URL precisa apontar para um PostgreSQL persistente na Vercel.");
+  }
   const configuredPath = process.env.PGLITE_DATA_DIR || path.join(process.cwd(), ".data", "inspire3d");
   const dataDir = path.resolve(configuredPath);
   await mkdir(path.dirname(dataDir), { recursive: true });

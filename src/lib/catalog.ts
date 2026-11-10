@@ -1,6 +1,7 @@
 import "server-only";
 import type { Product } from "@/types";
 import { query } from "@/lib/db";
+import { products as starterProducts } from "@/content/products";
 
 type ProductRow = {
   id: string;
@@ -49,6 +50,10 @@ export function mapProduct(row: ProductRow): Product {
 }
 
 export async function getCatalogProducts(): Promise<Product[]> {
+  // Previews can show the starter catalog before a persistent database is connected.
+  // Admin data still requires PostgreSQL; PGlite cannot persist in Vercel Functions.
+  if (process.env.VERCEL && !process.env.DATABASE_URL) return starterProducts;
+
   const result = await query<ProductRow>(
     `SELECT id, slug, name, short_description, description, collection, category, images,
       technical_characteristics, dimensions, variants, personalization_options, price,
