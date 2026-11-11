@@ -17,6 +17,7 @@ export default async function IntegracoesPage({ searchParams }: { searchParams: 
       <p>{shipping.connected ? "Conta conectada" : "Aguardando autorização"}{shipping.expiresAt ? ` · token atual válido até ${new Date(shipping.expiresAt).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}` : ""}.</p>
       {ready ? <Link className="admin-button admin-button--gold" href="/api/admin/integrations/melhorenvio/start">
         {shipping.connected ? "Reconectar Melhor Envio" : "Conectar Melhor Envio"}</Link> : <p>O aplicativo ainda precisa ser configurado no servidor.</p>}
+      {shipping.connected ? <p><Link href="/api/admin/integrations/melhorenvio/test">Testar cotação de exemplo ↗</Link></p> : null}
       <p>Esta conexão solicita apenas permissão para calcular frete. A compra de etiquetas permanece no painel do Melhor Envio.</p>
     </section>
   </div>;
