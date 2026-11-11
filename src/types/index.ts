@@ -82,6 +82,7 @@ export type Product = {
   leadTime?: string;
   productionDays?: number;
   productionReady?: boolean;
+  shippingReady?: boolean;
   featured: boolean;
   seo: { title: string; description: string };
   /** True only when a real purchase or quote path is available. */

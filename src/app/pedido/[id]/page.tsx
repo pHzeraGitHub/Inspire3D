@@ -56,7 +56,10 @@ export default async function PedidoPage({ params, searchParams }: {
         {order.paymentStatus === "pending" ? <div className="order-payment-note"><OrderRefresh /><strong>Aguardando confirmação do pagamento</strong><p>Se você acabou de pagar, esta página será atualizada automaticamente.</p>{order.paymentCheckoutUrl ? <a href={order.paymentCheckoutUrl} className="mt-3 inline-block text-sm text-gold underline" rel="noopener noreferrer">Voltar ao pagamento seguro ↗</a> : null}</div> : null}
         {order.paymentStatus === "refunded" ? <div className="order-payment-note"><strong>Pagamento estornado</strong><p>Entre em contato com o estúdio se precisar de ajuda.</p></div> : null}
         <p className="eyebrow">Linha do tempo</p><h2 className="mt-3 font-display text-2xl text-chalk">Do pagamento à entrega</h2>
-        {order.estimatedProductionAt && order.paymentStatus === "paid" ? <p className="mt-3 text-sm text-silver">Previsão inicial de produção: <strong className="text-gold">{date(order.estimatedProductionAt)}</strong>. O prazo de transporte começa após o envio.</p> : null}
+        {order.estimatedProductionAt && order.paymentStatus === "paid" ? <div className="mt-3 space-y-2 text-sm text-silver">
+          <p>Produção prevista até <strong className="text-gold">{date(order.estimatedProductionAt)}</strong>.</p>
+          {order.estimatedDeliveryAt ? <p>Entrega inicial estimada: <strong className="text-gold">{date(order.estimatedDeliveryAt)}</strong>. Consideramos a primeira segunda, terça ou quinta após a produção como possível postagem; o prazo pode mudar conforme a coleta da transportadora.</p> : null}
+        </div> : null}
         <ol className="order-timeline mt-8">{stages.map((stage, index) => <li key={stage.id} className={stageIndex >= index ? "is-complete" : ""}>
           <span aria-hidden>{stageIndex > index ? "✓" : index + 1}</span><div><strong>{stage.title}</strong><small>{stage.detail}</small></div>
         </li>)}</ol>
@@ -66,6 +69,7 @@ export default async function PedidoPage({ params, searchParams }: {
       <aside className="panel p-6 md:p-7"><p className="eyebrow">Cupom virtual · não fiscal</p><h2 className="mt-2 font-display text-xl text-chalk">{order.code}</h2><p className="mt-1 text-xs text-ash">Criado em {date(order.createdAt)}</p>
         <div className="mt-6 space-y-4">{order.items.map((item, index) => <div key={index} className="flex justify-between gap-3 text-sm text-silver"><span>{item.quantity} × {item.name}{Object.entries(item.options).map(([key, value]) => value ? <small className="block text-ash" key={key}>{key}: {value}</small> : null)}</span><strong className="text-chalk">{currency(item.quantity * item.unitPrice)}</strong></div>)}</div>
         <div className="checkout-prices mt-6"><span>Subtotal <b>{currency(order.subtotal)}</b></span><span>Frete <b>{currency(order.shipping)}</b></span><strong>Total <b>{currency(order.total)}</b></strong></div>
+        <p className="mt-4 text-xs text-silver">Entrega: {order.shippingCarrier} · {order.shippingMethod} · {order.shippingDeliveryDays} dias úteis de transporte após postagem.</p>
         <p className="mt-6 text-xs leading-relaxed text-ash">Entrega: {order.address.street}, {order.address.number}{order.address.complement ? `, ${order.address.complement}` : ""} · {order.address.neighborhood}, {order.address.city}/{order.address.state} · CEP {order.address.postalCode}</p>
         <p className="mt-4 text-xs text-ash">Guarde o endereço desta página para acompanhar seu pedido.</p>
         <Link href="/produtos" className="link-underline mt-6 inline-block text-sm text-gold">Voltar aos produtos ↗</Link>

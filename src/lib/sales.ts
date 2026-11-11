@@ -34,6 +34,10 @@ export type SaleRecord = {
   createdAt: string;
   onlineStage: string | null;
   trackingCode: string;
+  shippingMethod: string;
+  shippingCarrier: string;
+  shippingServiceId: string;
+  shippingAddress: { postalCode: string; street: string; number: string; complement: string; neighborhood: string; city: string; state: string } | null;
   items: SaleItemRecord[];
 };
 
@@ -50,7 +54,8 @@ export async function getAdminSales(): Promise<SaleRecord[]> {
   const sales = await query(
     `SELECT s.id, s.customer_name, s.customer_contact, s.channel, s.status, s.payment_status,
       s.payment_method, s.subtotal, s.discount, s.shipping, s.total, s.notes, s.created_at,
-      o.stage AS online_stage, o.tracking_code
+      o.stage AS online_stage, o.tracking_code, o.shipping_method, o.shipping_carrier,
+      o.shipping_service_id, o.shipping_address
      FROM sales s LEFT JOIN online_orders o ON o.sale_id=s.id ORDER BY s.created_at DESC`,
   );
   if (!sales.rows.length) return [];
@@ -86,6 +91,9 @@ export async function getAdminSales(): Promise<SaleRecord[]> {
     notes: String(row.notes), createdAt: new Date(row.created_at).toISOString(),
     onlineStage: row.online_stage ? String(row.online_stage) : null,
     trackingCode: String(row.tracking_code ?? ""),
+    shippingMethod: String(row.shipping_method ?? ""), shippingCarrier: String(row.shipping_carrier ?? ""),
+    shippingServiceId: String(row.shipping_service_id ?? ""),
+    shippingAddress: row.shipping_address ?? null,
     items: bySale.get(String(row.id)) ?? [],
   }));
 }

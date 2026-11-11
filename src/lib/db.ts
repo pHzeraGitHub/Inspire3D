@@ -13,7 +13,7 @@ declare global {
 }
 
 export const remoteDatabaseConfigured = Boolean(process.env.DATABASE_URL);
-const SCHEMA_VERSION = "commerce-v1";
+const SCHEMA_VERSION = "commerce-v2-shipping";
 
 type DbResult<T extends QueryResultRow = QueryResultRow> = { rows: T[]; rowCount: number | null };
 export type DbExecutor = {
@@ -215,6 +215,10 @@ ALTER TABLE products ADD COLUMN IF NOT EXISTS estimated_other_cost NUMERIC(12,2)
 ALTER TABLE products ADD COLUMN IF NOT EXISTS estimated_tax_percent NUMERIC(6,3) NOT NULL DEFAULT 0 CHECK (estimated_tax_percent BETWEEN 0 AND 100);
 ALTER TABLE products ADD COLUMN IF NOT EXISTS estimated_payment_fee_percent NUMERIC(6,3) NOT NULL DEFAULT 0 CHECK (estimated_payment_fee_percent BETWEEN 0 AND 100);
 ALTER TABLE products ADD COLUMN IF NOT EXISTS production_days INTEGER NOT NULL DEFAULT 7 CHECK (production_days BETWEEN 1 AND 90);
+ALTER TABLE products ADD COLUMN IF NOT EXISTS package_weight_kg NUMERIC(8,3) CHECK (package_weight_kg > 0);
+ALTER TABLE products ADD COLUMN IF NOT EXISTS package_width_cm NUMERIC(8,2) CHECK (package_width_cm > 0);
+ALTER TABLE products ADD COLUMN IF NOT EXISTS package_height_cm NUMERIC(8,2) CHECK (package_height_cm > 0);
+ALTER TABLE products ADD COLUMN IF NOT EXISTS package_length_cm NUMERIC(8,2) CHECK (package_length_cm > 0);
 ALTER TABLE sale_items ADD COLUMN IF NOT EXISTS options_snapshot JSONB NOT NULL DEFAULT '{}'::jsonb;
 CREATE TABLE IF NOT EXISTS online_orders (
   sale_id TEXT PRIMARY KEY REFERENCES sales(id) ON DELETE CASCADE,
@@ -223,6 +227,10 @@ CREATE TABLE IF NOT EXISTS online_orders (
   customer_phone TEXT NOT NULL DEFAULT '',
   shipping_address JSONB NOT NULL,
   shipping_method TEXT NOT NULL DEFAULT 'delivery',
+  shipping_service_id TEXT NOT NULL DEFAULT '',
+  shipping_carrier TEXT NOT NULL DEFAULT '',
+  shipping_delivery_days INTEGER NOT NULL DEFAULT 0,
+  estimated_delivery_at TIMESTAMPTZ,
   stage TEXT NOT NULL DEFAULT 'awaiting_payment' CHECK (stage IN ('awaiting_payment','queued','production','quality','packed','shipped','delivered','cancelled')),
   estimated_production_at TIMESTAMPTZ,
   payment_preference_id TEXT,
@@ -243,6 +251,10 @@ CREATE TABLE IF NOT EXISTS order_events (
 );
 CREATE INDEX IF NOT EXISTS order_events_sale_idx ON order_events(sale_id, created_at);
 ALTER TABLE online_orders ADD COLUMN IF NOT EXISTS payment_checkout_url TEXT NOT NULL DEFAULT '';
+ALTER TABLE online_orders ADD COLUMN IF NOT EXISTS shipping_service_id TEXT NOT NULL DEFAULT '';
+ALTER TABLE online_orders ADD COLUMN IF NOT EXISTS shipping_carrier TEXT NOT NULL DEFAULT '';
+ALTER TABLE online_orders ADD COLUMN IF NOT EXISTS shipping_delivery_days INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE online_orders ADD COLUMN IF NOT EXISTS estimated_delivery_at TIMESTAMPTZ;
 `;
 
 async function initialize(client: DbExecutor) {

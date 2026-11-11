@@ -6,9 +6,9 @@ Em `/admin/vendas`, a venda rápida funciona como cardápio: toque nos produtos,
 
 ## Compra pelo site
 
-Um produto só mostra **Comprar** quando está publicado, lançado, disponível, tem preço maior que zero, possui ficha técnica com materiais e o checkout está configurado. O comprador informa produto, opções, endereço e contato no site. O Checkout Pro abre o pagamento seguro do Mercado Pago com Pix e cartão e retorna à página individual do pedido. O Mercado Pago também pode mostrar saldo em conta, pois essa opção não pode ser excluída nas preferências do Checkout Pro.
+Um produto só mostra **Comprar** quando está publicado, lançado, disponível, tem preço maior que zero, ficha técnica com materiais, peso e três dimensões da embalagem, e o checkout está configurado. O comprador informa produto, opções, CEP, endereço e contato no site. A cotação do Melhor Envio mostra transportadora, modalidade, valor e prazo; o comprador escolhe uma opção antes de pagar. O Checkout Pro abre o pagamento seguro do Mercado Pago com Pix e cartão e retorna à página individual do pedido. O Mercado Pago também pode mostrar saldo em conta, pois essa opção não pode ser excluída nas preferências do Checkout Pro.
 
-O pedido é criado como rascunho. A confirmação pelo Mercado Pago, validada no servidor, marca o pagamento como recebido e coloca o pedido na fila de produção. A linha do tempo mostra produção, conferência, embalagem, envio e entrega. O painel registra os avanços; o envio exige um código de rastreio. A previsão inicial de produção usa o campo **Produção para compra online (dias úteis)** do cadastro do produto, contado após a aprovação do pagamento.
+O pedido é criado como rascunho. O servidor faz uma nova cotação e compara preço e frete antes de abrir o pagamento. A confirmação pelo Mercado Pago, validada no servidor, marca o pagamento como recebido e coloca o pedido na fila de produção. A linha do tempo mostra produção, conferência, embalagem, envio e entrega. O painel registra os avanços; o envio exige um código de rastreio. A previsão inicial de produção usa o campo **Produção para compra online (dias úteis)** do cadastro do produto, contado após a aprovação do pagamento. A entrega inicial considera a primeira segunda, terça ou quinta após a produção e o prazo de transporte estimado pelo Melhor Envio. A compra da etiqueta e a postagem são feitas no Melhor Envio pela equipe; depois, registre o rastreio no painel.
 
 O link individual de acompanhamento é enviado por e-mail quando `RESEND_API_KEY` e `QUOTE_FROM_EMAIL` estiverem configurados. Sem essas variáveis, o link aparece no retorno do pagamento e deve ser guardado pelo comprador.
 
@@ -17,10 +17,11 @@ O link individual de acompanhamento é enviado por e-mail quando `RESEND_API_KEY
 1. Crie uma aplicação de Checkout Pro na conta de vendedor Mercado Pago e obtenha o **Access Token** de produção. Configure a chave Pix na conta para oferecer Pix.
 2. Em Railway → `inspire3d-staging` → `inspire3d-web` → Variables, configure `MERCADO_PAGO_ACCESS_TOKEN` e `MERCADO_PAGO_WEBHOOK_SECRET` como segredos. A segunda chave é a assinatura secreta de Webhooks da aplicação.
 3. Configure o webhook de **Pagamentos** e **Ordens comerciais** para `https://www.3dinspire.com.br/api/webhooks/mercadopago`.
-4. Configure `SHOP_SHIPPING_FLAT_RATE` com o valor em reais do frete fixo inicial. O valor `0` significa frete grátis. O checkout fica oculto enquanto esse valor não estiver definido.
+4. Em Melhor Envio, gere um token de API com permissão para cotação. Configure `MELHOR_ENVIO_TOKEN` como segredo, `SHOP_SHIPPING_ORIGIN_CEP=32235225` e `MELHOR_ENVIO_CONTACT_EMAIL` com um e-mail de suporte técnico. A origem é sempre o endereço da empresa em Contagem/MG.
 5. Confira `NEXT_PUBLIC_SITE_URL=https://www.3dinspire.com.br` e publique uma nova implantação para carregar as variáveis.
-6. Antes de aceitar pagamentos reais, faça uma compra de teste com credenciais de teste, confira o webhook, a aprovação no painel, a fila de produção, o link de acompanhamento e o cupom.
+6. Cadastre peso final e largura, altura e comprimento da embalagem nos produtos vendidos online. O checkout fica oculto enquanto as credenciais ou esses dados não estiverem prontos.
+7. Antes de aceitar pagamentos reais, faça uma compra de teste com credenciais de teste, confira a cotação, o webhook, a aprovação no painel, a fila de produção, o link de acompanhamento e o cupom.
 
 Não registre Access Token, assinatura de Webhook ou dados de cartão no Git. O site calcula o preço a partir do banco, valida o retorno do Mercado Pago pela API e não confia no valor informado pelo navegador.
 
-O frete desta primeira integração é fixo. Para cotação automática por CEP, será necessário escolher e integrar uma transportadora ou serviço de frete com credenciais próprias; o valor deverá ser calculado no servidor antes de abrir o pagamento.
+O token do Melhor Envio e as credenciais do Mercado Pago nunca devem ir para o navegador ou para o Git. O frete é cotado no servidor e revisto antes da criação do checkout. O prazo de transporte é estimado; a data final pode variar conforme produção, coleta e operação da transportadora.

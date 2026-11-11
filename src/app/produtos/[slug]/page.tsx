@@ -42,7 +42,7 @@ export default async function ProdutoPage({ params }: PageProps) {
     "inspire-solutions": "funcional",
   }[product.collection];
   const isAvailable = product.available && product.availability === "available";
-  const canBuy = isAvailable && product.productionReady && Boolean(product.priceFrom && product.priceFrom > 0) && commerceConfigured();
+  const canBuy = isAvailable && product.productionReady && product.shippingReady && Boolean(product.priceFrom && product.priceFrom > 0) && commerceConfigured();
 
   return (
     <>

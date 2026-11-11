@@ -4,6 +4,7 @@ import { query, transaction } from "@/lib/db";
 import { changeSaleStatusInTransaction, SaleError, saleCode } from "@/lib/sales";
 import { createPaymentPreference, type MercadoPagoPayment, type MercadoPagoMerchantOrder, paymentConfigured } from "@/lib/mercado-pago";
 import { sendOrderLink } from "@/lib/order-mail";
+import { getShippableProduct, quoteShipping, shippingConfigured } from "@/lib/shipping";
 
 const hashToken = (value: string) => createHash("sha256").update(value).digest("hex");
 const money = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
@@ -15,15 +16,8 @@ export type ShippingAddress = {
 };
 export type OnlineStage = "awaiting_payment" | "queued" | "production" | "quality" | "packed" | "shipped" | "delivered" | "cancelled";
 
-export function shippingRate(): number | null {
-  const raw = process.env.SHOP_SHIPPING_FLAT_RATE;
-  if (raw === undefined || raw.trim() === "") return null;
-  const rate = Number(raw);
-  return Number.isFinite(rate) && rate >= 0 && rate <= 10000 ? money(rate) : null;
-}
-
 export function commerceConfigured() {
-  return paymentConfigured() && shippingRate() !== null && Boolean(process.env.NEXT_PUBLIC_SITE_URL?.startsWith("https://"));
+  return paymentConfigured() && shippingConfigured() && Boolean(process.env.NEXT_PUBLIC_SITE_URL?.startsWith("https://"));
 }
 
 function productionDate(days: number) {
@@ -39,6 +33,19 @@ function productionDate(days: number) {
   return date.toISOString();
 }
 
+function deliveryDate(productionAt: string, transitDays: number) {
+  const date = new Date(productionAt);
+  // The parcel is posted on the first available posting day after production.
+  do { date.setUTCDate(date.getUTCDate() + 1); }
+  while (![1, 2, 4].includes(date.getUTCDay()));
+  let remaining = transitDays;
+  while (remaining > 0) {
+    date.setUTCDate(date.getUTCDate() + 1);
+    if (date.getUTCDay() !== 0 && date.getUTCDay() !== 6) remaining--;
+  }
+  return date.toISOString();
+}
+
 function parseCheckout(value: unknown) {
   if (!value || typeof value !== "object") throw new SaleError("Preencha os dados da compra.");
   const body = value as Record<string, unknown>;
@@ -47,6 +54,9 @@ function parseCheckout(value: unknown) {
   const customerName = String(body.customerName ?? "").trim();
   const customerEmail = String(body.customerEmail ?? "").trim().toLowerCase();
   const customerPhone = String(body.customerPhone ?? "").trim();
+  const shippingServiceId = String(body.shippingServiceId ?? "");
+  const expectedShipping = Number(body.expectedShipping);
+  const expectedUnitPrice = Number(body.expectedUnitPrice);
   const rawChoices = body.choices && typeof body.choices === "object" && !Array.isArray(body.choices)
     ? body.choices as Record<string, unknown> : {};
   const rawAddress = body.address && typeof body.address === "object" ? body.address as Record<string, unknown> : {};
@@ -57,6 +67,8 @@ function parseCheckout(value: unknown) {
     city: String(rawAddress.city ?? "").trim(), state: String(rawAddress.state ?? "").trim().toUpperCase(),
   };
   if (!productId || productId.length > 100 || !Number.isInteger(quantity) || quantity < 1 || quantity > 20) throw new SaleError("Confira o produto e a quantidade.");
+  if (!/^\d{1,8}$/.test(shippingServiceId) || !Number.isFinite(expectedShipping) || expectedShipping < 0 ||
+    !Number.isFinite(expectedUnitPrice) || expectedUnitPrice <= 0) throw new SaleError("Selecione uma entrega e confira o total.");
   if (!customerName || customerName.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail) || customerEmail.length > 180 || customerPhone.length > 30) throw new SaleError("Confira nome, e-mail e telefone.");
   if (address.postalCode.length !== 8 || !address.street || !address.number || !address.neighborhood || !address.city || !/^[A-Z]{2}$/.test(address.state) ||
     [address.street, address.number, address.neighborhood, address.city].some((field) => field.length > 120) || address.complement.length > 120) {
@@ -66,36 +78,34 @@ function parseCheckout(value: unknown) {
     throw new SaleError("Confira as opções de personalização.");
   }
   const choices = Object.fromEntries(Object.entries(rawChoices).map(([key, choice]) => [key, String(choice).trim()]));
-  return { productId, quantity, customerName, customerEmail, customerPhone, address, choices };
+  return { productId, quantity, customerName, customerEmail, customerPhone, address, choices,
+    shippingServiceId, expectedShipping, expectedUnitPrice };
 }
 
 export async function createOnlineOrder(value: unknown) {
   if (!commerceConfigured()) throw new SaleError("Checkout ainda não configurado. Entre em contato com o estúdio.", 503);
   const input = parseCheckout(value);
-  const product = await query(
-    `SELECT id, name, price, production_days, variants, personalization_options,
-      EXISTS(SELECT 1 FROM product_materials pm WHERE pm.product_id=products.id) AS production_ready
-     FROM products
-     WHERE id=$1 AND published=TRUE AND availability='available' AND launch_status='released'`,
-    [input.productId],
-  );
-  const row = product.rows[0];
-  if (!row || row.price === null || number(row.price) <= 0) throw new SaleError("Este produto não está disponível para compra online.", 409);
-  if (!row.production_ready) throw new SaleError("Este produto ainda precisa da ficha técnica de produção para venda online.", 409);
-  const variants = row.variants as { label: string; options: string[] }[];
-  const personalization = row.personalization_options as string[];
+  const product = await getShippableProduct(input.productId);
+  const variants = product.variants;
+  const personalization = product.personalizationOptions;
   const allowed = new Set([...variants.map((variant) => variant.label), ...personalization]);
   if (Object.keys(input.choices).some((key) => !allowed.has(key)) ||
     variants.some((variant) => !variant.options.includes(input.choices[variant.label] ?? ""))) {
     throw new SaleError("Escolha as opções disponíveis para este produto.");
   }
-  const unitPrice = money(number(row.price));
+  const unitPrice = product.price;
+  if (money(input.expectedUnitPrice) !== unitPrice) throw new SaleError("O preço do produto mudou. Atualize a página para conferir o total.", 409);
   const subtotal = money(unitPrice * input.quantity);
-  const shipping = shippingRate()!;
+  const options = await quoteShipping(product, input.quantity, input.address.postalCode);
+  const selected = options.find((option) => option.id === input.shippingServiceId);
+  if (!selected) throw new SaleError("Esta modalidade de entrega não está mais disponível. Faça uma nova cotação.", 409);
+  if (selected.price !== money(input.expectedShipping)) throw new SaleError("O valor do frete mudou. Faça uma nova cotação antes de pagar.", 409);
+  const shipping = selected.price;
   const total = money(subtotal + shipping);
   const id = randomUUID();
   const token = randomBytes(32).toString("base64url");
-  const estimatedAt = productionDate(number(row.production_days) || 7);
+  const estimatedAt = productionDate(product.productionDays);
+  const estimatedDeliveryAt = deliveryDate(estimatedAt, selected.deliveryDays);
   await transaction(async (client) => {
     await client.query(
       `INSERT INTO sales (id, customer_name, customer_contact, channel, subtotal, shipping, total)
@@ -105,12 +115,14 @@ export async function createOnlineOrder(value: unknown) {
     await client.query(
       `INSERT INTO sale_items (id,sale_id,product_id,name_snapshot,fulfillment,quantity,unit_price,options_snapshot)
        VALUES ($1,$2,$3,$4,'made_to_order',$5,$6,$7::jsonb)`,
-      [randomUUID(), id, input.productId, row.name, input.quantity, unitPrice, JSON.stringify(input.choices)],
+      [randomUUID(), id, input.productId, product.name, input.quantity, unitPrice, JSON.stringify(input.choices)],
     );
     await client.query(
-      `INSERT INTO online_orders (sale_id,access_token_hash,customer_email,customer_phone,shipping_address,estimated_production_at)
-       VALUES ($1,$2,$3,$4,$5::jsonb,$6)`,
-      [id, hashToken(token), input.customerEmail, input.customerPhone, JSON.stringify(input.address), estimatedAt],
+      `INSERT INTO online_orders (sale_id,access_token_hash,customer_email,customer_phone,shipping_address,estimated_production_at,
+        shipping_service_id,shipping_method,shipping_carrier,shipping_delivery_days,estimated_delivery_at)
+       VALUES ($1,$2,$3,$4,$5::jsonb,$6,$7,$8,$9,$10,$11)`,
+      [id, hashToken(token), input.customerEmail, input.customerPhone, JSON.stringify(input.address), estimatedAt,
+        selected.id, selected.name, selected.carrier, selected.deliveryDays, estimatedDeliveryAt],
     );
     await client.query(
       `INSERT INTO order_events (id,sale_id,kind,title,detail) VALUES ($1,$2,'created','Pedido iniciado','Aguardando pagamento.')`,
@@ -120,7 +132,7 @@ export async function createOnlineOrder(value: unknown) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL!.replace(/\/$/, "");
   const returnUrl = `${baseUrl}/pedido/${id}?chave=${encodeURIComponent(token)}`;
   try {
-    const preference = await createPaymentPreference({ saleId: id, productName: String(row.name), quantity: input.quantity,
+    const preference = await createPaymentPreference({ saleId: id, productName: product.name, quantity: input.quantity,
       unitPrice, shipping, customerName: input.customerName, customerEmail: input.customerEmail, returnUrl });
     await query("UPDATE online_orders SET payment_preference_id=$2, payment_checkout_url=$3, updated_at=NOW() WHERE sale_id=$1", [id, preference.preferenceId, preference.checkoutUrl]);
     await sendOrderLink({ email: input.customerEmail, name: input.customerName, code: saleCode(id), url: returnUrl });
@@ -146,7 +158,8 @@ export async function getOnlineOrder(id: string, token: string) {
     `SELECT s.id, s.customer_name, s.status, s.payment_status, s.payment_method,
       s.subtotal, s.shipping, s.total, s.created_at,
       o.access_token_hash, o.stage, o.estimated_production_at, o.shipping_address,
-      o.tracking_code, o.tracking_url, o.shipped_at, o.payment_checkout_url
+      o.tracking_code, o.tracking_url, o.shipped_at, o.payment_checkout_url,
+      o.shipping_method, o.shipping_carrier, o.shipping_delivery_days, o.estimated_delivery_at
      FROM sales s JOIN online_orders o ON o.sale_id=s.id WHERE s.id=$1`, [id],
   );
   const row = result.rows[0];
@@ -161,6 +174,9 @@ export async function getOnlineOrder(id: string, token: string) {
     subtotal: number(row.subtotal), shipping: number(row.shipping), total: number(row.total),
     createdAt: new Date(row.created_at).toISOString(), stage: row.stage as OnlineStage,
     estimatedProductionAt: row.estimated_production_at ? new Date(row.estimated_production_at).toISOString() : null,
+    estimatedDeliveryAt: row.estimated_delivery_at ? new Date(row.estimated_delivery_at).toISOString() : null,
+    shippingMethod: String(row.shipping_method), shippingCarrier: String(row.shipping_carrier),
+    shippingDeliveryDays: number(row.shipping_delivery_days),
     address: row.shipping_address as ShippingAddress, trackingCode: String(row.tracking_code),
     trackingUrl: String(row.tracking_url), shippedAt: row.shipped_at ? new Date(row.shipped_at).toISOString() : null,
     paymentCheckoutUrl: row.payment_status === "pending" ? String(row.payment_checkout_url) : "",
@@ -174,7 +190,7 @@ export async function reconcileMercadoPagoPayment(payment: MercadoPagoPayment) {
   if (!id || !/^\d+$/.test(String(payment.id))) return;
   await transaction(async (client) => {
     const result = await client.query(
-      `SELECT s.id, s.status, s.payment_status, s.total, o.stage
+      `SELECT s.id, s.status, s.payment_status, s.total, o.stage, o.shipping_delivery_days
        FROM sales s JOIN online_orders o ON o.sale_id=s.id WHERE s.id=$1 FOR UPDATE OF s, o`, [id],
     );
     const row = result.rows[0];
@@ -189,7 +205,8 @@ export async function reconcileMercadoPagoPayment(payment: MercadoPagoPayment) {
         `UPDATE sales SET status='confirmed', payment_status='paid', payment_method=$2,
           confirmed_at=NOW(), updated_at=NOW() WHERE id=$1`, [id, payment.payment_method_id || "Mercado Pago"],
       );
-      await client.query("UPDATE online_orders SET stage='queued', payment_id=$2, estimated_production_at=$3, updated_at=NOW() WHERE sale_id=$1", [id, String(payment.id), estimatedAt]);
+      await client.query("UPDATE online_orders SET stage='queued', payment_id=$2, estimated_production_at=$3, estimated_delivery_at=$4, updated_at=NOW() WHERE sale_id=$1",
+        [id, String(payment.id), estimatedAt, deliveryDate(estimatedAt, number(row.shipping_delivery_days))]);
       await client.query(
         `INSERT INTO order_events (id,sale_id,kind,title,detail)
          VALUES ($1,$2,'paid','Pagamento aprovado','Pedido enviado para a fila de produção.')`, [randomUUID(), id],
