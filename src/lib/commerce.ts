@@ -16,8 +16,8 @@ export type ShippingAddress = {
 };
 export type OnlineStage = "awaiting_payment" | "queued" | "production" | "quality" | "packed" | "shipped" | "delivered" | "cancelled";
 
-export function commerceConfigured() {
-  return paymentConfigured() && shippingConfigured() && Boolean(process.env.NEXT_PUBLIC_SITE_URL?.startsWith("https://"));
+export async function commerceConfigured() {
+  return paymentConfigured() && Boolean(process.env.NEXT_PUBLIC_SITE_URL?.startsWith("https://")) && await shippingConfigured();
 }
 
 function productionDate(days: number) {
@@ -83,7 +83,7 @@ function parseCheckout(value: unknown) {
 }
 
 export async function createOnlineOrder(value: unknown) {
-  if (!commerceConfigured()) throw new SaleError("Checkout ainda não configurado. Entre em contato com o estúdio.", 503);
+  if (!(await commerceConfigured())) throw new SaleError("Checkout ainda não configurado. Entre em contato com o estúdio.", 503);
   const input = parseCheckout(value);
   const product = await getShippableProduct(input.productId);
   const variants = product.variants;

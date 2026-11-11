@@ -1,6 +1,7 @@
 import "server-only";
 import { query } from "@/lib/db";
 import { SaleError } from "@/lib/sales";
+import { getMelhorEnvioAccessToken, melhorEnvioAuthorizationStatus, melhorEnvioBaseUrl } from "@/lib/melhor-envio-oauth";
 
 export type ShippingOption = {
   id: string;
@@ -27,10 +28,10 @@ const postalCode = (value: string) => value.replace(/\D/g, "");
 const money = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
 const technicalEmail = () => process.env.MELHOR_ENVIO_CONTACT_EMAIL?.trim() || process.env.ADMIN_EMAIL?.trim() || "";
 
-export function shippingConfigured() {
-  return Boolean(process.env.MELHOR_ENVIO_TOKEN?.trim() &&
-    /^\d{8}$/.test(postalCode(process.env.SHOP_SHIPPING_ORIGIN_CEP ?? "")) &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(technicalEmail()));
+export async function shippingConfigured() {
+  if (!/^\d{8}$/.test(postalCode(process.env.SHOP_SHIPPING_ORIGIN_CEP ?? "")) ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(technicalEmail())) return false;
+  return (await melhorEnvioAuthorizationStatus()).connected;
 }
 
 export async function getShippableProduct(id: string): Promise<ShippableProduct> {
@@ -57,17 +58,16 @@ export async function getShippableProduct(id: string): Promise<ShippableProduct>
 }
 
 export async function quoteShipping(product: ShippableProduct, quantity: number, destination: string): Promise<ShippingOption[]> {
-  if (!shippingConfigured()) throw new SaleError("Cotação de frete ainda não configurada.", 503);
+  if (!(await shippingConfigured())) throw new SaleError("Cotação de frete ainda não configurada.", 503);
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > 20 || !/^\d{8}$/.test(postalCode(destination))) {
     throw new SaleError("Informe uma quantidade e um CEP válidos.");
   }
-  const sandbox = process.env.MELHOR_ENVIO_ENV === "sandbox";
-  const host = sandbox ? "https://sandbox.melhorenvio.com.br" : "https://melhorenvio.com.br";
+  const host = melhorEnvioBaseUrl();
   const serviceIds = process.env.MELHOR_ENVIO_SERVICE_IDS?.trim();
-  const response = await fetch(`${host}/api/v2/me/shipment/calculate`, {
+  const calculate = (token: string) => fetch(`${host}/api/v2/me/shipment/calculate`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${process.env.MELHOR_ENVIO_TOKEN!.trim()}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json", Accept: "application/json",
       "User-Agent": `Inspire3D (${technicalEmail()})`,
     },
@@ -81,6 +81,10 @@ export async function quoteShipping(product: ShippableProduct, quantity: number,
     }),
     cache: "no-store", signal: AbortSignal.timeout(12000),
   });
+  let response = await calculate(await getMelhorEnvioAccessToken());
+  if (response.status === 401 && !process.env.MELHOR_ENVIO_TOKEN?.trim()) {
+    response = await calculate(await getMelhorEnvioAccessToken(true));
+  }
   if (!response.ok) {
     console.error("Melhor Envio quote failed:", response.status);
     throw new SaleError(response.status === 422 ? "Confira o CEP e a embalagem do produto." : "Não foi possível calcular o frete agora. Tente novamente.", 503);

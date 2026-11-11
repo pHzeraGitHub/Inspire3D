@@ -13,7 +13,7 @@ declare global {
 }
 
 export const remoteDatabaseConfigured = Boolean(process.env.DATABASE_URL);
-const SCHEMA_VERSION = "commerce-v3-orders-api";
+const SCHEMA_VERSION = "commerce-v4-shipping-oauth";
 
 type DbResult<T extends QueryResultRow = QueryResultRow> = { rows: T[]; rowCount: number | null };
 export type DbExecutor = {
@@ -251,6 +251,13 @@ CREATE TABLE IF NOT EXISTS order_events (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS order_events_sale_idx ON order_events(sale_id, created_at);
+CREATE TABLE IF NOT EXISTS integration_tokens (
+  provider TEXT PRIMARY KEY,
+  access_token_encrypted TEXT NOT NULL,
+  refresh_token_encrypted TEXT NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 ALTER TABLE online_orders ADD COLUMN IF NOT EXISTS payment_checkout_url TEXT NOT NULL DEFAULT '';
 ALTER TABLE online_orders ADD COLUMN IF NOT EXISTS payment_order_id TEXT;
 CREATE UNIQUE INDEX IF NOT EXISTS online_orders_payment_order_idx ON online_orders(payment_order_id);
