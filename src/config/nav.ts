@@ -7,11 +7,12 @@ export type NavItem = {
 
 export const primaryNav: NavItem[] = [
   { label: "Início", href: "/#inicio" },
+  { label: "Ideias", href: "/ideias" },
   { label: "Coleções", href: "/#colecoes" },
   { label: "Personalize", href: "/orcamento?categoria=personalizado" },
   { label: "Inspire AI", href: "/#inspire-ai" },
   { label: "Para Empresas", href: "/#empresas" },
-  { label: "Nossa História", href: "/sobre" },
+  { label: "Como fazemos", href: "/processos" },
 ];
 
 export const footerNav: { title: string; items: NavItem[] }[] = [
@@ -29,6 +30,7 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
     title: "Descobrir",
     items: [
       { label: "Todos os produtos", href: "/produtos" },
+      { label: "Ideias em criação", href: "/ideias" },
       { label: "Projetos", href: "/projetos" },
       { label: "Serviços", href: "/servicos" },
       { label: "Processos", href: "/processos" },

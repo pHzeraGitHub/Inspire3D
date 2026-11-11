@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { PageIntro } from "@/components/layout/PageIntro";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import { CartonagemStory } from "@/components/sections/CartonagemStory";
 import { manufacturingProcesses } from "@/content/manufacturing-processes";
 import { site } from "@/config/site";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
@@ -44,7 +45,7 @@ export default async function ProcessoPage({ params }: PageProps) {
       <Button href="/processos" variant="outline">Ver todos os processos</Button>
     </PageIntro>
     <section className="pb-(--spacing-section)"><Container>
-      <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+      {process.slug === "cartonagem-caixas-premium" ? <CartonagemStory /> : <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="panel p-6 md:p-8">
           <h2 className="font-display text-2xl font-semibold text-chalk">Como funciona</h2>
           <p className="mt-4 text-base leading-relaxed text-silver">{process.description}</p>
@@ -68,7 +69,7 @@ export default async function ProcessoPage({ params }: PageProps) {
           </div>
           <Link href={`/servicos#${process.serviceSlug}`} className="link-underline inline-flex text-sm text-gold-lum">Ver o serviço relacionado ↗</Link>
         </div>
-      </div>
+      </div>}
       <div className="mt-10 border-t border-line pt-6"><Link href="/processos" className="link-underline text-sm text-silver">← Todos os processos</Link></div>
     </Container></section>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }} />

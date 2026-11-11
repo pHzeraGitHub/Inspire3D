@@ -1,5 +1,7 @@
 import { Hero } from "@/components/sections/Hero";
 import { CollectionsSection } from "@/components/sections/CollectionsSection";
+import { IdeasPreviewSection } from "@/components/sections/IdeasPreviewSection";
+import { CartonagemPreviewSection } from "@/components/sections/CartonagemPreviewSection";
 import { FeaturedProductsSection } from "@/components/sections/FeaturedProductsSection";
 import { ProcessSection } from "@/components/sections/ProcessSection";
 import { ProjectsSection } from "@/components/sections/ProjectsSection";
@@ -20,10 +22,12 @@ export default async function HomePage() {
   return (
     <>
       <Hero />
+      <IdeasPreviewSection />
       <CollectionsSection />
       <FeaturedProductsSection product={featuredProduct} />
       <InspireAiSection />
       <ProcessSection />
+      <CartonagemPreviewSection />
       <BusinessSection />
       <StudioSection />
       <ProjectsSection />
