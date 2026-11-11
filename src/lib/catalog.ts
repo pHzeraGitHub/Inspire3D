@@ -20,6 +20,8 @@ type ProductRow = {
   availability: Product["availability"];
   launch_status: Product["launchStatus"];
   lead_time: string | null;
+  production_days: number;
+  production_ready: boolean;
   featured: boolean;
   seo_title: string;
   seo_description: string;
@@ -43,6 +45,8 @@ export function mapProduct(row: ProductRow): Product {
     availability: row.availability,
     launchStatus: row.launch_status,
     leadTime: row.lead_time ?? undefined,
+    productionDays: Number(row.production_days),
+    productionReady: row.production_ready,
     featured: row.featured,
     seo: { title: row.seo_title, description: row.seo_description },
     available: row.availability === "available" && row.launch_status === "released",
@@ -57,7 +61,8 @@ export async function getCatalogProducts(): Promise<Product[]> {
   const result = await query<ProductRow>(
     `SELECT id, slug, name, short_description, description, collection, category, images,
       technical_characteristics, dimensions, variants, personalization_options, price,
-      availability, launch_status, lead_time, featured, seo_title, seo_description
+      availability, launch_status, lead_time, production_days, featured, seo_title, seo_description,
+      EXISTS(SELECT 1 FROM product_materials pm WHERE pm.product_id=products.id) AS production_ready
      FROM products WHERE published = TRUE ORDER BY featured DESC, updated_at DESC`,
   );
   return result.rows.map(mapProduct);

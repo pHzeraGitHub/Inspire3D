@@ -12,6 +12,7 @@ import { productStatusLabel } from "@/content/products";
 import { getCatalogProducts } from "@/lib/catalog";
 import { pageMetadata, breadcrumbJsonLd } from "@/lib/seo";
 import { whatsappLink } from "@/config/site";
+import { commerceConfigured } from "@/lib/commerce";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -41,6 +42,7 @@ export default async function ProdutoPage({ params }: PageProps) {
     "inspire-solutions": "funcional",
   }[product.collection];
   const isAvailable = product.available && product.availability === "available";
+  const canBuy = isAvailable && product.productionReady && Boolean(product.priceFrom && product.priceFrom > 0) && commerceConfigured();
 
   return (
     <>
@@ -84,16 +86,18 @@ export default async function ProdutoPage({ params }: PageProps) {
               ) : null}
 
               <div className="mt-7 flex flex-wrap gap-3">
-                <Button href={isAvailable ? `/orcamento?categoria=${quoteCategory}` : interestedLink}>
-                  {isAvailable ? "Solicitar orçamento" : "Tenho interesse"}
+                <Button href={canBuy ? `/comprar/${product.slug}` : isAvailable ? `/orcamento?categoria=${quoteCategory}` : interestedLink}>
+                  {canBuy ? `Comprar por R$ ${product.priceFrom!.toFixed(2).replace(".", ",")}` : isAvailable ? "Solicitar orçamento" : "Tenho interesse"}
                 </Button>
                 <Button href={`/produtos?colecao=${product.collection}#catalogo`} variant="outline">
                   Ver {collection?.name ?? "a coleção"}
                 </Button>
               </div>
               <p className="mt-5 text-xs leading-relaxed text-ash/70">
-                {isAvailable
-                  ? "O orçamento não fecha compra nem processa pagamento pelo site."
+                {canBuy
+                  ? "Pagamento com Pix ou cartão pelo Mercado Pago. A produção começa após a confirmação do pagamento."
+                  : isAvailable
+                  ? "Peça um orçamento para confirmar os detalhes deste produto."
                   : "O contato registra seu interesse pelo WhatsApp; ainda não há pré-venda ou pedido de compra."}
               </p>
             </div>

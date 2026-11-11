@@ -25,6 +25,7 @@ function parseProduct(body: Record<string, unknown>) {
   const estimatedOtherCost = Number(body.estimatedOtherCost ?? 0);
   const estimatedTaxPercent = Number(body.estimatedTaxPercent ?? 0);
   const estimatedPaymentFeePercent = Number(body.estimatedPaymentFeePercent ?? 0);
+  const productionDays = Number(body.productionDays ?? 7);
   if (!name || !slug || !description || !shortDescription || !category || !collections.includes(collection as CollectionSlug)) throw new Error("Confira nome, resumo, descrição, coleção e categoria do produto.");
   if (name.length > 120 || slug.length > 100 || shortDescription.length > 400 || description.length > 8000 || category.length > 80) throw new Error("Algum campo excede o tamanho permitido.");
   if (!availabilities.includes(String(body.availability)) || !launchStatuses.includes(String(body.launchStatus))) throw new Error("Status de disponibilidade inválido.");
@@ -33,6 +34,7 @@ function parseProduct(body: Record<string, unknown>) {
   const estimatedRates = [estimatedTaxPercent, estimatedPaymentFeePercent];
   if (estimatedCosts.some((value) => !Number.isFinite(value) || value < 0)) throw new Error("Os custos estimados precisam ser números iguais ou maiores que zero.");
   if (estimatedRates.some((value) => !Number.isFinite(value) || value < 0 || value > 100)) throw new Error("Taxas e impostos precisam ficar entre 0 e 100%.");
+  if (!Number.isInteger(productionDays) || productionDays < 1 || productionDays > 90) throw new Error("Informe um prazo de produção entre 1 e 90 dias úteis.");
   if (!Array.isArray(body.images) || !Array.isArray(body.technicalCharacteristics) || !Array.isArray(body.personalizationOptions)) throw new Error("Confira imagens e especificações.");
   const images = body.images.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean).slice(0, 8);
   if (images.some((image) => !image.startsWith("/") || image.startsWith("//") || image.includes(".."))) throw new Error("Use caminhos locais de imagem, como /produtos/vaso.jpg. Salve o arquivo na pasta public/.");
@@ -44,6 +46,7 @@ function parseProduct(body: Record<string, unknown>) {
     name, slug, shortDescription, description, collection: collection as CollectionSlug, category, price,
     estimatedLaborCost, estimatedEnergyCost, estimatedPackagingCost, estimatedOtherCost,
     estimatedTaxPercent, estimatedPaymentFeePercent,
+    productionDays,
     availability: String(body.availability), launchStatus: String(body.launchStatus),
     leadTime: typeof body.leadTime === "string" ? body.leadTime.trim().slice(0, 120) : "",
     images,
@@ -75,8 +78,8 @@ export async function saveProduct(request: NextRequest, id?: string) {
         `INSERT INTO products (id,slug,name,short_description,description,collection,category,images,
           technical_characteristics,dimensions,variants,personalization_options,price,availability,
           launch_status,lead_time,estimated_labor_cost,estimated_energy_cost,estimated_packaging_cost,
-          estimated_other_cost,estimated_tax_percent,estimated_payment_fee_percent,featured,published,seo_title,seo_description)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9::jsonb,$10,$11::jsonb,$12::jsonb,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)
+          estimated_other_cost,estimated_tax_percent,estimated_payment_fee_percent,featured,published,seo_title,seo_description,production_days)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9::jsonb,$10,$11::jsonb,$12::jsonb,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
          ON CONFLICT (id) DO UPDATE SET slug=EXCLUDED.slug,name=EXCLUDED.name,
           short_description=EXCLUDED.short_description,description=EXCLUDED.description,
           collection=EXCLUDED.collection,category=EXCLUDED.category,images=EXCLUDED.images,
@@ -88,13 +91,14 @@ export async function saveProduct(request: NextRequest, id?: string) {
           estimated_other_cost=EXCLUDED.estimated_other_cost,estimated_tax_percent=EXCLUDED.estimated_tax_percent,
           estimated_payment_fee_percent=EXCLUDED.estimated_payment_fee_percent,
           featured=EXCLUDED.featured,published=EXCLUDED.published,
-          seo_title=EXCLUDED.seo_title,seo_description=EXCLUDED.seo_description,updated_at=NOW()`,
+          seo_title=EXCLUDED.seo_title,seo_description=EXCLUDED.seo_description,
+          production_days=EXCLUDED.production_days,updated_at=NOW()`,
         [productId,input.slug,input.name,input.shortDescription,input.description,input.collection,input.category,
           JSON.stringify(input.images),JSON.stringify(input.technicalCharacteristics),input.dimensions || null,
           JSON.stringify(input.variants),JSON.stringify(input.personalizationOptions),input.price,input.availability,
           input.launchStatus,input.leadTime || null,input.estimatedLaborCost,input.estimatedEnergyCost,
           input.estimatedPackagingCost,input.estimatedOtherCost,input.estimatedTaxPercent,
-          input.estimatedPaymentFeePercent,input.featured,input.published,input.seoTitle,input.seoDescription],
+          input.estimatedPaymentFeePercent,input.featured,input.published,input.seoTitle,input.seoDescription,input.productionDays],
       );
       await client.query("DELETE FROM product_materials WHERE product_id=$1", [productId]);
       for (const line of input.recipe) {
@@ -103,7 +107,7 @@ export async function saveProduct(request: NextRequest, id?: string) {
     });
     return NextResponse.json({ id: productId }, { status: id ? 200 : 201 });
   } catch (error) {
-    if (error instanceof Error && ["Confira", "Cada insumo", "Um ou mais", "Use caminhos", "Algum campo", "Os custos", "Taxas e impostos"].some((part) => error.message.startsWith(part))) return badRequest(error.message);
+    if (error instanceof Error && ["Confira", "Cada insumo", "Um ou mais", "Use caminhos", "Algum campo", "Os custos", "Taxas e impostos", "Informe um prazo"].some((part) => error.message.startsWith(part))) return badRequest(error.message);
     return apiError(error);
   }
 }

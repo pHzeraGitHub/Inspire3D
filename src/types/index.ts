@@ -80,6 +80,8 @@ export type Product = {
   availability: ProductAvailability;
   launchStatus: ProductLaunchStatus;
   leadTime?: string;
+  productionDays?: number;
+  productionReady?: boolean;
   featured: boolean;
   seo: { title: string; description: string };
   /** True only when a real purchase or quote path is available. */

@@ -23,9 +23,13 @@ export async function POST(request: NextRequest) {
     let totalCost = 0;
     await transaction(async (client) => {
       if (saleId) {
-        const sale = await client.query("SELECT status FROM sales WHERE id=$1 FOR UPDATE", [saleId]);
+        const sale = await client.query("SELECT status, payment_status FROM sales WHERE id=$1 FOR UPDATE", [saleId]);
         if (!sale.rowCount || sale.rows[0].status !== "confirmed") {
           throw new SaleError("A encomenda precisa estar confirmada para registrar a produção.", 409);
+        }
+        const onlineOrder = await client.query("SELECT stage FROM online_orders WHERE sale_id=$1 FOR UPDATE", [saleId]);
+        if (onlineOrder.rowCount && (sale.rows[0].payment_status !== "paid" || !["queued", "production"].includes(onlineOrder.rows[0].stage))) {
+          throw new SaleError("O pedido online precisa estar pago e na etapa de produção.", 409);
         }
         const ordered = await client.query(
           `SELECT COALESCE(SUM(quantity), 0) AS quantity FROM sale_items
@@ -79,6 +83,13 @@ export async function POST(request: NextRequest) {
         [randomUUID(), productId, saleId, quantity,
           saleId ? `Produção para ${saleCode(saleId)}` : "Produção registrada no painel"],
       );
+      if (saleId) {
+        const online = await client.query("SELECT stage FROM online_orders WHERE sale_id=$1 FOR UPDATE", [saleId]);
+        if (online.rows[0]?.stage === "queued") {
+          await client.query("UPDATE online_orders SET stage='production', updated_at=NOW() WHERE sale_id=$1", [saleId]);
+          await client.query("INSERT INTO order_events (id,sale_id,kind,title) VALUES ($1,$2,'production','Produção iniciada')", [randomUUID(), saleId]);
+        }
+      }
     });
     return NextResponse.json({ id: runId, materialCost: totalCost }, { status: 201 });
   } catch (error) {

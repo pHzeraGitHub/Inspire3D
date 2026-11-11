@@ -13,7 +13,7 @@ declare global {
 }
 
 export const remoteDatabaseConfigured = Boolean(process.env.DATABASE_URL);
-const SCHEMA_VERSION = "sales-v1";
+const SCHEMA_VERSION = "commerce-v1";
 
 type DbResult<T extends QueryResultRow = QueryResultRow> = { rows: T[]; rowCount: number | null };
 export type DbExecutor = {
@@ -214,6 +214,35 @@ ALTER TABLE products ADD COLUMN IF NOT EXISTS estimated_packaging_cost NUMERIC(1
 ALTER TABLE products ADD COLUMN IF NOT EXISTS estimated_other_cost NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (estimated_other_cost >= 0);
 ALTER TABLE products ADD COLUMN IF NOT EXISTS estimated_tax_percent NUMERIC(6,3) NOT NULL DEFAULT 0 CHECK (estimated_tax_percent BETWEEN 0 AND 100);
 ALTER TABLE products ADD COLUMN IF NOT EXISTS estimated_payment_fee_percent NUMERIC(6,3) NOT NULL DEFAULT 0 CHECK (estimated_payment_fee_percent BETWEEN 0 AND 100);
+ALTER TABLE products ADD COLUMN IF NOT EXISTS production_days INTEGER NOT NULL DEFAULT 7 CHECK (production_days BETWEEN 1 AND 90);
+ALTER TABLE sale_items ADD COLUMN IF NOT EXISTS options_snapshot JSONB NOT NULL DEFAULT '{}'::jsonb;
+CREATE TABLE IF NOT EXISTS online_orders (
+  sale_id TEXT PRIMARY KEY REFERENCES sales(id) ON DELETE CASCADE,
+  access_token_hash TEXT NOT NULL,
+  customer_email TEXT NOT NULL,
+  customer_phone TEXT NOT NULL DEFAULT '',
+  shipping_address JSONB NOT NULL,
+  shipping_method TEXT NOT NULL DEFAULT 'delivery',
+  stage TEXT NOT NULL DEFAULT 'awaiting_payment' CHECK (stage IN ('awaiting_payment','queued','production','quality','packed','shipped','delivered','cancelled')),
+  estimated_production_at TIMESTAMPTZ,
+  payment_preference_id TEXT,
+  payment_checkout_url TEXT NOT NULL DEFAULT '',
+  payment_id TEXT UNIQUE,
+  tracking_code TEXT NOT NULL DEFAULT '',
+  tracking_url TEXT NOT NULL DEFAULT '',
+  shipped_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS order_events (
+  id TEXT PRIMARY KEY,
+  sale_id TEXT NOT NULL REFERENCES sales(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL,
+  title TEXT NOT NULL,
+  detail TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS order_events_sale_idx ON order_events(sale_id, created_at);
+ALTER TABLE online_orders ADD COLUMN IF NOT EXISTS payment_checkout_url TEXT NOT NULL DEFAULT '';
 `;
 
 async function initialize(client: DbExecutor) {

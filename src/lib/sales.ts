@@ -15,6 +15,7 @@ export type SaleItemRecord = {
   unitPrice: number;
   unitCostEstimate: number | null;
   producedQuantity: number;
+  options: Record<string, string>;
 };
 
 export type SaleRecord = {
@@ -31,6 +32,8 @@ export type SaleRecord = {
   total: number;
   notes: string;
   createdAt: string;
+  onlineStage: string | null;
+  trackingCode: string;
   items: SaleItemRecord[];
 };
 
@@ -45,15 +48,16 @@ export { code as saleCode };
 
 export async function getAdminSales(): Promise<SaleRecord[]> {
   const sales = await query(
-    `SELECT id, customer_name, customer_contact, channel, status, payment_status,
-      payment_method, subtotal, discount, shipping, total, notes, created_at
-     FROM sales ORDER BY created_at DESC`,
+    `SELECT s.id, s.customer_name, s.customer_contact, s.channel, s.status, s.payment_status,
+      s.payment_method, s.subtotal, s.discount, s.shipping, s.total, s.notes, s.created_at,
+      o.stage AS online_stage, o.tracking_code
+     FROM sales s LEFT JOIN online_orders o ON o.sale_id=s.id ORDER BY s.created_at DESC`,
   );
   if (!sales.rows.length) return [];
   const ids = sales.rows.map((row) => String(row.id));
   const items = await query(
     `SELECT si.id, si.sale_id, si.product_id, si.name_snapshot, si.fulfillment,
-      si.quantity, si.unit_price, si.unit_cost_estimate,
+      si.quantity, si.unit_price, si.unit_cost_estimate, si.options_snapshot,
       COALESCE(SUM(pr.quantity), 0) AS produced_quantity
      FROM sale_items si LEFT JOIN production_runs pr ON pr.sale_id=si.sale_id AND pr.product_id=si.product_id
      WHERE si.sale_id=ANY($1::text[])
@@ -69,6 +73,7 @@ export async function getAdminSales(): Promise<SaleRecord[]> {
       quantity: number(row.quantity), unitPrice: number(row.unit_price),
       unitCostEstimate: row.unit_cost_estimate === null ? null : number(row.unit_cost_estimate),
       producedQuantity: number(row.produced_quantity),
+      options: row.options_snapshot ?? {},
     });
     bySale.set(String(row.sale_id), list);
   }
@@ -79,6 +84,8 @@ export async function getAdminSales(): Promise<SaleRecord[]> {
     paymentMethod: String(row.payment_method), subtotal: number(row.subtotal),
     discount: number(row.discount), shipping: number(row.shipping), total: number(row.total),
     notes: String(row.notes), createdAt: new Date(row.created_at).toISOString(),
+    onlineStage: row.online_stage ? String(row.online_stage) : null,
+    trackingCode: String(row.tracking_code ?? ""),
     items: bySale.get(String(row.id)) ?? [],
   }));
 }
@@ -186,6 +193,8 @@ export async function saveSaleDraft(value: unknown, saleId?: string) {
       const existing = await client.query("SELECT status FROM sales WHERE id=$1 FOR UPDATE", [id]);
       if (!existing.rowCount) throw new SaleError("Venda não encontrada.", 404);
       if (existing.rows[0].status !== "draft") throw new SaleError("Somente rascunhos podem ser editados.", 409);
+      const online = await client.query("SELECT 1 FROM online_orders WHERE sale_id=$1", [id]);
+      if (online.rowCount) throw new SaleError("Compras online não podem ser editadas manualmente.", 409);
       await client.query(
         `UPDATE sales SET customer_name=$2, customer_contact=$3, channel=$4, payment_method=$5,
           subtotal=$6, discount=$7, shipping=$8, total=$9, notes=$10, updated_at=NOW() WHERE id=$1`,
@@ -256,11 +265,14 @@ async function otherReservations(client: DbExecutor, ids: string[], excludeSaleI
   return new Map(result.rows.map((row) => [String(row.product_id), number(row.quantity)]));
 }
 
-export async function changeSaleStatus(id: string, action: "confirm" | "deliver" | "cancel") {
-  await transaction(async (client) => {
+export async function changeSaleStatusInTransaction(client: DbExecutor, id: string, action: "confirm" | "deliver" | "cancel", fromOnlineFlow = false) {
     const sale = await client.query("SELECT status FROM sales WHERE id=$1 FOR UPDATE", [id]);
     if (!sale.rowCount) throw new SaleError("Venda não encontrada.", 404);
     const status = sale.rows[0].status as SaleStatus;
+    const onlineOrder = await client.query("SELECT stage FROM online_orders WHERE sale_id=$1", [id]);
+    if (onlineOrder.rowCount && (!fromOnlineFlow || action !== "deliver")) {
+      throw new SaleError("Pedido online: pagamento e entrega seguem o fluxo de acompanhamento.", 409);
+    }
     const items = await client.query("SELECT product_id, fulfillment, quantity FROM sale_items WHERE sale_id=$1", [id]);
     if (action === "confirm" && status !== "draft") throw new SaleError("Somente rascunhos podem ser confirmados.", 409);
     if (action === "deliver" && status !== "confirmed") throw new SaleError("Confirme o pedido antes de registrar a entrega.", 409);
@@ -319,7 +331,14 @@ export async function changeSaleStatus(id: string, action: "confirm" | "deliver"
     const next = action === "confirm" ? "confirmed" : action === "deliver" ? "delivered" : "cancelled";
     const timestamp = action === "confirm" ? "confirmed_at" : action === "deliver" ? "delivered_at" : "cancelled_at";
     await client.query(`UPDATE sales SET status=$2, ${timestamp}=NOW(), updated_at=NOW() WHERE id=$1`, [id, next]);
-  });
+    if (action === "cancel") {
+      const online = await client.query("UPDATE online_orders SET stage='cancelled', updated_at=NOW() WHERE sale_id=$1 RETURNING sale_id", [id]);
+      if (online.rowCount) await client.query("INSERT INTO order_events (id,sale_id,kind,title) VALUES ($1,$2,'cancelled','Pedido cancelado')", [randomUUID(), id]);
+    }
+}
+
+export async function changeSaleStatus(id: string, action: "confirm" | "deliver" | "cancel") {
+  await transaction((client) => changeSaleStatusInTransaction(client, id, action));
 }
 
 export async function changeSalePayment(id: string, action: "paid" | "refunded", method?: string) {
@@ -327,6 +346,8 @@ export async function changeSalePayment(id: string, action: "paid" | "refunded",
   await transaction(async (client) => {
     const sale = await client.query("SELECT status, payment_status FROM sales WHERE id=$1 FOR UPDATE", [id]);
     if (!sale.rowCount) throw new SaleError("Venda não encontrada.", 404);
+    const online = await client.query("SELECT 1 FROM online_orders WHERE sale_id=$1", [id]);
+    if (online.rowCount) throw new SaleError("O pagamento online é atualizado pelo Mercado Pago.", 409);
     const row = sale.rows[0];
     if (action === "paid" && (!["confirmed", "delivered"].includes(row.status) || row.payment_status !== "pending")) {
       throw new SaleError("Confirme o pedido antes de registrar o pagamento.", 409);

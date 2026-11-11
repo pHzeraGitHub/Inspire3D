@@ -10,7 +10,7 @@ import { ImportWorkbook } from "@/features/admin/ImportWorkbook";
 type Draft = {
   name: string; slug: string; collection: string; category: string; price: string;
   availability: string; launchStatus: string; shortDescription: string; description: string;
-  dimensions: string; leadTime: string; images: string; technicalCharacteristics: string;
+  dimensions: string; leadTime: string; productionDays: string; images: string; technicalCharacteristics: string;
   estimatedLaborCost: string; estimatedEnergyCost: string; estimatedPackagingCost: string;
   estimatedOtherCost: string; estimatedTaxPercent: string; estimatedPaymentFeePercent: string;
   personalizationOptions: string; featured: boolean; published: boolean;
@@ -21,7 +21,7 @@ type Draft = {
 const emptyDraft: Draft = {
   name: "", slug: "", collection: "inspire-gifts", category: "", price: "",
   availability: "not-announced", launchStatus: "in-development", shortDescription: "", description: "",
-  dimensions: "", leadTime: "", images: "", technicalCharacteristics: "", personalizationOptions: "",
+  dimensions: "", leadTime: "", productionDays: "7", images: "", technicalCharacteristics: "", personalizationOptions: "",
   estimatedLaborCost: "0", estimatedEnergyCost: "0", estimatedPackagingCost: "0", estimatedOtherCost: "0",
   estimatedTaxPercent: "0", estimatedPaymentFeePercent: "0",
   featured: false, published: false, variants: [], recipe: [],
@@ -65,7 +65,7 @@ export function ProductManager({ products, materials, reserved }: { products: Ad
       name: product.name, slug: product.slug, collection: product.collection, category: product.category,
       price: product.price === null ? "" : String(product.price), availability: product.availability,
       launchStatus: product.launchStatus, shortDescription: product.shortDescription, description: product.description,
-      dimensions: product.dimensions, leadTime: product.leadTime, images: product.images.join("\n"),
+      dimensions: product.dimensions, leadTime: product.leadTime, productionDays: String(product.productionDays), images: product.images.join("\n"),
       technicalCharacteristics: product.technicalCharacteristics.join("\n"),
       personalizationOptions: product.personalizationOptions.join("\n"), featured: product.featured, published: product.published,
       estimatedLaborCost: String(product.estimatedLaborCost), estimatedEnergyCost: String(product.estimatedEnergyCost),
@@ -141,6 +141,7 @@ export function ProductManager({ products, materials, reserved }: { products: Ad
               <label>Fase do produto<select className="input" value={draft.launchStatus} onChange={(e) => update("launchStatus", e.target.value)}><option value="in-development">Em desenvolvimento</option><option value="coming-soon">Em breve</option><option value="released">Lançado</option></select></label>
               <label>Disponibilidade<select className="input" value={draft.availability} onChange={(e) => update("availability", e.target.value)}><option value="not-announced">Não anunciada</option><option value="available">Disponível</option><option value="unavailable">Indisponível</option></select></label>
               <label>Prazo estimado<input className="input" maxLength={120} value={draft.leadTime} onChange={(e) => update("leadTime", e.target.value)} placeholder="Ex.: 5 a 7 dias úteis" /></label>
+              <label>Produção para compra online (dias úteis)<input className="input" type="number" min="1" max="90" step="1" required value={draft.productionDays} onChange={(e) => update("productionDays", e.target.value)} /><small className="admin-field-hint">Usado na previsão inicial do pedido.</small></label>
               <label className="admin-field--wide">Resumo curto<textarea className="input" required maxLength={400} value={draft.shortDescription} onChange={(e) => update("shortDescription", e.target.value)} placeholder="Uma frase clara para o cartão no catálogo." /></label>
               <label className="admin-field--wide">Descrição completa<textarea className="input" required maxLength={8000} value={draft.description} onChange={(e) => update("description", e.target.value)} placeholder="Materiais, uso, acabamentos, diferenciais…" /></label>
               <label>Dimensões<input className="input" maxLength={200} value={draft.dimensions} onChange={(e) => update("dimensions", e.target.value)} placeholder="15 × 10 × 8 cm" /></label>

@@ -15,7 +15,7 @@ type Draft = {
 
 const newItem = (): DraftItem => ({ productId: "", name: "", fulfillment: "stock", quantity: "1", unitPrice: "" });
 const newDraft = (): Draft => ({ customerName: "", customerContact: "", channel: "whatsapp",
-  paymentMethod: "", discount: "0", shipping: "0", notes: "", items: [newItem()] });
+  paymentMethod: "", discount: "0", shipping: "0", notes: "", items: [] });
 const statusLabel: Record<SaleStatus, string> = {
   draft: "Rascunho", confirmed: "Confirmado", delivered: "Entregue", cancelled: "Cancelado",
 };
@@ -23,6 +23,10 @@ const channelLabel: Record<string, string> = {
   whatsapp: "WhatsApp", instagram: "Instagram", site: "Site / orçamento", outro: "Outro",
 };
 const code = (id: string) => `VEN-${id.slice(0, 8).toUpperCase()}`;
+const onlineStageLabel: Record<string, string> = { awaiting_payment: "Aguardando pagamento", queued: "Na fila de produção",
+  production: "Em produção", quality: "Em conferência", packed: "Embalado", shipped: "Enviado", delivered: "Entregue", cancelled: "Cancelado" };
+const nextOnlineAction: Record<string, string> = { queued: "Iniciar produção", production: "Enviar para conferência",
+  quality: "Marcar embalado", packed: "Registrar envio", shipped: "Registrar entrega" };
 
 export function SalesManager({ sales, products, reserved, stockMovements }: {
   sales: SaleRecord[]; products: ProductOption[]; reserved: Record<string, number>;
@@ -37,9 +41,12 @@ export function SalesManager({ sales, products, reserved, stockMovements }: {
   const [search, setSearch] = useState("");
   const [paymentMethods, setPaymentMethods] = useState<Record<string, string>>({});
   const [productionQty, setProductionQty] = useState<Record<string, string>>({});
+  const [trackingCodes, setTrackingCodes] = useState<Record<string, string>>({});
+  const [trackingUrls, setTrackingUrls] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [productSearch, setProductSearch] = useState("");
 
   const selected = sales.find((sale) => sale.id === selectedId);
   const visible = useMemo(() => sales.filter((sale) => {
@@ -50,6 +57,23 @@ export function SalesManager({ sales, products, reserved, stockMovements }: {
   }), [sales, filter, search]);
   const subtotal = draft.items.reduce((sum, item) => sum + (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0), 0);
   const total = Math.max(0, subtotal - (Number(draft.discount) || 0) + (Number(draft.shipping) || 0));
+  const filteredProducts = products.filter((product) => product.name.toLocaleLowerCase("pt-BR")
+    .includes(productSearch.trim().toLocaleLowerCase("pt-BR")));
+
+  function addProduct(product: ProductOption) {
+    const available = product.finishedStock - (reserved[product.id] ?? 0);
+    setDraft((current) => {
+      const inCartStock = current.items.filter((item) => item.productId === product.id && item.fulfillment === "stock")
+        .reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+      const fulfillment: Fulfillment = available > inCartStock ? "stock" : "made_to_order";
+      const existing = current.items.findIndex((item) => item.productId === product.id && item.fulfillment === fulfillment);
+      if (existing >= 0) return { ...current, items: current.items.map((item, index) => index === existing
+        ? { ...item, quantity: String(Number(item.quantity || 0) + 1) } : item) };
+      if (current.items.length >= 20) return current;
+      return { ...current, items: [...current.items, { productId: product.id, name: "", fulfillment,
+        quantity: "1", unitPrice: product.price === null ? "" : String(product.price) }] };
+    });
+  }
 
   function updateItem(index: number, patch: Partial<DraftItem>) {
     setDraft((current) => ({ ...current, items: current.items.map((item, position) =>
@@ -57,7 +81,8 @@ export function SalesManager({ sales, products, reserved, stockMovements }: {
   }
 
   function startNew() {
-    setEditingId(null); setDraft(newDraft()); setFormOpen(true); setError(""); setNotice("");
+    setEditingId(null); setDraft(newDraft()); setFormOpen(true); setProductSearch("");
+    setError(""); setNotice("");
   }
 
   function startEdit(sale: SaleRecord) {
@@ -82,6 +107,7 @@ export function SalesManager({ sales, products, reserved, stockMovements }: {
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setBusy(true); setError(""); setNotice("");
+    const mode = (event.nativeEvent as SubmitEvent).submitter?.getAttribute("value") === "draft" ? "draft" : "confirm";
     try {
       const payload = { ...draft, discount: Number(draft.discount) || 0, shipping: Number(draft.shipping) || 0,
         items: draft.items.map((item) => ({ productId: item.fulfillment === "custom" ? null : item.productId,
@@ -90,7 +116,16 @@ export function SalesManager({ sales, products, reserved, stockMovements }: {
       const data = await request(editingId ? `/api/admin/sales/${editingId}` : "/api/admin/sales",
         editingId ? "PUT" : "POST", payload);
       setFormOpen(false); setEditingId(null); setDraft(newDraft()); setSelectedId(data.id);
-      setNotice(`Pedido ${code(data.id)} salvo como rascunho. Confirme quando os dados estiverem certos.`);
+      if (mode === "confirm") {
+        try {
+          await request(`/api/admin/sales/${data.id}`, "PATCH", { action: "confirm" });
+          setNotice(`Venda ${code(data.id)} registrada. O cupom virtual está nos detalhes do pedido.`);
+        } catch (cause) {
+          setError(`Pedido ${code(data.id)} salvo como rascunho, mas não confirmado: ${cause instanceof Error ? cause.message : "tente novamente."}`);
+        }
+      } else {
+        setNotice(`Pedido ${code(data.id)} salvo como rascunho.`);
+      }
       router.refresh();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Falha ao salvar a venda."); }
     finally { setBusy(false); }
@@ -122,6 +157,18 @@ export function SalesManager({ sales, products, reserved, stockMovements }: {
     finally { setBusy(false); }
   }
 
+  async function advanceOnline(sale: SaleRecord) {
+    setBusy(true); setError(""); setNotice("");
+    try {
+      await request(`/api/admin/sales/${sale.id}/online`, "PATCH", {
+        trackingCode: trackingCodes[sale.id] ?? "", trackingUrl: trackingUrls[sale.id] ?? "",
+      });
+      setNotice(`Etapa de ${code(sale.id)} atualizada. O cliente já pode ver na linha do tempo.`);
+      router.refresh();
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Falha ao atualizar a etapa."); }
+    finally { setBusy(false); }
+  }
+
   return <div className="admin-stack">
     <header className="admin-page-heading">
       <div><p className="admin-kicker">Pedidos · estoque · recebimentos</p><h1>Vendas do estúdio.</h1>
@@ -140,47 +187,57 @@ export function SalesManager({ sales, products, reserved, stockMovements }: {
     </div>
 
     {formOpen ? <section className="admin-panel" id="nova-venda">
-      <div className="admin-panel__heading"><div><p className="admin-kicker">{editingId ? "Editar rascunho" : "Novo pedido"}</p><h2>Dados da venda</h2></div>
+      <div className="admin-panel__heading"><div><p className="admin-kicker">{editingId ? "Editar pedido" : "Venda rápida"}</p><h2>Monte a venda como um cardápio.</h2><p>Toque nos produtos para adicionar. O total e o cupom são atualizados enquanto você preenche.</p></div>
         <button className="admin-text-button" type="button" onClick={() => setFormOpen(false)}>Fechar</button></div>
-      <form className="admin-form" onSubmit={save}>
-        <div className="admin-form-grid">
-          <label>Cliente<input className="input" required maxLength={120} value={draft.customerName} onChange={(e) => setDraft({ ...draft, customerName: e.target.value })} placeholder="Nome do cliente" /></label>
-          <label>Contato<input className="input" maxLength={180} value={draft.customerContact} onChange={(e) => setDraft({ ...draft, customerContact: e.target.value })} placeholder="WhatsApp ou e-mail" /></label>
-          <label>Origem<select className="input" value={draft.channel} onChange={(e) => setDraft({ ...draft, channel: e.target.value })}>
-            <option value="whatsapp">WhatsApp</option><option value="instagram">Instagram</option><option value="site">Site / orçamento</option><option value="outro">Outro</option></select></label>
-          <label>Forma de pagamento prevista<input className="input" maxLength={80} value={draft.paymentMethod} onChange={(e) => setDraft({ ...draft, paymentMethod: e.target.value })} placeholder="Pix, cartão, dinheiro…" /></label>
+      <form className="admin-menu-layout" onSubmit={save}>
+        <div className="admin-menu-products">
+          <label className="admin-menu-search">Buscar no catálogo<input className="input" type="search" value={productSearch} onChange={(event) => setProductSearch(event.target.value)} placeholder="Nome do produto" /></label>
+          <div className="admin-menu-grid">
+            {filteredProducts.map((product) => {
+              const available = product.finishedStock - (reserved[product.id] ?? 0);
+              return <button className="admin-menu-product" type="button" key={product.id} onClick={() => addProduct(product)} disabled={draft.items.length >= 20}>
+                <span className="admin-menu-product__icon" aria-hidden>◈</span>
+                <strong>{product.name}</strong>
+                <small>{available > 0 ? `${available} pronta(s) para entrega` : "Produção sob encomenda"}</small>
+                <span>{product.price === null ? "Defina o preço no pedido" : formatCurrency(product.price)} <b aria-hidden>＋</b></span>
+              </button>;
+            })}
+          </div>
+          {!filteredProducts.length ? <p className="admin-empty">Nenhum produto encontrado. Você pode incluir um item personalizado.</p> : null}
+          <button type="button" className="admin-button admin-button--outline" onClick={() => setDraft((current) => ({ ...current, items: [...current.items, { ...newItem(), fulfillment: "custom" }] }))} disabled={draft.items.length >= 20}>+ Item personalizado ou serviço</button>
         </div>
-        <section className="admin-recipe">
-          <div className="admin-panel__heading"><div><p className="admin-kicker">Itens do pedido</p><h3>Produtos e encomendas</h3></div>
-            <button type="button" className="admin-button admin-button--outline" onClick={() => setDraft({ ...draft, items: [...draft.items, newItem()] })} disabled={draft.items.length >= 20}>+ Adicionar item</button></div>
-          {draft.items.map((item, index) => {
+        <div className="admin-menu-cart">
+          <div className="admin-panel__heading"><div><p className="admin-kicker">Cupom virtual · prévia</p><h3>Pedido atual</h3></div><strong>{draft.items.length} item(ns)</strong></div>
+          {draft.items.length ? <div className="admin-menu-lines">{draft.items.map((item, index) => {
             const product = products.find((row) => row.id === item.productId);
-            const available = product ? product.finishedStock - (reserved[product.id] ?? 0) : 0;
-            return <div className="admin-sale-item" key={index}>
-              <label>Tipo<select className="input" value={item.fulfillment} onChange={(e) => updateItem(index, { fulfillment: e.target.value as Fulfillment, productId: "", name: "", unitPrice: "" })}>
-                <option value="stock">Produto em estoque</option><option value="made_to_order">Produto sob encomenda</option><option value="custom">Item personalizado / serviço</option></select></label>
-              {item.fulfillment === "custom" ?
-                <label>Descrição do item<input className="input" required maxLength={160} value={item.name} onChange={(e) => updateItem(index, { name: e.target.value })} placeholder="Ex.: peça personalizada" /></label> :
-                <label>Produto<select className="input" required value={item.productId} onChange={(e) => {
-                  const chosen = products.find((row) => row.id === e.target.value);
-                  updateItem(index, { productId: e.target.value, unitPrice: chosen?.price == null ? "" : String(chosen.price) });
-                }}><option value="">Selecionar produto</option>{products.map((row) => <option key={row.id} value={row.id}>{row.name} · {row.finishedStock - (reserved[row.id] ?? 0)} livre(s)</option>)}</select>
-                {item.fulfillment === "stock" && product ? <small className="admin-field-hint">{available} unidade(s) disponíveis para reservar.</small> : null}</label>}
-              <label>Quantidade<input className="input" type="number" required min="1" max="10000" step="1" value={item.quantity} onChange={(e) => updateItem(index, { quantity: e.target.value })} /></label>
-              <label>Preço unitário (R$)<input className="input" type="number" required min="0" step="0.01" value={item.unitPrice} onChange={(e) => updateItem(index, { unitPrice: e.target.value })} /></label>
-              <button type="button" className="admin-text-button admin-text-button--danger" disabled={draft.items.length === 1} onClick={() => setDraft({ ...draft, items: draft.items.filter((_, position) => position !== index) })}>Remover</button>
+            return <div className="admin-menu-line" key={index}>
+              {item.fulfillment === "custom" ? <label>Descrição<input className="input" required maxLength={160} value={item.name} onChange={(event) => updateItem(index, { name: event.target.value })} placeholder="Descrição do item" /></label> : <strong>{product?.name ?? "Produto"}</strong>}
+              <div className="admin-menu-line__fields">
+                <label>Entrega<select className="input" value={item.fulfillment} onChange={(event) => updateItem(index, { fulfillment: event.target.value as Fulfillment })}>
+                  {item.fulfillment === "custom" ? <option value="custom">Personalizado</option> : <><option value="stock">Pronta entrega</option><option value="made_to_order">Sob encomenda</option></>}</select></label>
+                <label>Qtd.<input className="input" type="number" required min="1" max="10000" step="1" value={item.quantity} onChange={(event) => updateItem(index, { quantity: event.target.value })} /></label>
+                <label>R$ / un.<input className="input" type="number" required min="0" step="0.01" value={item.unitPrice} onChange={(event) => updateItem(index, { unitPrice: event.target.value })} /></label>
+              </div>
+              <div className="admin-menu-line__bottom"><span>{formatCurrency((Number(item.quantity) || 0) * (Number(item.unitPrice) || 0))}</span><button type="button" className="admin-text-button admin-text-button--danger" onClick={() => setDraft((current) => ({ ...current, items: current.items.filter((_, position) => position !== index) }))}>Remover</button></div>
             </div>;
-          })}
-          <p className="admin-footnote">Itens sob encomenda são produzidos após a confirmação. Itens personalizados sem produto cadastrado não movimentam estoque automaticamente.</p>
-        </section>
-        <div className="admin-form-grid">
-          <label>Desconto total (R$)<input className="input" type="number" min="0" step="0.01" value={draft.discount} onChange={(e) => setDraft({ ...draft, discount: e.target.value })} /></label>
-          <label>Frete cobrado (R$)<input className="input" type="number" min="0" step="0.01" value={draft.shipping} onChange={(e) => setDraft({ ...draft, shipping: e.target.value })} /></label>
-          <label className="admin-field--wide">Observações<textarea className="input" maxLength={1000} value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} placeholder="Prazo combinado, personalização, referência do orçamento…" /></label>
+          })}</div> : <p className="admin-empty admin-empty--compact">Escolha um produto no cardápio para começar.</p>}
+          <div className="admin-menu-adjustments">
+            <label>Desconto (R$)<input className="input" type="number" min="0" step="0.01" value={draft.discount} onChange={(event) => setDraft({ ...draft, discount: event.target.value })} /></label>
+            <label>Frete (R$)<input className="input" type="number" min="0" step="0.01" value={draft.shipping} onChange={(event) => setDraft({ ...draft, shipping: event.target.value })} /></label>
+          </div>
+          <div className="admin-menu-totals"><span>Subtotal <b>{formatCurrency(subtotal)}</b></span><span>Desconto <b>− {formatCurrency(Number(draft.discount) || 0)}</b></span><span>Frete <b>{formatCurrency(Number(draft.shipping) || 0)}</b></span><strong>Total <b>{formatCurrency(total)}</b></strong></div>
+          <div className="admin-menu-customer">
+            <h3>Cliente e pagamento</h3>
+            <label>Nome do cliente<input className="input" required maxLength={120} value={draft.customerName} onChange={(event) => setDraft({ ...draft, customerName: event.target.value })} placeholder="Nome para o pedido" /></label>
+            <label>Contato<input className="input" maxLength={180} value={draft.customerContact} onChange={(event) => setDraft({ ...draft, customerContact: event.target.value })} placeholder="WhatsApp ou e-mail" /></label>
+            <div className="admin-menu-adjustments"><label>Canal<select className="input" value={draft.channel} onChange={(event) => setDraft({ ...draft, channel: event.target.value })}><option value="whatsapp">WhatsApp</option><option value="instagram">Instagram</option><option value="site">Site / orçamento</option><option value="outro">Outro</option></select></label>
+              <label>Pagamento<input className="input" maxLength={80} value={draft.paymentMethod} onChange={(event) => setDraft({ ...draft, paymentMethod: event.target.value })} placeholder="Pix, cartão, dinheiro…" /></label></div>
+            <label>Observações<textarea className="input" maxLength={1000} value={draft.notes} onChange={(event) => setDraft({ ...draft, notes: event.target.value })} placeholder="Prazo combinado ou personalização" /></label>
+          </div>
+          <div className="admin-menu-actions"><button className="admin-button admin-button--gold" type="submit" value="confirm" disabled={busy || !draft.items.length}>{busy ? "Salvando…" : "Registrar venda"}</button>
+            <button className="admin-button admin-button--outline" type="submit" value="draft" disabled={busy || !draft.items.length}>Salvar rascunho</button></div>
+          <p className="admin-footnote">O comprovante para impressão fica disponível após registrar a venda. Itens em estoque são reservados na confirmação.</p>
         </div>
-        <div className="admin-sale-total"><span>Subtotal {formatCurrency(subtotal)} · desconto {formatCurrency(Number(draft.discount) || 0)} · frete {formatCurrency(Number(draft.shipping) || 0)}</span><strong>Total {formatCurrency(total)}</strong></div>
-        <div className="admin-form__actions"><button className="admin-button admin-button--gold" type="submit" disabled={busy}>{busy ? "Salvando…" : editingId ? "Salvar rascunho" : "Criar rascunho"}</button>
-          <span>O estoque é reservado somente quando você confirmar o pedido.</span></div>
       </form>
     </section> : null}
 
@@ -198,21 +255,28 @@ export function SalesManager({ sales, products, reserved, stockMovements }: {
     {selected ? <section className="admin-panel admin-panel--gold" id="detalhe-venda">
       <div className="admin-panel__heading"><div><p className="admin-kicker">{code(selected.id)} · {channelLabel[selected.channel] ?? selected.channel}</p><h2>{selected.customerName}</h2><p>{selected.customerContact || "Contato não informado"}</p></div><span className="admin-pill">{statusLabel[selected.status]}</span></div>
       <div className="admin-sale-lines">{selected.items.map((item) => <div key={item.id} className="admin-sale-line">
-        <div><strong>{item.name}</strong><small>{item.fulfillment === "stock" ? "Pronta entrega" : item.fulfillment === "made_to_order" ? `Sob encomenda · ${item.producedQuantity}/${item.quantity} produzida(s)` : "Personalizado / serviço"}</small></div>
+        <div><strong>{item.name}</strong><small>{item.fulfillment === "stock" ? "Pronta entrega" : item.fulfillment === "made_to_order" ? `Sob encomenda · ${item.producedQuantity}/${item.quantity} produzida(s)` : "Personalizado / serviço"}</small>{Object.entries(item.options).map(([key, value]) => value ? <small key={key}>{key}: {value}</small> : null)}</div>
         <span>{item.quantity} × {formatCurrency(item.unitPrice)}</span><strong>{formatCurrency(item.quantity * item.unitPrice)}</strong>
         {selected.status === "confirmed" && item.fulfillment === "made_to_order" && item.productId && item.producedQuantity < item.quantity ?
           <div className="admin-sale-production"><input className="admin-qty-input" type="number" min="1" max={item.quantity - item.producedQuantity} aria-label={`Quantidade a produzir de ${item.name}`} placeholder={String(item.quantity - item.producedQuantity)} value={productionQty[item.id] ?? ""} onChange={(e) => setProductionQty({ ...productionQty, [item.id]: e.target.value })} />
             <button type="button" className="admin-button admin-button--outline" disabled={busy} onClick={() => void produce(selected, item)}>Produzir para pedido</button></div> : null}
       </div>)}</div>
       <div className="admin-sale-summary"><span>Subtotal {formatCurrency(selected.subtotal)} · desconto {formatCurrency(selected.discount)} · frete {formatCurrency(selected.shipping)}</span><strong>Total {formatCurrency(selected.total)}</strong></div>
+      <Link className="admin-button admin-button--outline" href={`/admin/vendas/${selected.id}/cupom`} target="_blank" rel="noopener noreferrer">Abrir cupom virtual ↗</Link>
       <p className="admin-footnote">Pagamento: {selected.paymentStatus === "paid" ? "pago" : selected.paymentStatus === "refunded" ? "estornado" : "pendente"}{selected.paymentMethod ? ` · ${selected.paymentMethod}` : ""}. {selected.notes ? `Observações: ${selected.notes}` : ""}</p>
+      {selected.onlineStage ? <div className="admin-online-stage"><strong>Compra pelo site · {onlineStageLabel[selected.onlineStage] ?? selected.onlineStage}</strong>
+        <p>Cada avanço aparece na linha do tempo do cliente.</p>
+        {selected.onlineStage === "packed" ? <div className="admin-menu-adjustments"><label>Código de rastreio<input className="input" value={trackingCodes[selected.id] ?? selected.trackingCode} onChange={(e) => setTrackingCodes({ ...trackingCodes, [selected.id]: e.target.value })} placeholder="Código da transportadora" /></label>
+          <label>Link de rastreio (opcional)<input className="input" type="url" value={trackingUrls[selected.id] ?? ""} onChange={(e) => setTrackingUrls({ ...trackingUrls, [selected.id]: e.target.value })} placeholder="https://..." /></label></div> : null}
+        {nextOnlineAction[selected.onlineStage] ? <button className="admin-button admin-button--gold" type="button" disabled={busy} onClick={() => void advanceOnline(selected)}>{nextOnlineAction[selected.onlineStage]} →</button> : null}
+      </div> : null}
       {selected.status === "cancelled" && selected.paymentStatus === "paid" ? <p className="admin-alert admin-alert--error">O pagamento ainda consta como recebido. Faça o estorno no meio de pagamento e depois marque o estorno aqui.</p> : null}
       {selected.items.every((item) => item.unitCostEstimate !== null) ? <p className="admin-footnote">Margem estimada dos itens, após desconto: {formatCurrency(selected.subtotal - selected.discount - selected.items.reduce((sum, item) => sum + item.quantity * (item.unitCostEstimate ?? 0), 0))}. Não inclui custo real do frete.</p> : null}
       <div className="admin-sale-actions">
-        {selected.status === "draft" ? <><button className="admin-button admin-button--outline" onClick={() => startEdit(selected)}>Editar rascunho</button><button className="admin-button admin-button--gold" disabled={busy} onClick={() => void change(selected.id, "confirm")}>Confirmar pedido</button></> : null}
-        {selected.status === "confirmed" ? <button className="admin-button admin-button--gold" disabled={busy} onClick={() => void change(selected.id, "deliver")}>Registrar entrega e baixar estoque</button> : null}
-        {(["confirmed", "delivered"] as SaleStatus[]).includes(selected.status) && selected.paymentStatus === "pending" ? <div className="admin-sale-payment"><input className="input" aria-label="Forma de pagamento recebida" placeholder="Pix, cartão, dinheiro…" value={paymentMethods[selected.id] ?? selected.paymentMethod} onChange={(e) => setPaymentMethods({ ...paymentMethods, [selected.id]: e.target.value })} /><button className="admin-button admin-button--outline" disabled={busy} onClick={() => void change(selected.id, "paid")}>Marcar pago</button></div> : null}
-        {(["draft", "confirmed"] as SaleStatus[]).includes(selected.status) ? <button className="admin-text-button admin-text-button--danger" disabled={busy} onClick={() => void change(selected.id, "cancel")}>Cancelar pedido</button> : null}
+        {selected.status === "draft" && !selected.onlineStage ? <><button className="admin-button admin-button--outline" onClick={() => startEdit(selected)}>Editar rascunho</button><button className="admin-button admin-button--gold" disabled={busy} onClick={() => void change(selected.id, "confirm")}>Confirmar pedido</button></> : null}
+        {selected.status === "confirmed" && !selected.onlineStage ? <button className="admin-button admin-button--gold" disabled={busy} onClick={() => void change(selected.id, "deliver")}>Registrar entrega e baixar estoque</button> : null}
+        {!selected.onlineStage && (["confirmed", "delivered"] as SaleStatus[]).includes(selected.status) && selected.paymentStatus === "pending" ? <div className="admin-sale-payment"><input className="input" aria-label="Forma de pagamento recebida" placeholder="Pix, cartão, dinheiro…" value={paymentMethods[selected.id] ?? selected.paymentMethod} onChange={(e) => setPaymentMethods({ ...paymentMethods, [selected.id]: e.target.value })} /><button className="admin-button admin-button--outline" disabled={busy} onClick={() => void change(selected.id, "paid")}>Marcar pago</button></div> : null}
+        {(["draft", "confirmed"] as SaleStatus[]).includes(selected.status) && !(selected.onlineStage && selected.status === "draft") ? <button className="admin-text-button admin-text-button--danger" disabled={busy} onClick={() => void change(selected.id, "cancel")}>Cancelar pedido</button> : null}
         {selected.status === "cancelled" && selected.paymentStatus === "paid" ? <button className="admin-button admin-button--outline" disabled={busy} onClick={() => void change(selected.id, "refunded")}>Marcar estorno realizado</button> : null}
         {selected.status === "confirmed" && selected.items.some((item) => item.fulfillment === "made_to_order") ? <Link className="admin-text-button" href="/admin/produtos">Ver fichas técnicas ↗</Link> : null}
       </div>

@@ -33,6 +33,7 @@ export type AdminProductRecord = {
   availability: string;
   launchStatus: string;
   leadTime: string;
+  productionDays: number;
   images: string[];
   technicalCharacteristics: string[];
   dimensions: string;
@@ -66,7 +67,7 @@ export async function getAdminProducts(): Promise<AdminProductRecord[]> {
     `SELECT p.id, p.slug, p.name, p.short_description, p.description, p.collection, p.category,
       p.price, p.estimated_labor_cost, p.estimated_energy_cost, p.estimated_packaging_cost,
       p.estimated_other_cost, p.estimated_tax_percent, p.estimated_payment_fee_percent,
-      p.availability, p.launch_status, p.lead_time, p.images,
+      p.availability, p.launch_status, p.lead_time, p.production_days, p.images,
       p.technical_characteristics, p.dimensions, p.variants, p.personalization_options,
       p.featured, p.published, p.finished_stock, p.seo_title, p.seo_description,
       COALESCE(SUM(pm.quantity_per_unit * m.unit_cost), 0) AS material_cost
@@ -98,7 +99,7 @@ export async function getAdminProducts(): Promise<AdminProductRecord[]> {
     estimatedPackagingCost: n(row.estimated_packaging_cost), estimatedOtherCost: n(row.estimated_other_cost),
     estimatedTaxPercent: n(row.estimated_tax_percent), estimatedPaymentFeePercent: n(row.estimated_payment_fee_percent),
     availability: row.availability,
-    launchStatus: row.launch_status, leadTime: row.lead_time ?? "", images: row.images ?? [],
+    launchStatus: row.launch_status, leadTime: row.lead_time ?? "", productionDays: n(row.production_days), images: row.images ?? [],
     technicalCharacteristics: row.technical_characteristics ?? [], dimensions: row.dimensions ?? "",
     variants: row.variants ?? [], personalizationOptions: row.personalization_options ?? [],
     featured: row.featured, published: row.published, finishedStock: n(row.finished_stock),
