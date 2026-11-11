@@ -268,7 +268,7 @@ export function SalesManager({ sales, products, reserved, stockMovements }: {
         <p>Cada avanço aparece na linha do tempo do cliente.</p>
         <p>Frete contratado pelo cliente: {selected.shippingCarrier} · {selected.shippingMethod}{selected.shippingServiceId ? ` (serviço ${selected.shippingServiceId})` : ""}.</p>
         {selected.shippingAddress ? <p>Destino: {selected.shippingAddress.street}, {selected.shippingAddress.number}{selected.shippingAddress.complement ? `, ${selected.shippingAddress.complement}` : ""} · {selected.shippingAddress.neighborhood}, {selected.shippingAddress.city}/{selected.shippingAddress.state} · CEP {selected.shippingAddress.postalCode}.</p> : null}
-        <p>Origem das etiquetas: empresa em Contagem/MG, CEP 32235-225. Postagens: segunda, terça e quinta.</p>
+        <p>Origem das etiquetas: empresa em Contagem/MG, CEP 32235-220. Postagens: segunda, terça e quinta.</p>
         {selected.onlineStage === "packed" ? <div className="admin-menu-adjustments"><label>Código de rastreio<input className="input" value={trackingCodes[selected.id] ?? selected.trackingCode} onChange={(e) => setTrackingCodes({ ...trackingCodes, [selected.id]: e.target.value })} placeholder="Código da transportadora" /></label>
           <label>Link de rastreio (opcional)<input className="input" type="url" value={trackingUrls[selected.id] ?? ""} onChange={(e) => setTrackingUrls({ ...trackingUrls, [selected.id]: e.target.value })} placeholder="https://..." /></label></div> : null}
         {nextOnlineAction[selected.onlineStage] ? <button className="admin-button admin-button--gold" type="button" disabled={busy} onClick={() => void advanceOnline(selected)}>{nextOnlineAction[selected.onlineStage]} →</button> : null}
