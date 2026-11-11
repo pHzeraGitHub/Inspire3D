@@ -3,17 +3,11 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 const api = "https://api.mercadopago.com";
 
-export type MercadoPagoPayment = {
-  id: number;
-  status: string;
-  external_reference: string;
-  transaction_amount: number;
-  payment_method_id: string;
-};
-export type MercadoPagoMerchantOrder = {
-  id: number; external_reference: string; preference_id: string;
-  total_amount: number; paid_amount: number; refunded_amount: number;
-  payments: { id: number; status: string; payment_method_id?: string }[];
+export type MercadoPagoOrder = {
+  id: string; type: string; status: string; status_detail: string;
+  external_reference: string; total_amount: string; total_paid_amount: string;
+  transactions?: { payments?: { id: string; status: string; status_detail: string;
+    payment_method?: { id?: string; type?: string } }[] };
 };
 
 function accessToken() {
@@ -26,58 +20,54 @@ export function paymentConfigured() {
   return Boolean(process.env.MERCADO_PAGO_ACCESS_TOKEN && process.env.MERCADO_PAGO_WEBHOOK_SECRET);
 }
 
-export async function createPaymentPreference(input: {
+export async function createPaymentOrder(input: {
   saleId: string; productName: string; quantity: number; unitPrice: number;
   shipping: number; customerName: string; customerEmail: string; returnUrl: string;
 }) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
   if (!baseUrl?.startsWith("https://")) throw new Error("URL pública do site não configurada para pagamentos.");
-  const response = await fetch(`${api}/checkout/preferences`, {
+  const response = await fetch(`${api}/v1/orders`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${accessToken()}`, "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${accessToken()}`, "Content-Type": "application/json",
+      Accept: "application/json", "X-Idempotency-Key": input.saleId },
     body: JSON.stringify({
-      items: [
-        { id: input.saleId, title: input.productName, quantity: input.quantity, currency_id: "BRL", unit_price: input.unitPrice },
-        ...(input.shipping > 0 ? [{ id: `${input.saleId}-shipping`, title: "Frete", quantity: 1, currency_id: "BRL", unit_price: input.shipping }] : []),
-      ],
-      payer: { name: input.customerName, email: input.customerEmail },
+      type: "online", processing_mode: "manual",
+      total_amount: (input.unitPrice * input.quantity + input.shipping).toFixed(2),
       external_reference: input.saleId,
-      back_urls: { success: input.returnUrl, pending: input.returnUrl, failure: input.returnUrl },
-      auto_return: "approved",
-      notification_url: `${baseUrl}/api/webhooks/mercadopago`,
-      payment_methods: { excluded_payment_types: [{ id: "ticket" }, { id: "atm" }] },
+      description: input.productName,
+      items: [
+        { external_code: input.saleId, title: input.productName, quantity: input.quantity, unit_price: input.unitPrice.toFixed(2) },
+        ...(input.shipping > 0 ? [{ external_code: `${input.saleId}-shipping`, title: "Frete", quantity: 1, unit_price: input.shipping.toFixed(2) }] : []),
+      ],
+      payer: { email: input.customerEmail },
+      config: {
+        online: { success_url: input.returnUrl, pending_url: input.returnUrl,
+          failure_url: input.returnUrl, auto_return: "approved" },
+        payment_method: { not_allowed_types: ["ticket", "account_money"] },
+      },
     }),
     cache: "no-store",
     signal: AbortSignal.timeout(12000),
   });
   if (!response.ok) throw new Error(`Mercado Pago recusou a criação do checkout (${response.status}).`);
-  const result = await response.json() as { id?: string; init_point?: string };
-  if (!result.id || !result.init_point) throw new Error("Mercado Pago não retornou o checkout.");
-  const url = new URL(result.init_point);
+  const result = await response.json() as { id?: string; checkout_url?: string };
+  if (!result.id || !result.checkout_url) throw new Error("Mercado Pago não retornou o checkout.");
+  const url = new URL(result.checkout_url);
   if (url.protocol !== "https:" || !/(^|\.)mercadopago\.com(\.br)?$/.test(url.hostname)) {
     throw new Error("URL de pagamento inválida.");
   }
-  return { preferenceId: result.id, checkoutUrl: url.toString() };
+  return { orderId: result.id, checkoutUrl: url.toString() };
 }
 
-export async function getMercadoPagoPayment(id: string): Promise<MercadoPagoPayment> {
-  if (!/^\d{1,30}$/.test(id)) throw new Error("Identificador de pagamento inválido.");
-  const response = await fetch(`${api}/v1/payments/${id}`, {
+export async function getMercadoPagoOrder(id: string): Promise<MercadoPagoOrder> {
+  if (!/^[A-Z0-9]{10,80}$/.test(id)) throw new Error("Identificador de order inválido.");
+  const response = await fetch(`${api}/v1/orders/${id}`, {
     headers: { Authorization: `Bearer ${accessToken()}` },
     cache: "no-store",
     signal: AbortSignal.timeout(10000),
   });
-  if (!response.ok) throw new Error(`Não foi possível consultar o pagamento (${response.status}).`);
-  return response.json() as Promise<MercadoPagoPayment>;
-}
-
-export async function getMercadoPagoMerchantOrder(id: string): Promise<MercadoPagoMerchantOrder> {
-  if (!/^\d{1,30}$/.test(id)) throw new Error("Identificador de pedido comercial inválido.");
-  const response = await fetch(`${api}/merchant_orders/${id}`, {
-    headers: { Authorization: `Bearer ${accessToken()}` }, cache: "no-store", signal: AbortSignal.timeout(10000),
-  });
-  if (!response.ok) throw new Error(`Não foi possível consultar o pedido comercial (${response.status}).`);
-  return response.json() as Promise<MercadoPagoMerchantOrder>;
+  if (!response.ok) throw new Error(`Não foi possível consultar a order (${response.status}).`);
+  return response.json() as Promise<MercadoPagoOrder>;
 }
 
 export function validMercadoPagoSignature(input: {

@@ -13,7 +13,7 @@ declare global {
 }
 
 export const remoteDatabaseConfigured = Boolean(process.env.DATABASE_URL);
-const SCHEMA_VERSION = "commerce-v2-shipping";
+const SCHEMA_VERSION = "commerce-v3-orders-api";
 
 type DbResult<T extends QueryResultRow = QueryResultRow> = { rows: T[]; rowCount: number | null };
 export type DbExecutor = {
@@ -234,6 +234,7 @@ CREATE TABLE IF NOT EXISTS online_orders (
   stage TEXT NOT NULL DEFAULT 'awaiting_payment' CHECK (stage IN ('awaiting_payment','queued','production','quality','packed','shipped','delivered','cancelled')),
   estimated_production_at TIMESTAMPTZ,
   payment_preference_id TEXT,
+  payment_order_id TEXT UNIQUE,
   payment_checkout_url TEXT NOT NULL DEFAULT '',
   payment_id TEXT UNIQUE,
   tracking_code TEXT NOT NULL DEFAULT '',
@@ -251,6 +252,8 @@ CREATE TABLE IF NOT EXISTS order_events (
 );
 CREATE INDEX IF NOT EXISTS order_events_sale_idx ON order_events(sale_id, created_at);
 ALTER TABLE online_orders ADD COLUMN IF NOT EXISTS payment_checkout_url TEXT NOT NULL DEFAULT '';
+ALTER TABLE online_orders ADD COLUMN IF NOT EXISTS payment_order_id TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS online_orders_payment_order_idx ON online_orders(payment_order_id);
 ALTER TABLE online_orders ADD COLUMN IF NOT EXISTS shipping_service_id TEXT NOT NULL DEFAULT '';
 ALTER TABLE online_orders ADD COLUMN IF NOT EXISTS shipping_carrier TEXT NOT NULL DEFAULT '';
 ALTER TABLE online_orders ADD COLUMN IF NOT EXISTS shipping_delivery_days INTEGER NOT NULL DEFAULT 0;

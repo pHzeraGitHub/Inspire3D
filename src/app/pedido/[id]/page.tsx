@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import { PageIntro } from "@/components/layout/PageIntro";
 import { Container } from "@/components/ui/Container";
 import { OrderRefresh } from "@/features/checkout/OrderRefresh";
-import { getOnlineOrder, reconcileMercadoPagoMerchantOrder, reconcileMercadoPagoPayment } from "@/lib/commerce";
-import { getMercadoPagoMerchantOrder, getMercadoPagoPayment } from "@/lib/mercado-pago";
+import { getOnlineOrder, reconcileMercadoPagoOrder } from "@/lib/commerce";
+import { getMercadoPagoOrder } from "@/lib/mercado-pago";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Acompanhar pedido | Inspire 3D", robots: { index: false, follow: false } };
@@ -23,31 +23,21 @@ const stages = [
 
 export default async function PedidoPage({ params, searchParams }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ chave?: string; payment_id?: string; collection_id?: string; merchant_order_id?: string }>;
+  searchParams: Promise<{ chave?: string; order_id?: string }>;
 }) {
   const { id } = await params;
   const query = await searchParams;
   const token = query.chave ?? "";
   let order = await getOnlineOrder(id, token);
   if (!order) notFound();
-  const paymentId = query.payment_id ?? query.collection_id;
-  if (order.paymentStatus === "pending" && paymentId && /^\d{1,30}$/.test(paymentId)) {
+  if (order.paymentStatus === "pending" && query.order_id && query.order_id === order.paymentOrderId) {
     try {
-      const payment = await getMercadoPagoPayment(paymentId);
-      if (payment.external_reference === id) {
-        await reconcileMercadoPagoPayment(payment);
+      const paymentOrder = await getMercadoPagoOrder(query.order_id);
+      if (paymentOrder.external_reference === id) {
+        await reconcileMercadoPagoOrder(paymentOrder);
         order = await getOnlineOrder(id, token) ?? order;
       }
-    } catch (error) { console.error("Payment return check:", error); }
-  }
-  if (order.paymentStatus === "pending" && query.merchant_order_id && /^\d{1,30}$/.test(query.merchant_order_id)) {
-    try {
-      const merchantOrder = await getMercadoPagoMerchantOrder(query.merchant_order_id);
-      if (merchantOrder.external_reference === id) {
-        await reconcileMercadoPagoMerchantOrder(merchantOrder);
-        order = await getOnlineOrder(id, token) ?? order;
-      }
-    } catch (error) { console.error("Merchant order return check:", error); }
+    } catch (error) { console.error("Order return check:", error); }
   }
   const stageIndex = stages.findIndex((stage) => stage.id === order.stage);
   return <><PageIntro eyebrow={`Pedido ${order.code}`} title="Acompanhe cada etapa." description={`Olá, ${order.customerName}. Esta é a situação atual da sua compra.`} />

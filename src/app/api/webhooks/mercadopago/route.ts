@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getMercadoPagoMerchantOrder, getMercadoPagoPayment, validMercadoPagoSignature } from "@/lib/mercado-pago";
-import { reconcileMercadoPagoMerchantOrder, reconcileMercadoPagoPayment } from "@/lib/commerce";
+import { getMercadoPagoOrder, validMercadoPagoSignature } from "@/lib/mercado-pago";
+import { reconcileMercadoPagoOrder } from "@/lib/commerce";
 
 export const runtime = "nodejs";
 
@@ -11,10 +11,9 @@ export async function POST(request: NextRequest) {
   });
   if (!valid) return NextResponse.json({ error: "Assinatura inválida." }, { status: 401 });
   const type = request.nextUrl.searchParams.get("type");
-  if (!dataId || !["payment", "topic_merchant_order_wh"].includes(type ?? "")) return NextResponse.json({ ok: true });
+  if (!dataId || type !== "order") return NextResponse.json({ ok: true });
   try {
-    if (type === "payment") await reconcileMercadoPagoPayment(await getMercadoPagoPayment(dataId));
-    else await reconcileMercadoPagoMerchantOrder(await getMercadoPagoMerchantOrder(dataId));
+    await reconcileMercadoPagoOrder(await getMercadoPagoOrder(dataId));
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Mercado Pago webhook error:", error);

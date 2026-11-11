@@ -2,7 +2,7 @@ import "server-only";
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { query, transaction } from "@/lib/db";
 import { changeSaleStatusInTransaction, SaleError, saleCode } from "@/lib/sales";
-import { createPaymentPreference, type MercadoPagoPayment, type MercadoPagoMerchantOrder, paymentConfigured } from "@/lib/mercado-pago";
+import { createPaymentOrder, type MercadoPagoOrder, paymentConfigured } from "@/lib/mercado-pago";
 import { sendOrderLink } from "@/lib/order-mail";
 import { getShippableProduct, quoteShipping, shippingConfigured } from "@/lib/shipping";
 
@@ -132,11 +132,11 @@ export async function createOnlineOrder(value: unknown) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL!.replace(/\/$/, "");
   const returnUrl = `${baseUrl}/pedido/${id}?chave=${encodeURIComponent(token)}`;
   try {
-    const preference = await createPaymentPreference({ saleId: id, productName: product.name, quantity: input.quantity,
+    const paymentOrder = await createPaymentOrder({ saleId: id, productName: product.name, quantity: input.quantity,
       unitPrice, shipping, customerName: input.customerName, customerEmail: input.customerEmail, returnUrl });
-    await query("UPDATE online_orders SET payment_preference_id=$2, payment_checkout_url=$3, updated_at=NOW() WHERE sale_id=$1", [id, preference.preferenceId, preference.checkoutUrl]);
+    await query("UPDATE online_orders SET payment_order_id=$2, payment_checkout_url=$3, updated_at=NOW() WHERE sale_id=$1", [id, paymentOrder.orderId, paymentOrder.checkoutUrl]);
     await sendOrderLink({ email: input.customerEmail, name: input.customerName, code: saleCode(id), url: returnUrl });
-    return { id, code: saleCode(id), checkoutUrl: preference.checkoutUrl, trackingUrl: returnUrl };
+    return { id, code: saleCode(id), checkoutUrl: paymentOrder.checkoutUrl, trackingUrl: returnUrl };
   } catch (error) {
     await transaction(async (client) => {
       await client.query("UPDATE sales SET status='cancelled', cancelled_at=NOW(), updated_at=NOW() WHERE id=$1", [id]);
@@ -158,7 +158,7 @@ export async function getOnlineOrder(id: string, token: string) {
     `SELECT s.id, s.customer_name, s.status, s.payment_status, s.payment_method,
       s.subtotal, s.shipping, s.total, s.created_at,
       o.access_token_hash, o.stage, o.estimated_production_at, o.shipping_address,
-      o.tracking_code, o.tracking_url, o.shipped_at, o.payment_checkout_url,
+      o.tracking_code, o.tracking_url, o.shipped_at, o.payment_checkout_url, o.payment_order_id,
       o.shipping_method, o.shipping_carrier, o.shipping_delivery_days, o.estimated_delivery_at
      FROM sales s JOIN online_orders o ON o.sale_id=s.id WHERE s.id=$1`, [id],
   );
@@ -180,22 +180,26 @@ export async function getOnlineOrder(id: string, token: string) {
     address: row.shipping_address as ShippingAddress, trackingCode: String(row.tracking_code),
     trackingUrl: String(row.tracking_url), shippedAt: row.shipped_at ? new Date(row.shipped_at).toISOString() : null,
     paymentCheckoutUrl: row.payment_status === "pending" ? String(row.payment_checkout_url) : "",
+    paymentOrderId: String(row.payment_order_id ?? ""),
     items: items.rows.map((item) => ({ name: String(item.name_snapshot), quantity: number(item.quantity), unitPrice: number(item.unit_price), options: item.options_snapshot as Record<string, string> })),
     events: events.rows.map((event) => ({ kind: String(event.kind), title: String(event.title), detail: String(event.detail), createdAt: new Date(event.created_at).toISOString() })),
   };
 }
 
-export async function reconcileMercadoPagoPayment(payment: MercadoPagoPayment) {
-  const id = payment.external_reference;
-  if (!id || !/^\d+$/.test(String(payment.id))) return;
+export async function reconcileMercadoPagoOrder(order: MercadoPagoOrder) {
+  const id = order.external_reference;
+  if (!id || !/^[0-9a-f-]{36}$/i.test(id) || !/^[A-Z0-9]{10,80}$/.test(order.id) || order.type !== "online") return;
   await transaction(async (client) => {
     const result = await client.query(
-      `SELECT s.id, s.status, s.payment_status, s.total, o.stage, o.shipping_delivery_days
+      `SELECT s.id, s.status, s.payment_status, s.total, o.stage, o.shipping_delivery_days, o.payment_order_id
        FROM sales s JOIN online_orders o ON o.sale_id=s.id WHERE s.id=$1 FOR UPDATE OF s, o`, [id],
     );
     const row = result.rows[0];
-    if (!row || money(number(payment.transaction_amount)) !== money(number(row.total))) return;
-    if (payment.status === "approved" && row.payment_status === "pending" && row.status === "draft") {
+    if (!row || row.payment_order_id !== order.id || money(number(order.total_amount)) !== money(number(row.total))) return;
+    const approved = order.status === "processed" && order.status_detail === "accredited" &&
+      money(number(order.total_paid_amount)) >= money(number(row.total));
+    const payment = order.transactions?.payments?.find((item) => item.status === "processed" && item.status_detail === "accredited");
+    if (approved && row.payment_status === "pending" && row.status === "draft") {
       const lead = await client.query(
         `SELECT COALESCE(MAX(p.production_days), 7) AS days
          FROM sale_items si JOIN products p ON p.id=si.product_id WHERE si.sale_id=$1`, [id],
@@ -203,34 +207,18 @@ export async function reconcileMercadoPagoPayment(payment: MercadoPagoPayment) {
       const estimatedAt = productionDate(number(lead.rows[0]?.days) || 7);
       await client.query(
         `UPDATE sales SET status='confirmed', payment_status='paid', payment_method=$2,
-          confirmed_at=NOW(), updated_at=NOW() WHERE id=$1`, [id, payment.payment_method_id || "Mercado Pago"],
+          confirmed_at=NOW(), updated_at=NOW() WHERE id=$1`, [id, payment?.payment_method?.id || "Mercado Pago"],
       );
       await client.query("UPDATE online_orders SET stage='queued', payment_id=$2, estimated_production_at=$3, estimated_delivery_at=$4, updated_at=NOW() WHERE sale_id=$1",
-        [id, String(payment.id), estimatedAt, deliveryDate(estimatedAt, number(row.shipping_delivery_days))]);
+        [id, payment?.id || order.id, estimatedAt, deliveryDate(estimatedAt, number(row.shipping_delivery_days))]);
       await client.query(
         `INSERT INTO order_events (id,sale_id,kind,title,detail)
          VALUES ($1,$2,'paid','Pagamento aprovado','Pedido enviado para a fila de produção.')`, [randomUUID(), id],
       );
-    } else if (payment.status === "refunded" && row.payment_status === "paid") {
+    } else if (order.status === "refunded" && row.payment_status === "paid") {
       await client.query("UPDATE sales SET payment_status='refunded', updated_at=NOW() WHERE id=$1", [id]);
       await client.query("INSERT INTO order_events (id,sale_id,kind,title) VALUES ($1,$2,'refunded','Pagamento estornado')", [randomUUID(), id]);
-    } else if (row.payment_status === "pending") {
-      await client.query("UPDATE online_orders SET payment_id=$2, updated_at=NOW() WHERE sale_id=$1", [id, String(payment.id)]);
     }
-  });
-}
-
-export async function reconcileMercadoPagoMerchantOrder(order: MercadoPagoMerchantOrder) {
-  const expected = await query("SELECT payment_preference_id FROM online_orders WHERE sale_id=$1", [order.external_reference]);
-  if (!expected.rowCount || expected.rows[0].payment_preference_id !== order.preference_id) return;
-  const fullyRefunded = money(number(order.refunded_amount)) >= money(number(order.total_amount));
-  if (!fullyRefunded && money(number(order.paid_amount)) < money(number(order.total_amount))) return;
-  const approved = order.payments?.find((payment) => payment.status === "approved") ?? (fullyRefunded ? order.payments?.[0] : undefined);
-  if (!approved) return;
-  await reconcileMercadoPagoPayment({
-    id: approved.id, status: fullyRefunded ? "refunded" : "approved",
-    external_reference: order.external_reference, transaction_amount: number(order.total_amount),
-    payment_method_id: approved.payment_method_id ?? "Mercado Pago",
   });
 }
 
