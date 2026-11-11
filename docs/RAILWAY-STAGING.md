@@ -25,13 +25,13 @@ Autorização recebida em 10/11/2026: criar ambiente Hobby com limite de US$ 25/
 3. Aplicar o baseline Prisma no banco vazio. Importar o [snapshot PGlite](PRISMA-BASELINE.md) em transação e conferir contagens, IDs e dados. Manter uma cópia local restaurável até concluir o corte.
 4. Implantar o commit validado da aplicação com `DATABASE_URL` apontando ao PostgreSQL privado, `DATABASE_SSL` conforme a conexão Railway, `ADMIN_*` em secrets, e `NEXT_PUBLIC_SITE_URL` configurada para o endereço de staging durante o build.
 5. Configurar `/api/health` como healthcheck. Verificar catálogo, login administrativo, venda manual, estoque e orçamento na URL temporária. Comparar os totais com o PGlite fonte. Desativar qualquer rota de checkout real até a etapa comercial.
-6. Configurar backup e ensaiar restauração **antes** de aceitar novos pedidos reais. Backups nativos são recurso do Pro; no Hobby é necessária rotina própria com cópia externa e monitoramento.
+6. Configurar backup e ensaiar restauração **antes** de aceitar novos pedidos reais. A documentação atual da Railway descreve backups manuais e agendados de volumes, cobrados pelo armazenamento incremental; conferir a opção no serviço Postgres do Hobby e manter também uma cópia externa independente.
 
 ## Custos e limites
 
 - [Railway Hobby](https://docs.railway.com/pricing): mínimo de US$ 5/mês, incluído no consumo; RAM, CPU, volume e saída são medidos. US$ 25/mês é um limite operacional aprovado, não uma previsão garantida.
 - O [controle de custos](https://docs.railway.com/pricing/cost-control) permite alertas e limite rígido; ao atingir o rígido os serviços podem ser interrompidos. Conferir essa configuração no painel antes de publicar a loja.
-- [Backups nativos Railway](https://station.railway.com/questions/need-to-get-backup-from-database-44a3320b) não estão disponíveis no Hobby. A alternativa é job de backup para armazenamento externo, sujeito a consumo adicional e teste de restauração.
+- A [documentação atual de backups da Railway](https://docs.railway.com/volumes/backups) descreve agendamentos diários, semanais e mensais para serviços com volume e cobrança incremental. A opção precisa ser confirmada no painel do Postgres Hobby antes de ativar. Backups no mesmo provedor não substituem uma cópia externa e restauração testada.
 - Usar `DATABASE_URL` privado para o aplicativo evita saída de rede cobrada entre serviços. A [CLI Railway](https://docs.railway.com/cli/connect) permite `railway connect postgres --tunnel-only`: ela abre um túnel SSH local para a importação sem criar um TCP proxy público. Encerrar o túnel após migrar e conferir os dados.
 
 ## Retorno

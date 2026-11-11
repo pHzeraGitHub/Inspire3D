@@ -6,6 +6,8 @@ O ambiente de staging usa PostgreSQL privado no Railway Hobby. O job em `backup/
 
 O código está preparado, mas **o agendamento ainda não está ativo**. Em 10/11/2026, o usuário optou por manter o R2 desativado por enquanto. A ativação futura depende de um bucket R2 e de credenciais específicas para ele. O snapshot PGlite local já restaurado continua sendo a cópia de segurança atual para os dados migrados ao staging; ele não cobre escritas futuras feitas no PostgreSQL. Não aceitar pedidos comerciais na Railway antes de executar um backup do PostgreSQL e uma restauração completa de teste.
 
+**Alternativa dentro da Railway:** a [documentação atual](https://docs.railway.com/volumes/backups) descreve backup manual e agendado do volume PostgreSQL com cobrança incremental. Confirmar no painel deste Hobby; essa opção não ativa o R2 e fica sujeita ao limite rígido de gasto da Railway. Para uma cópia independente do provedor, manter também uma exportação externa.
+
 O R2 Standard tem franquia mensal de [10 GB-mês, 1 milhão de operações de escrita e 10 milhões de leitura](https://developers.cloudflare.com/r2/pricing/). O snapshot físico local atual mede cerca de 4,9 MB; 30 arquivos desse tamanho somariam cerca de 147 MB, como ordem de grandeza, mas o tamanho do `pg_dump` e o crescimento do banco precisam ser medidos. Uso acima da franquia é cobrado pela Cloudflare, separadamente do limite Railway. [Ativar o R2 exige uma assinatura na conta Cloudflare](https://developers.cloudflare.com/r2/get-started/); nenhum bucket ou assinatura foi criado nesta etapa.
 
 ## Configuração do R2
