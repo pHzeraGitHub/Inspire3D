@@ -57,7 +57,7 @@ export async function getShippableProduct(id: string): Promise<ShippableProduct>
   };
 }
 
-export async function quoteShipping(product: ShippableProduct, quantity: number, destination: string): Promise<ShippingOption[]> {
+export async function quoteShipping(product: ShippableProduct, quantity: number, destination: string, onProviderError?: (details: unknown) => void): Promise<ShippingOption[]> {
   if (!(await shippingConfigured())) throw new SaleError("Cotação de frete ainda não configurada.", 503);
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > 20 || !/^\d{8}$/.test(postalCode(destination))) {
     throw new SaleError("Informe uma quantidade e um CEP válidos.");
@@ -87,6 +87,10 @@ export async function quoteShipping(product: ShippableProduct, quantity: number,
   }
   if (!response.ok) {
     console.error("Melhor Envio quote failed:", response.status);
+    if (onProviderError) {
+      const body = await response.json().catch(() => null) as unknown;
+      onProviderError({ status: response.status, body });
+    }
     throw new SaleError(response.status === 422 ? "Confira o CEP e a embalagem do produto." : "Não foi possível calcular o frete agora. Tente novamente.", 503);
   }
   const data: unknown = await response.json();

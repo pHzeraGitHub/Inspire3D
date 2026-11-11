@@ -13,12 +13,13 @@ const sample: ShippableProduct = {
 
 export async function GET() {
   if (!(await getAdminSession())) return NextResponse.json({ error: "Entre no painel administrativo." }, { status: 401 });
+  let providerError: unknown;
   try {
-    const options = await quoteShipping(sample, 1, "01001000");
+    const options = await quoteShipping(sample, 1, "01001000", (details) => { providerError = details; });
     return NextResponse.json({ ok: true, destination: "01001000", options: options.length,
       cheapest: options[0] }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    if (error instanceof SaleError) return NextResponse.json({ error: error.message }, { status: error.status });
+    if (error instanceof SaleError) return NextResponse.json({ error: error.message, providerError }, { status: error.status });
     console.error("Melhor Envio test quote failed:", error);
     return NextResponse.json({ error: "Não foi possível testar a cotação." }, { status: 503 });
   }
